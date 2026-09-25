@@ -1,17 +1,23 @@
 "use client";
 
-import { useEffect } from "react";
+import { useState } from "react";
 import { useStore } from "@/state/store";
 import { AppShell } from "@/components/navigation/AppShell";
 import { Dashboard } from "@/features/dashboard/Dashboard";
+import { Hero } from "@/components/landing/Hero";
 
 export default function DashboardPage() {
-  const activeSection = useStore((s) => s.activeSection);
+  const [entered, setEntered] = useState(false);
   const setActiveSection = useStore((s) => s.setActiveSection);
 
-  useEffect(() => {
+  const handleEnter = () => {
     setActiveSection("dashboard");
-  }, [setActiveSection]);
+    setEntered(true);
+  };
+
+  if (!entered) {
+    return <Hero onEnter={handleEnter} />;
+  }
 
   return (
     <AppShell title="HOME" breadcrumb={[]}>
