@@ -1,0 +1,48 @@
+/* Genesis data-line flow animation for background traces */
+.genesis-data-flow {
+  background-image:
+    repeating-linear-gradient(
+      90deg,
+      rgba(255, 255, 255, 0.03) 0px,
+      rgba(255, 255, 255, 0.03) 1px,
+      transparent 1px,
+      transparent 4px
+    );
+  background-size: 64px 100%;
+  animation: data-flow 20s linear infinite;
+}
+
+@keyframes data-flow {
+  0% {
+    background-position: 0 0;
+  }
+  100% {
+    background-position: 128px 0;
+  }
+}
+
+/* Reduced motion override for data flow */
+@media (prefers-reduced-motion: reduce) {
+  .genesis-data-flow {
+    animation: none;
+  }
+}
+
+/* Node network glow for active agents */
+.agent-glow {
+  box-shadow:
+    0 0 0 2px rgba(217, 255, 0, 0.1),
+    0 0 8px rgba(217, 255, 0, 0.2);
+}
+
+.agent-glow-ai {
+  box-shadow:
+    0 0 0 2px rgba(155, 123, 255, 0.1),
+    0 0 8px rgba(155, 123, 255, 0.2);
+}
+
+/* Terminal-style monospace for technical metadata */
+.tech-meta {
+  font-family: "IBM Plex Mono", "JetBrains Mono", monospace;
+  font-variant-numeric: tabular-nums;
+}

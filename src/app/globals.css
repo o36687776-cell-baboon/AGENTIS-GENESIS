@@ -1,0 +1,268 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --color-void: #050505;
+  --color-black: #080808;
+  --color-deep-black: #0C0C0D;
+  --color-charcoal: #111214;
+  --color-graphite: #17191C;
+  --color-dark-grey: #202328;
+  --color-mid-grey: #353A40;
+  --color-soft-grey: #737981;
+  --color-light-grey: #B8BDC4;
+  --color-off-white: #E8E9EA;
+  --color-white: #F7F7F5;
+  --color-pure-white: #FFFFFF;
+
+  --signal-primary: #D9FF00;
+  --signal-ai: #9B7CFF;
+  --signal-blue: #6EA8FF;
+  --signal-success: #67E8A5;
+  --signal-warning: #F5C76A;
+  --signal-error: #FF6B6B;
+
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-default: rgba(255, 255, 255, 0.12);
+  --border-active: rgba(255, 255, 255, 0.20);
+}
+
+@layer base {
+  * {
+    border-color: var(--border-subtle);
+  }
+
+  html {
+    background: var(--color-void);
+    color: var(--color-off-white);
+    font-family: "Inter", system-ui, sans-serif;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background: var(--color-void);
+    color: var(--color-off-white);
+    overflow: hidden;
+  }
+
+  /* Custom scrollbar */
+  ::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--color-charcoal);
+    border-radius: 4px;
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--color-mid-grey);
+  }
+
+  /* Thin focus rings */
+  :focus-visible {
+    outline: 1px solid var(--signal-primary);
+    outline-offset: 1px;
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}
+
+@layer components {
+  /* Genesis surface system */
+  .surface-0 {
+    background: var(--color-void);
+  }
+
+  .surface-1 {
+    background: var(--color-black);
+  }
+
+  .surface-2 {
+    background: var(--color-deep-black);
+    border: 1px solid var(--border-subtle);
+  }
+
+  .surface-3 {
+    background: var(--color-charcoal);
+    border: 1px solid var(--border-default);
+  }
+
+  .surface-4 {
+    background: var(--color-graphite);
+    border: 1px solid var(--border-default);
+  }
+
+  .surface-5 {
+    background: var(--color-dark-grey);
+    border: 1px solid var(--border-active);
+  }
+
+  /* Genesis typography */
+  .text-display {
+    font-size: 56px;
+    line-height: 64px;
+    font-weight: 600;
+    letter-spacing: -0.02em;
+  }
+
+  .text-hero {
+    font-size: 44px;
+    line-height: 52px;
+    font-weight: 600;
+    letter-spacing: -0.015em;
+  }
+
+  .text-h1 {
+    font-size: 32px;
+    line-height: 40px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .text-h2 {
+    font-size: 24px;
+    line-height: 32px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+  }
+
+  .text-h3 {
+    font-size: 20px;
+    line-height: 28px;
+    font-weight: 600;
+    letter-spacing: -0.005em;
+  }
+
+  .text-h4 {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 600;
+  }
+
+  .text-body {
+    font-size: 14px;
+    line-height: 22px;
+  }
+
+  .text-sm {
+    font-size: 12px;
+    line-height: 18px;
+  }
+
+  .text-mono {
+    font-family: "IBM Plex Mono", "JetBrains Mono", monospace;
+    font-variant-numeric: tabular-nums;
+  }
+
+  /* Genesis node visual language */
+  .node-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--color-soft-grey);
+    box-shadow: 0 0 0 1px rgba(0, 0, 0, 0.3);
+  }
+
+  .node-dot.active {
+    background: var(--signal-primary);
+    box-shadow: 0 0 8px rgba(217, 255, 0, 0.4);
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  .node-line {
+    background: var(--color-mid-grey);
+    width: 1px;
+  }
+
+  /* Genesis grid background */
+  .genesis-grid {
+    background-image:
+      linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+    background-size: 32px 32px;
+  }
+
+  /* Thin divider */
+  .genesis-divider {
+    height: 1px;
+    background: var(--border-subtle);
+  }
+
+  /* Agent activity orbit */
+  .agent-orbit {
+    animation: orbit 3s linear infinite;
+    transform-origin: center;
+  }
+
+  @keyframes orbit {
+    0% {
+      transform: rotate(0deg);
+    }
+    100% {
+      transform: rotate(360deg);
+    }
+  }
+
+  /* Signal pulse */
+  .signal-pulse {
+    position: relative;
+  }
+
+  .signal-pulse::after {
+    content: "";
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    border: 1px solid currentColor;
+    opacity: 0;
+    animation: pulse-ring 2s cubic-bezier(0.22, 1, 0.36, 1) infinite;
+  }
+
+  @keyframes pulse-ring {
+    0% {
+      transform: scale(0.8);
+      opacity: 0.7;
+    }
+    100% {
+      transform: scale(2.4);
+      opacity: 0;
+    }
+  }
+
+  /* Work tree branch hover */
+  .tree-branch {
+    position: relative;
+    transition: background-color 160ms ease-out;
+  }
+
+  .tree-branch::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--signal-primary);
+    opacity: 0;
+    transition: opacity 160ms ease-out;
+  }
+
+  .tree-branch:hover::before {
+    opacity: 1;
+  }
+}

@@ -1,0 +1,108 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/**/*.{js,ts,jsx,tsx,mdx}",
+  ],
+  theme: {
+    extend: {
+      colors: {
+        void: "#050505",
+        black: "#080808",
+        "deep-black": "#0C0C0D",
+        charcoal: "#111214",
+        graphite: "#17191C",
+        "dark-grey": "#202328",
+        "mid-grey": "#353A40",
+        "soft-grey": "#737981",
+        "light-grey": "#B8BDC4",
+        "off-white": "#E8E9EA",
+        white: "#F7F7F5",
+        "pure-white": "#FFFFFF",
+        "signal-primary": "#D9FF00",
+        "signal-ai": "#9B7CFF",
+        "signal-blue": "#6EA8FF",
+        "signal-success": "#67E8A5",
+        "signal-warning": "#F5C76A",
+        "signal-error": "#FF6B6B",
+      },
+      fontFamily: {
+        sans: ["Inter", "system-ui", "sans-serif"],
+        mono: ["IBM Plex Mono", "JetBrains Mono", "monospace"],
+      },
+      fontSize: {
+        display: ["56px", { lineHeight: "64px" }],
+        hero: ["44px", { lineHeight: "52px" }],
+        h1: ["32px", { lineHeight: "40px" }],
+        h2: ["24px", { lineHeight: "32px" }],
+        h3: ["20px", { lineHeight: "28px" }],
+        h4: ["16px", { lineHeight: "24px" }],
+        body: ["14px", { lineHeight: "22px" }],
+        sm: ["12px", { lineHeight: "18px" }],
+        micro: ["10px", { lineHeight: "14px" }],
+      },
+      spacing: {
+        "4": "4px",
+        "8": "8px",
+        "12": "12px",
+        "16": "16px",
+        "20": "20px",
+        "24": "24px",
+        "32": "32px",
+        "40": "40px",
+        "48": "48px",
+        "64": "64px",
+        "80": "80px",
+        "96": "96px",
+        "128": "128px",
+      },
+      borderRadius: {
+        sm: "2px",
+        md: "4px",
+        lg: "6px",
+        xl: "8px",
+        "2xl": "12px",
+        "3xl": "16px",
+      },
+      borderColor: {
+        subtle: "rgba(255,255,255,0.08)",
+        default: "rgba(255,255,255,0.12)",
+        active: "rgba(255,255,255,0.20)",
+      },
+      boxShadow: {
+        depth: "0 1px 2px rgba(0,0,0,.35)",
+        elevated: "0 8px 32px rgba(0,0,0,.30)",
+        floating: "0 24px 80px rgba(0,0,0,.35)",
+        modal: "0 32px 120px rgba(0,0,0,.55)",
+      },
+      animation: {
+        "pulse-slow": "pulse 3s ease-in-out infinite",
+        "spin-slow": "spin 4s linear infinite",
+        "float": "float 6s ease-in-out infinite",
+        "scan": "scan 2s linear infinite",
+        "flow": "flow 3s linear infinite",
+      },
+      keyframes: {
+        pulse: {
+          "0%, 100%": { opacity: "1" },
+          "50%": { opacity: "0.4" },
+        },
+        float: {
+          "0%, 100%": { transform: "translateY(0)" },
+          "50%": { transform: "translateY(-4px)" },
+        },
+        scan: {
+          "0%": { transform: "translateY(-100%)" },
+          "100%": { transform: "translateY(100%)" },
+        },
+        flow: {
+          "0%": { backgroundPosition: "0 0" },
+          "100%": { backgroundPosition: "40px 0" },
+        },
+      },
+      backdropBlur: {
+        xs: "2px",
+      },
+    },
+  },
+  plugins: [],
+};
