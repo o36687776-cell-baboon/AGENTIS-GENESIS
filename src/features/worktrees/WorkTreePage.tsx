@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Icon } from "@/design-system/icons";
 import { Card } from "@/design-system/components/Card";
+import { formatDateTime } from "@/lib/date";
 import { WorkTree } from "@/components/worktree/WorkTree";
 import { AgentGrid } from "@/components/agents/AgentGrid";
 import { TaskList } from "@/components/tasks/TaskList";
@@ -261,7 +262,7 @@ function AuditTab({ workTree }: { workTree: WorkTreeT }) {
             { key: "id", header: "#", render: (r) => <span className="text-xs text-[var(--color-mid-grey)]">{r.id}</span> },
             { key: "action", header: "Action", render: (r) => <span className="text-sm text-[var(--color-light-grey)]">{r.action}</span> },
             { key: "actor", header: "Actor", render: (r) => <span className="text-sm text-[var(--color-soft-grey)]">{r.actor}</span> },
-            { key: "ts", header: "Timestamp", render: (r) => <span className="font-mono text-xs text-[var(--color-mid-grey)]">{new Date(r.ts).toLocaleString()}</span> },
+            { key: "ts", header: "Timestamp", render: (r) => <span className="font-mono text-xs text-[var(--color-mid-grey)]">{formatDateTime(r.ts)}</span> },
           ]}
         />
       </div>

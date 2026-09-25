@@ -7,6 +7,7 @@ import { Icon } from "@/design-system/icons";
 import { AgentGrid } from "@/components/agents/AgentGrid";
 import { ActivityTimeline } from "@/components/system/ActivityTimeline";
 import { Approval } from "@/components/feedback/Approval";
+import { useMounted } from "@/hooks/useMounted";
 import { mockWorkTree, generateActivityFeed } from "@/data/mockData";
 
 export function Dashboard() {
@@ -40,11 +41,17 @@ export function Dashboard() {
 }
 
 function GreetingSection() {
-  const hour = new Date().getHours();
-  const greeting =
-    hour < 12 ? "Good morning"
-    : hour < 18 ? "Good afternoon"
-    : "Good evening";
+  const mounted = useMounted();
+  const greeting = mounted
+    ? (() => {
+        const hour = new Date().getHours();
+        return hour < 12
+          ? "Good morning"
+          : hour < 18
+            ? "Good afternoon"
+            : "Good evening";
+      })()
+    : "Genesis";
 
   return (
     <div className="flex flex-col gap-3">

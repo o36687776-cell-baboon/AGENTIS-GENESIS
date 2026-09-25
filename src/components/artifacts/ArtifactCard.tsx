@@ -2,6 +2,7 @@ import { Icon } from "@/design-system/icons";
 import { Card } from "@/design-system/components/Card";
 import { NodeIndicator } from "@/design-system/components/NodeIndicator";
 import { Badge } from "@/design-system/components/Badge";
+import { formatDateTime } from "@/lib/date";
 import type { Artifact } from "@/types";
 
 interface ArtifactCardProps {
@@ -70,7 +71,7 @@ export function ArtifactCard({
           <ProvenanceRow label="Sources" value={String(artifact.sources)} />
           <ProvenanceRow label="Tools" value={String(artifact.tools)} />
           <ProvenanceRow label="Agents" value={String(artifact.agents)} />
-          <ProvenanceRow label="Created" value={new Date(artifact.createdAt).toLocaleString()} />
+          <ProvenanceRow label="Created" value={formatDateTime(artifact.createdAt)} />
           <div className="flex justify-between">
             <span className="text-xs text-[var(--color-soft-grey)]">Verified</span>
             <span className="flex items-center gap-1.5 font-mono text-xs">

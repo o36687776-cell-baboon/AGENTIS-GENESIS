@@ -2,6 +2,7 @@ import { NodeIndicator } from "@/design-system/components/NodeIndicator";
 import { Badge } from "@/design-system/components/Badge";
 import { Chip } from "@/design-system/components/Chip";
 import { getConfidenceConfig } from "@/design-system/lib/state-colors";
+import { formatDate } from "@/lib/date";
 import type { MemoryItem } from "@/types";
 
 interface MemoryItemProps {
@@ -29,17 +30,17 @@ export function MemoryItem({ item, onClick }: MemoryItemProps) {
         <MemoryMeta label="Source" value={item.source} />
         <MemoryMeta
           label="Created"
-          value={new Date(item.created).toLocaleDateString()}
+          value={formatDate(item.created)}
         />
         <MemoryMeta
           label="Last used"
-          value={new Date(item.lastUsed).toLocaleDateString()}
+          value={formatDate(item.lastUsed)}
         />
         <MemoryMeta label="Permission" value={item.permission} />
         {item.expiry && (
           <MemoryMeta
             label="Expiry"
-            value={new Date(item.expiry).toLocaleDateString()}
+            value={formatDate(item.expiry)}
             accent="warning"
           />
         )}

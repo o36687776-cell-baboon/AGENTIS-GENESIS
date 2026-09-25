@@ -2,6 +2,7 @@ import { Icon } from "@/design-system/icons";
 import { NodeIndicator } from "@/design-system/components/NodeIndicator";
 import { Progress } from "@/design-system/components/Progress";
 import { Badge } from "@/design-system/components/Badge";
+import { formatDate } from "@/lib/date";
 import type { WorkTree } from "@/types";
 import { getNodeStateConfig } from "@/design-system/lib/state-colors";
 
@@ -45,7 +46,7 @@ export function WorkTreeHeader({ workTree }: WorkTreeHeaderProps) {
         <div className="flex items-center gap-1.5">
           <Icon name="play" size={12} className="text-[var(--color-soft-grey)]" />
           <span className="font-mono text-xs text-[var(--color-soft-grey)]">
-            CREATED {new Date(workTree.createdAt).toLocaleDateString()}
+            CREATED {formatDate(workTree.createdAt)}
           </span>
         </div>
         <div className="w-28">

@@ -4,6 +4,7 @@ import { NodeIndicator } from "@/design-system/components/NodeIndicator";
 import { MemoryTree } from "@/components/memory/MemoryTree";
 import { Table } from "@/components/data/Table";
 import { Icon } from "@/design-system/icons";
+import { formatDate } from "@/lib/date";
 import { useStore } from "@/state/store";
 import { mockMemory } from "@/data/mockData";
 import { getConfidenceConfig } from "@/design-system/lib/state-colors";
@@ -89,7 +90,7 @@ export function MemoryView() {
                     );
                   },
                 },
-                { key: "lastUsed", header: "Last Used", render: (i) => <span className="font-mono text-xs text-[var(--color-mid-grey)]">{new Date(i.lastUsed).toLocaleDateString()}</span> },
+                { key: "lastUsed", header: "Last Used", render: (i) => <span className="font-mono text-xs text-[var(--color-mid-grey)]">{formatDate(i.lastUsed)}</span> },
                 { key: "domain", header: "Domain", render: (i) => <span className="text-sm text-[var(--color-soft-grey)]">{i.domain}</span> },
               ]}
               rowKey={(i) => i.id}

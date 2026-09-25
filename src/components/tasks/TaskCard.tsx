@@ -5,6 +5,7 @@ import { Progress } from "@/design-system/components/Progress";
 import { Badge } from "@/design-system/components/Badge";
 import { Icon } from "@/design-system/icons";
 import { getNodeStateConfig } from "@/design-system/lib/state-colors";
+import { useMounted } from "@/hooks/useMounted";
 import type { Task } from "@/types";
 
 interface TaskCardProps {
@@ -20,6 +21,7 @@ const priorityColor = {
 } as const;
 
 export const TaskCard = memo(function TaskCard({ task, onClick }: TaskCardProps) {
+  const mounted = useMounted();
   const stateConfig = getNodeStateConfig(task.status);
   const isSignal = stateConfig.color !== "muted" && stateConfig.color !== "disabled";
   const isActive = task.status === "running" || task.status === "queued";
@@ -90,7 +92,7 @@ export const TaskCard = memo(function TaskCard({ task, onClick }: TaskCardProps)
       <Progress value={task.progress} label={false} size="sm" />
 
       <div className="mt-1 text-right text-mono text-xs text-[var(--color-mid-grey)]">
-        Updated {timeAgo(new Date(task.updatedAt))}
+        Updated {mounted ? timeAgo(new Date(task.updatedAt)) : ""}
       </div>
     </div>
   );
