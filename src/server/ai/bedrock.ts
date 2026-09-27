@@ -1,4 +1,4 @@
-import { BedrockRuntimeClient, ConverseCommand, ConverseStreamCommand } from "@aws-sdk/client-bedrock-runtime";
+import { BedrockRuntimeClient, ConverseCommand, ConverseStreamCommand, Tool, ToolConfiguration, ToolChoice } from "@aws-sdk/client-bedrock-runtime";
 import { getConfig } from "../config";
 import { getSecretValue } from "./secrets";
 
@@ -7,19 +7,20 @@ export interface BedrockMessage {
   content: Array<{ text: string }>;
 }
 
+export interface BedrockToolSpec {
+  name: string;
+  description: string;
+  inputSchema: Record<string, any>;
+}
+
 export interface BedrockTool {
-  toolSpec: {
-    name: string;
-    description: string;
-    inputSchema: { json: object };
-  };
+  toolSpec: BedrockToolSpec;
 }
 
 export interface BedrockConverseOptions {
   messages: BedrockMessage[];
   system?: Array<{ text: string }>;
   tools?: BedrockTool[];
-  toolChoice?: { auto?: {}; tool?: { name: string } };
   inferenceConfig?: {
     maxTokens?: number;
     temperature?: number;
@@ -40,6 +41,21 @@ export interface BedrockConverseResponse {
   metrics: {
     latencyMs: number;
   };
+}
+
+function toBedrockTool(tool: BedrockTool): Tool {
+  return {
+    toolSpec: {
+      name: tool.toolSpec.name,
+      description: tool.toolSpec.description,
+      inputSchema: { json: tool.toolSpec.inputSchema },
+    },
+  };
+}
+
+function toToolConfiguration(tools?: BedrockTool[]): ToolConfiguration | undefined {
+  if (!tools || tools.length === 0) return undefined;
+  return { tools: tools.map(toBedrockTool) };
 }
 
 let bedrockClient: BedrockRuntimeClient | null = null;
@@ -76,8 +92,7 @@ export async function converse(options: BedrockConverseOptions): Promise<Bedrock
     modelId: config.bedrockModelId,
     messages: options.messages,
     system: options.system,
-    toolConfig: options.tools ? { tools: options.tools } : undefined,
-    toolChoice: options.toolChoice,
+    toolConfig: toToolConfiguration(options.tools),
     inferenceConfig: options.inferenceConfig || {
       maxTokens: 4096,
       temperature: 0.3,
@@ -101,7 +116,7 @@ export async function converse(options: BedrockConverseOptions): Promise<Bedrock
   };
 }
 
-export async function converseStream(options: BedrockConverseOptions): Promise<AsyncIterable<any>> {
+export async function converseStream(options: BedrockConverseOptions) {
   const config = getConfig();
   const client = getBedrockClient();
 
@@ -109,8 +124,7 @@ export async function converseStream(options: BedrockConverseOptions): Promise<A
     modelId: config.bedrockModelId,
     messages: options.messages,
     system: options.system,
-    toolConfig: options.tools ? { tools: options.tools } : undefined,
-    toolChoice: options.toolChoice,
+    toolConfig: toToolConfiguration(options.tools),
     inferenceConfig: options.inferenceConfig || {
       maxTokens: 4096,
       temperature: 0.3,

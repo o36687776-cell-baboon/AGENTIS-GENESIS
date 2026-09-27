@@ -114,7 +114,6 @@ export class GenesisApiStack extends cdk.Stack {
       role: apiHandlerRole,
       environment: {
         NODE_ENV: envName,
-        AWS_REGION: cdk.Aws.REGION,
         ENVIRONMENT: envName,
         DATABASE_SECRET_ARN: dbSecret.secretArn,
         DATABASE_PROXY_ENDPOINT: dbProxyEndpoint,

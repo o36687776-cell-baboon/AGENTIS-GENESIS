@@ -1,0 +1,21 @@
+{
+  "version": "54.0.0",
+  "files": {
+    "8a6fb2720214fb359ae8b0cec7931c79cf73d88a83ae6bc3776bd8127c7e80f3": {
+      "displayName": "agentis-genesis-vpc-development Template",
+      "source": {
+        "path": "agentis-genesis-vpc-development.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "current_account-us-east-1-6f21c6df": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
+          "objectKey": "8a6fb2720214fb359ae8b0cec7931c79cf73d88a83ae6bc3776bd8127c7e80f3.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

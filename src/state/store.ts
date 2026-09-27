@@ -4,7 +4,9 @@ import { create } from "zustand";
 import { devtools } from "zustand/middleware";
 import { Agent, Task, WorkTree, WorkTreeNode, SystemStatus } from "@/types";
 import { mockAgents, mockTasks, allWorkTrees, generateActivityFeed, mockSystemStatus } from "@/data/mockData";
-import { RealApi, USE_REAL_API } from "@/services/realApi";
+import { RealApi } from "@/services/realApi";
+
+const USE_REAL_API = Boolean(typeof window !== "undefined" && process.env.NEXT_PUBLIC_API_BASE_URL && process.env.NEXT_PUBLIC_API_BASE_URL !== "/api");
 
 export type ActiveSection =
   | "dashboard"
@@ -134,12 +136,13 @@ export const useStore = create<AppStore>()(
           wt.tasks.forEach((t) => {
             tasks[t.id] = t;
           });
-          wt.activity.forEach((a) => {
+          wt.activity.forEach((a: any) => {
+            const eventStatus = a.status || a.type;
             nodes[a.id] = {
               id: a.id,
               type: "task",
               title: a.action,
-              state: (a.type === "success" || a.type === "completed") ? "completed" : "running",
+              state: (eventStatus === "success" || eventStatus === "completed") ? "completed" : "running",
               agent: a.agent,
             };
           });
@@ -150,7 +153,7 @@ export const useStore = create<AppStore>()(
           agents,
           tasks,
           workTreeNodes: nodes,
-          workTreeList: workTrees,
+          workTreeList: workTrees.map(wt => ({ ...wt, status: wt.status as WorkTree["status"] })),
           agentList: Object.values(agents),
           taskList: Object.values(tasks),
           workTreeNodeList: Object.values(nodes),
@@ -234,21 +237,22 @@ export const useStore = create<AppStore>()(
       try {
         const wt = await RealApi.getWorkTree(id);
         if (wt) {
+          const mappedWt: WorkTree = { ...wt, status: wt.status as WorkTree["status"] };
           set((s) => {
-            const nextWorkTrees = { ...s.workTrees, [wt.id]: wt };
+            const nextWorkTrees = { ...s.workTrees, [mappedWt.id]: mappedWt };
             const nextAgents = {
               ...s.agents,
-              ...Object.fromEntries(wt.agents.map((a) => [a.id, a])),
+              ...Object.fromEntries(mappedWt.agents.map((a) => [a.id, a])),
             };
             const nextTasks = {
               ...s.tasks,
-              ...Object.fromEntries(wt.tasks.map((t) => [t.id, t])),
+              ...Object.fromEntries(mappedWt.tasks.map((t) => [t.id, t])),
             };
             return {
               workTrees: nextWorkTrees,
               agents: nextAgents,
               tasks: nextTasks,
-              selectedWorkTreeId: wt.id,
+              selectedWorkTreeId: mappedWt.id,
               workTreeList: Object.values(nextWorkTrees),
               agentList: Object.values(nextAgents),
               taskList: Object.values(nextTasks),
@@ -290,12 +294,16 @@ export const useStore = create<AppStore>()(
     createWorkTree: async (data) => {
       const wt = await RealApi.createWorkTree(data);
       if (wt) {
+        const mappedWt: WorkTree = {
+          ...wt,
+          status: wt.status as WorkTree["status"],
+        };
         set((s) => {
-          const nextWorkTrees = { ...s.workTrees, [wt.id]: wt };
+          const nextWorkTrees = { ...s.workTrees, [mappedWt.id]: mappedWt };
           return {
             workTrees: nextWorkTrees,
             workTreeList: Object.values(nextWorkTrees),
-            selectedWorkTreeId: wt.id,
+            selectedWorkTreeId: mappedWt.id,
           };
         });
       }
@@ -312,7 +320,7 @@ export const useStore = create<AppStore>()(
         set((s) => {
           const wt = s.workTrees[id];
           if (wt) {
-            const nextWorkTrees = { ...s.workTrees, [id]: { ...wt, status: "running" } };
+            const nextWorkTrees = { ...s.workTrees, [id]: { ...wt, status: "running" as WorkTree["status"] } };
             return { workTrees: nextWorkTrees, workTreeList: Object.values(nextWorkTrees) };
           }
           return s;
@@ -327,7 +335,7 @@ export const useStore = create<AppStore>()(
         set((s) => {
           const wt = s.workTrees[id];
           if (wt) {
-            const nextWorkTrees = { ...s.workTrees, [id]: { ...wt, status: "waiting" } };
+            const nextWorkTrees = { ...s.workTrees, [id]: { ...wt, status: "waiting" as WorkTree["status"] } };
             return { workTrees: nextWorkTrees, workTreeList: Object.values(nextWorkTrees) };
           }
           return s;
@@ -342,7 +350,7 @@ export const useStore = create<AppStore>()(
         set((s) => {
           const wt = s.workTrees[id];
           if (wt) {
-            const nextWorkTrees = { ...s.workTrees, [id]: { ...wt, status: "running" } };
+            const nextWorkTrees = { ...s.workTrees, [id]: { ...wt, status: "running" as WorkTree["status"] } };
             return { workTrees: nextWorkTrees, workTreeList: Object.values(nextWorkTrees) };
           }
           return s;

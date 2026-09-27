@@ -1,6 +1,5 @@
 import * as cdk from "aws-cdk-lib";
 import * as cloudwatch from "aws-cdk-lib/aws-cloudwatch";
-import * as logs from "aws-cdk-lib/aws-logs";
 import * as apigateway from "aws-cdk-lib/aws-apigatewayv2";
 import * as lambda from "aws-cdk-lib/aws-lambda";
 import * as rds from "aws-cdk-lib/aws-rds";
@@ -23,7 +22,7 @@ export class GenesisMonitoringStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: GenesisMonitoringStackProps) {
     super(scope, id, props);
 
-    const { envName, appName, apiGateway, apiHandlerFunction, database, dbProxy, stepFunctionsStateMachine, artifactBucket } = props;
+    const { envName, appName, apiGateway, apiHandlerFunction, database, stepFunctionsStateMachine, artifactBucket } = props;
 
     const dashboard = new cloudwatch.Dashboard(this, "GenesisDashboard", {
       dashboardName: `${appName}-dashboard-${envName}`,
@@ -32,8 +31,20 @@ export class GenesisMonitoringStack extends cdk.Stack {
     const apiErrorRate = new cloudwatch.GraphWidget({
       title: "API Gateway Error Rate",
       left: [
-        apiGateway.metricCount("5XXError", { period: cdk.Duration.minutes(5) }),
-        apiGateway.metricCount("4XXError", { period: cdk.Duration.minutes(5) }),
+        new cloudwatch.Metric({
+          namespace: "AWS/ApiGateway",
+          metricName: "5XXError",
+          dimensionsMap: { ApiId: apiGateway.apiId },
+          period: cdk.Duration.minutes(5),
+          statistic: "Sum",
+        }),
+        new cloudwatch.Metric({
+          namespace: "AWS/ApiGateway",
+          metricName: "4XXError",
+          dimensionsMap: { ApiId: apiGateway.apiId },
+          period: cdk.Duration.minutes(5),
+          statistic: "Sum",
+        }),
       ],
       width: 12,
       height: 6,
@@ -42,9 +53,27 @@ export class GenesisMonitoringStack extends cdk.Stack {
     const apiLatency = new cloudwatch.GraphWidget({
       title: "API Gateway Latency (p50, p95, p99)",
       left: [
-        apiGateway.metricLatency({ period: cdk.Duration.minutes(5), statistic: "p50" }),
-        apiGateway.metricLatency({ period: cdk.Duration.minutes(5), statistic: "p95" }),
-        apiGateway.metricLatency({ period: cdk.Duration.minutes(5), statistic: "p99" }),
+        new cloudwatch.Metric({
+          namespace: "AWS/ApiGateway",
+          metricName: "Latency",
+          dimensionsMap: { ApiId: apiGateway.apiId },
+          period: cdk.Duration.minutes(5),
+          statistic: "p50",
+        }),
+        new cloudwatch.Metric({
+          namespace: "AWS/ApiGateway",
+          metricName: "Latency",
+          dimensionsMap: { ApiId: apiGateway.apiId },
+          period: cdk.Duration.minutes(5),
+          statistic: "p95",
+        }),
+        new cloudwatch.Metric({
+          namespace: "AWS/ApiGateway",
+          metricName: "Latency",
+          dimensionsMap: { ApiId: apiGateway.apiId },
+          period: cdk.Duration.minutes(5),
+          statistic: "p99",
+        }),
       ],
       width: 12,
       height: 6,
@@ -100,10 +129,34 @@ export class GenesisMonitoringStack extends cdk.Stack {
     const stepFunctionsExecutions = new cloudwatch.GraphWidget({
       title: "Step Functions Executions",
       left: [
-        stepFunctionsStateMachine.metricExecutionsStarted({ period: cdk.Duration.minutes(5) }),
-        stepFunctionsStateMachine.metricExecutionsSucceeded({ period: cdk.Duration.minutes(5) }),
-        stepFunctionsStateMachine.metricExecutionsFailed({ period: cdk.Duration.minutes(5) }),
-        stepFunctionsStateMachine.metricExecutionsTimedOut({ period: cdk.Duration.minutes(5) }),
+        new cloudwatch.Metric({
+          namespace: "AWS/States",
+          metricName: "ExecutionsStarted",
+          dimensionsMap: { StateMachineArn: stepFunctionsStateMachine.stateMachineArn },
+          period: cdk.Duration.minutes(5),
+          statistic: "Sum",
+        }),
+        new cloudwatch.Metric({
+          namespace: "AWS/States",
+          metricName: "ExecutionsSucceeded",
+          dimensionsMap: { StateMachineArn: stepFunctionsStateMachine.stateMachineArn },
+          period: cdk.Duration.minutes(5),
+          statistic: "Sum",
+        }),
+        new cloudwatch.Metric({
+          namespace: "AWS/States",
+          metricName: "ExecutionsFailed",
+          dimensionsMap: { StateMachineArn: stepFunctionsStateMachine.stateMachineArn },
+          period: cdk.Duration.minutes(5),
+          statistic: "Sum",
+        }),
+        new cloudwatch.Metric({
+          namespace: "AWS/States",
+          metricName: "ExecutionsTimedOut",
+          dimensionsMap: { StateMachineArn: stepFunctionsStateMachine.stateMachineArn },
+          period: cdk.Duration.minutes(5),
+          statistic: "Sum",
+        }),
       ],
       width: 12,
       height: 6,
@@ -112,8 +165,20 @@ export class GenesisMonitoringStack extends cdk.Stack {
     const stepFunctionsDuration = new cloudwatch.GraphWidget({
       title: "Step Functions Execution Duration",
       left: [
-        stepFunctionsStateMachine.metricExecutionTime({ period: cdk.Duration.minutes(5), statistic: "p50" }),
-        stepFunctionsStateMachine.metricExecutionTime({ period: cdk.Duration.minutes(5), statistic: "p95" }),
+        new cloudwatch.Metric({
+          namespace: "AWS/States",
+          metricName: "ExecutionTime",
+          dimensionsMap: { StateMachineArn: stepFunctionsStateMachine.stateMachineArn },
+          period: cdk.Duration.minutes(5),
+          statistic: "p50",
+        }),
+        new cloudwatch.Metric({
+          namespace: "AWS/States",
+          metricName: "ExecutionTime",
+          dimensionsMap: { StateMachineArn: stepFunctionsStateMachine.stateMachineArn },
+          period: cdk.Duration.minutes(5),
+          statistic: "p95",
+        }),
       ],
       width: 12,
       height: 6,
@@ -122,7 +187,13 @@ export class GenesisMonitoringStack extends cdk.Stack {
     const s3Storage = new cloudwatch.GraphWidget({
       title: "S3 Bucket Size",
       left: [
-        artifactBucket.metricBucketSizeBytes({ period: cdk.Duration.hours(24) }),
+        new cloudwatch.Metric({
+          namespace: "AWS/S3",
+          metricName: "BucketSizeBytes",
+          dimensionsMap: { BucketName: artifactBucket.bucketName, StorageType: "StandardStorage" },
+          period: cdk.Duration.hours(24),
+          statistic: "Average",
+        }),
       ],
       width: 12,
       height: 6,
@@ -134,15 +205,21 @@ export class GenesisMonitoringStack extends cdk.Stack {
     dashboard.addWidgets(dbStorage, s3Storage);
     dashboard.addWidgets(stepFunctionsExecutions, stepFunctionsDuration);
 
-    const apiErrorAlarm = new cloudwatch.Alarm(this, "ApiErrorRateAlarm", {
+    void new cloudwatch.Alarm(this, "ApiErrorRateAlarm", {
       alarmName: `${appName}-api-error-rate-${envName}`,
-      metric: apiGateway.metricCount("5XXError", { period: cdk.Duration.minutes(5), statistic: "Sum" }),
+      metric: new cloudwatch.Metric({
+        namespace: "AWS/ApiGateway",
+        metricName: "5XXError",
+        dimensionsMap: { ApiId: apiGateway.apiId },
+        period: cdk.Duration.minutes(5),
+        statistic: "Sum",
+      }),
       threshold: 10,
       evaluationPeriods: 2,
       treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
     });
 
-    const lambdaErrorAlarm = new cloudwatch.Alarm(this, "LambdaErrorAlarm", {
+    void new cloudwatch.Alarm(this, "LambdaErrorAlarm", {
       alarmName: `${appName}-lambda-error-rate-${envName}`,
       metric: apiHandlerFunction.metricErrors({ period: cdk.Duration.minutes(5) }),
       threshold: 5,
@@ -150,7 +227,7 @@ export class GenesisMonitoringStack extends cdk.Stack {
       treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
     });
 
-    const dbCpuAlarm = new cloudwatch.Alarm(this, "DatabaseCpuAlarm", {
+    void new cloudwatch.Alarm(this, "DatabaseCpuAlarm", {
       alarmName: `${appName}-database-cpu-${envName}`,
       metric: database.metricCPUUtilization({ period: cdk.Duration.minutes(5) }),
       threshold: 80,
@@ -158,9 +235,15 @@ export class GenesisMonitoringStack extends cdk.Stack {
       treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,
     });
 
-    const stepFunctionsFailureAlarm = new cloudwatch.Alarm(this, "StepFunctionsFailureAlarm", {
+    void new cloudwatch.Alarm(this, "StepFunctionsFailureAlarm", {
       alarmName: `${appName}-stepfunctions-failure-${envName}`,
-      metric: stepFunctionsStateMachine.metricExecutionsFailed({ period: cdk.Duration.minutes(5), statistic: "Sum" }),
+      metric: new cloudwatch.Metric({
+        namespace: "AWS/States",
+        metricName: "ExecutionsFailed",
+        dimensionsMap: { StateMachineArn: stepFunctionsStateMachine.stateMachineArn },
+        period: cdk.Duration.minutes(5),
+        statistic: "Sum",
+      }),
       threshold: 1,
       evaluationPeriods: 1,
       treatMissingData: cloudwatch.TreatMissingData.NOT_BREACHING,

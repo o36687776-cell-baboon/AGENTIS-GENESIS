@@ -1,0 +1,108 @@
+{
+  "version": "54.0.0",
+  "title": "Validation Report",
+  "pluginReports": [
+    {
+      "pluginName": "CloudFormation Validate",
+      "pluginVersion": "1.12.1",
+      "conclusion": "success",
+      "violations": [
+        {
+          "ruleName": "E9006",
+          "description": "EngineVersion: '10.11' is not one of ['10.0.38', '10.1.48', '10.11.10', '10.11.11', '10.11.13', '10.11.14', '10.11.15', '10.11.16', '10.11.18', '10.11.19', '10.11.4', '10.11.5', '10.11.6', '10.11.7', '10.11.8', '10.11.9', '10.2.44', '10.3.34', '10.3.35', '10.3.36', '10.3.37', '10.3.38', '10.3.39', '10.4.13', '10.4.18', '10.4.21', '10.4.22', '10.4.24', '10.4.25', '10.4.26', '10.4.27', '10.4.28', '10.4.29', '10.4.30', '10.4.31', '10.4.32', '10.4.33', '10.4.34', '10.5.12', '10.5.13', '10.5.15', '10.5.16', '10.5.17', '10.5.18', '10.5.19', '10.5.20', '10.5.21', '10.5.22', '10.5.23', '10.5.24', '10.5.25', '10.5.26', '10.5.27', '10.5.28', '10.5.29', '10.5.8', '10.5.9', '10.6.10', '10.6.11', '10.6.12', '10.6.13', '10.6.14', '10.6.15', '10.6.16', '10.6.17', '10.6.18', '10.6.19', '10.6.20', '10.6.21', '10.6.22', '10.6.23', '10.6.24', '10.6.25', '10.6.27', '10.6.28', '10.6.5', '10.6.7', '10.6.8', '10.6.9', '11.4.10', '11.4.12', '11.4.13', '11.4.3', '11.4.4', '11.4.5', '11.4.7', '11.4.8', '11.4.9', '11.8.3', '11.8.4', '11.8.5', '11.8.6', '11.8.8', '11.8.9', '12.3.2', '12.3.3']",
+          "severity": "warning",
+          "ruleMetadata": {
+            "category": "Schema"
+          },
+          "violatingConstructs": [
+            {
+              "constructPath": "agentis-genesis-database-development/Database/Resource",
+              "constructFqn": "aws-cdk-lib.aws_rds.CfnDBInstance",
+              "libraryVersion": "2.271.0",
+              "cloudFormationResource": {
+                "templatePath": "agentis-genesis-database-development.template.json",
+                "logicalId": "DatabaseB269D8BB",
+                "propertyPaths": [
+                  "Properties.EngineVersion"
+                ]
+              },
+              "stackTraces": [
+                "...new DatabaseInstance2 in aws-cdk-lib...\nnew GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:51:21)\n<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:33:23)\n...node internals, ts-node, ts-node..."
+              ]
+            }
+          ]
+        },
+        {
+          "ruleName": "W2531",
+          "description": "Runtime: Runtime 'nodejs20.x' was deprecated on '2026-04-30'. Creation will be disabled on '2027-02-01', and updates will be disabled on '2027-03-03'. Please consider updating to 'nodejs24.x'",
+          "severity": "warning",
+          "ruleMetadata": {
+            "category": "Deprecation"
+          },
+          "violatingConstructs": [
+            {
+              "constructPath": "agentis-genesis-api-development/ApiHandlerFunction/Resource",
+              "constructFqn": "aws-cdk-lib.aws_lambda.CfnFunction",
+              "libraryVersion": "2.271.0",
+              "cloudFormationResource": {
+                "templatePath": "agentis-genesis-api-development.template.json",
+                "logicalId": "ApiHandlerFunction9E589C02",
+                "propertyPaths": [
+                  "Properties.Runtime"
+                ]
+              },
+              "stackTraces": [
+                "...new Function2 in aws-cdk-lib...\nnew GenesisApiStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-api-stack.ts:103:31)\n<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:57:18)\n...node internals, ts-node, ts-node..."
+              ]
+            },
+            {
+              "constructPath": "agentis-genesis-stepfunctions-development/PlannerFunction/Resource",
+              "constructFqn": "aws-cdk-lib.aws_lambda.CfnFunction",
+              "libraryVersion": "2.271.0",
+              "cloudFormationResource": {
+                "templatePath": "agentis-genesis-stepfunctions-development.template.json",
+                "logicalId": "PlannerFunction7813D2C8",
+                "propertyPaths": [
+                  "Properties.Runtime"
+                ]
+              },
+              "stackTraces": [
+                "...new Function2 in aws-cdk-lib...\nnew GenesisStepFunctionsStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-stepfunctions-stack.ts:116:28)\n<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:70:28)\n...node internals, ts-node, ts-node..."
+              ]
+            },
+            {
+              "constructPath": "agentis-genesis-stepfunctions-development/AgentWorkerFunction/Resource",
+              "constructFqn": "aws-cdk-lib.aws_lambda.CfnFunction",
+              "libraryVersion": "2.271.0",
+              "cloudFormationResource": {
+                "templatePath": "agentis-genesis-stepfunctions-development.template.json",
+                "logicalId": "AgentWorkerFunctionC0571EDB",
+                "propertyPaths": [
+                  "Properties.Runtime"
+                ]
+              },
+              "stackTraces": [
+                "...new Function2 in aws-cdk-lib...\nnew GenesisStepFunctionsStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-stepfunctions-stack.ts:124:32)\n<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:70:28)\n...node internals, ts-node, ts-node..."
+              ]
+            },
+            {
+              "constructPath": "agentis-genesis-stepfunctions-development/VerificationFunction/Resource",
+              "constructFqn": "aws-cdk-lib.aws_lambda.CfnFunction",
+              "libraryVersion": "2.271.0",
+              "cloudFormationResource": {
+                "templatePath": "agentis-genesis-stepfunctions-development.template.json",
+                "logicalId": "VerificationFunctionB0621202",
+                "propertyPaths": [
+                  "Properties.Runtime"
+                ]
+              },
+              "stackTraces": [
+                "...new Function2 in aws-cdk-lib...\nnew GenesisStepFunctionsStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-stepfunctions-stack.ts:132:33)\n<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:70:28)\n...node internals, ts-node, ts-node..."
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

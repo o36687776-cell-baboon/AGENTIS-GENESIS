@@ -1,5 +1,5 @@
-import { api, type WorkTree, type Agent, type Task, type Artifact, type Approval, type ActivityEvent, type SystemStatus, type HealthResponse, isApiError } from "@/lib/api";
-import { SystemStatus as SystemStatusType } from "@/types";
+import { api, isApiError } from "@/lib/api";
+import { WorkTree, Agent, Task, Artifact, ActivityEvent, SystemStatus } from "@/types";
 import { mockSystemStatus, allWorkTrees, generateActivityFeed } from "@/data/mockData";
 
 const USE_REAL_API = typeof window !== "undefined" && process.env.NEXT_PUBLIC_API_BASE_URL && process.env.NEXT_PUBLIC_API_BASE_URL !== "/api";
@@ -9,9 +9,9 @@ function mapWorkTree(wt: any): WorkTree {
     id: wt.id,
     name: wt.name,
     objective: wt.objective,
-    status: wt.status,
+    status: wt.status as WorkTree["status"],
     progress: wt.progress,
-    createdAt: wt.created_at,
+    createdAt: wt.created_at || wt.createdAt,
     agents: wt.agents || [],
     tasks: wt.tasks || [],
     artifacts: wt.artifacts || [],
@@ -35,7 +35,7 @@ function mapAgent(a: any): Agent {
     name: a.name,
     type: a.type,
     version: a.version,
-    status: a.status,
+    status: a.status as Agent["status"],
     capabilities: typeof a.capabilities === "string" ? JSON.parse(a.capabilities) : a.capabilities || [],
     permissions: typeof a.permissions === "string" ? JSON.parse(a.permissions) : a.permissions || [],
     currentGoal: a.current_goal,
@@ -54,10 +54,10 @@ function mapTask(t: any): Task {
     id: t.id,
     title: t.title,
     description: t.description || "",
-    status: t.status,
+    status: t.status as Task["status"],
     agent: t.agent_id,
     progress: t.progress,
-    priority: t.priority,
+    priority: t.priority as Task["priority"],
     createdAt: t.created_at,
     updatedAt: t.updated_at,
     estimated: t.estimated_duration_minutes ? `${t.estimated_duration_minutes} min` : undefined,
@@ -69,7 +69,7 @@ function mapArtifact(a: any): Artifact {
   return {
     id: a.id,
     name: a.name,
-    type: a.type,
+    type: a.type as Artifact["type"],
     version: a.version,
     createdAt: a.created_at,
     createdBy: a.created_by || "",
@@ -84,19 +84,6 @@ function mapArtifact(a: any): Artifact {
   };
 }
 
-function mapApproval(a: any): Approval {
-  return {
-    id: a.id,
-    title: a.title,
-    description: a.description || "",
-    riskLevel: a.risk_level,
-    recipients: typeof a.recipients === "string" ? JSON.parse(a.recipients) : a.recipients,
-    attachments: typeof a.attachments === "string" ? JSON.parse(a.attachments) : a.attachments,
-    external: a.external,
-    requestedAt: a.requested_at,
-  };
-}
-
 function mapActivity(a: any): ActivityEvent {
   return {
     id: a.id,
@@ -104,12 +91,12 @@ function mapActivity(a: any): ActivityEvent {
     agent: a.agent_id || "System",
     action: a.event_type.toLowerCase().replace(/_/g, " "),
     detail: a.message,
-    type: a.status,
+    type: a.status as ActivityEvent["type"],
   };
 }
 
 export class RealApi {
-  static async getSystemStatus(): Promise<SystemStatusType> {
+  static async getSystemStatus(): Promise<SystemStatus> {
     if (!USE_REAL_API) {
       return mockSystemStatus;
     }
@@ -242,7 +229,7 @@ export class RealApi {
     }
     try {
       const workTrees = await api.workTrees.list();
-      let allApprovals: Approval[] = [];
+      let allApprovals: any[] = [];
       for (const wt of workTrees) {
         const tree = await api.workTrees.get(wt.id);
         allApprovals = [...allApprovals, ...(tree.approvals || [])];

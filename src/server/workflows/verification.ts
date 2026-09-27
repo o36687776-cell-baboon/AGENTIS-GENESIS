@@ -1,5 +1,3 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-
 function createResponse(statusCode: number, body: any) {
   return {
     statusCode,
@@ -8,14 +6,19 @@ function createResponse(statusCode: number, body: any) {
   };
 }
 
-export async function handler(event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> {
-  const body = event.body ? JSON.parse(event.body) : {};
-  const action = body.action;
+interface VerificationEvent {
+  action: string;
+  workTreeId?: string;
+  results?: any;
+}
+
+export async function handler(event: VerificationEvent): Promise<any> {
+  const action = event.action;
 
   try {
     switch (action) {
       case "verify": {
-        const { workTreeId, results } = body;
+        const { workTreeId, results } = event;
         const requiresApproval = false;
         return createResponse(200, { success: true, data: { requiresApproval, approved: true, checks: [] } });
       }

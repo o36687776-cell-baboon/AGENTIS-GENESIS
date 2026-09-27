@@ -1,0 +1,361 @@
+{
+ "Resources": {
+  "DatabaseSecret86DBB7B3": {
+   "Type": "AWS::SecretsManager::Secret",
+   "Properties": {
+    "Description": "MariaDB credentials for Genesis",
+    "GenerateSecretString": {
+     "ExcludeCharacters": "\"@/\\",
+     "GenerateStringKey": "password",
+     "PasswordLength": 32,
+     "SecretStringTemplate": "{\"username\":\"genesis_admin\"}"
+    },
+    "Name": "agentis-genesis/database/mariadb-development"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-database-development/DatabaseSecret/Resource"
+   }
+  },
+  "DatabaseSecretAttachment9A63A3D4": {
+   "Type": "AWS::SecretsManager::SecretTargetAttachment",
+   "Properties": {
+    "SecretId": {
+     "Ref": "DatabaseSecret86DBB7B3"
+    },
+    "TargetId": {
+     "Ref": "DatabaseB269D8BB"
+    },
+    "TargetType": "AWS::RDS::DBInstance"
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-database-development/DatabaseSecret/Attachment/Resource"
+   }
+  },
+  "DatabaseSecurityGroupfromagentisgenesisdatabasedevelopmentLambdaSecurityGroup53912192IndirectPort7F978ED9": {
+   "Type": "AWS::EC2::SecurityGroupIngress",
+   "Properties": {
+    "Description": "Allow connections to the database Instance from the Proxy",
+    "FromPort": {
+     "Fn::GetAtt": [
+      "DatabaseB269D8BB",
+      "Endpoint.Port"
+     ]
+    },
+    "GroupId": {
+     "Fn::ImportValue": "agentis-genesis-db-sg-id-development"
+    },
+    "IpProtocol": "tcp",
+    "SourceSecurityGroupId": {
+     "Fn::ImportValue": "agentis-genesis-lambda-sg-id-development"
+    },
+    "ToPort": {
+     "Fn::GetAtt": [
+      "DatabaseB269D8BB",
+      "Endpoint.Port"
+     ]
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-database-development/DatabaseSecurityGroup/from agentisgenesisdatabasedevelopmentLambdaSecurityGroup53912192:{IndirectPort}"
+   }
+  },
+  "DatabaseB269D8BB": {
+   "Type": "AWS::RDS::DBInstance",
+   "Properties": {
+    "AllocatedStorage": "20",
+    "AutoMinorVersionUpgrade": true,
+    "BackupRetentionPeriod": 7,
+    "CopyTagsToSnapshot": true,
+    "DBInstanceClass": "db.t4g.medium",
+    "DBInstanceIdentifier": "agentis-genesis-mariadb-development",
+    "DBName": "genesis",
+    "DBSubnetGroupName": {
+     "Fn::ImportValue": "agentis-genesis-db-subnet-group-name-development"
+    },
+    "DeletionProtection": false,
+    "EnableCloudwatchLogsExports": [
+     "audit",
+     "error",
+     "general",
+     "slowquery"
+    ],
+    "EnablePerformanceInsights": false,
+    "Engine": "mariadb",
+    "EngineVersion": "10.11",
+    "MasterUserPassword": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "DatabaseSecret86DBB7B3"
+       },
+       ":SecretString:password::}}"
+      ]
+     ]
+    },
+    "MasterUsername": {
+     "Fn::Join": [
+      "",
+      [
+       "{{resolve:secretsmanager:",
+       {
+        "Ref": "DatabaseSecret86DBB7B3"
+       },
+       ":SecretString:username::}}"
+      ]
+     ]
+    },
+    "MaxAllocatedStorage": 100,
+    "PreferredBackupWindow": "03:00-04:00",
+    "PreferredMaintenanceWindow": "sun:04:00-sun:05:00",
+    "PubliclyAccessible": false,
+    "StorageEncrypted": true,
+    "StorageType": "gp3",
+    "VPCSecurityGroups": [
+     {
+      "Fn::ImportValue": "agentis-genesis-db-sg-id-development"
+     }
+    ]
+   },
+   "UpdateReplacePolicy": "Snapshot",
+   "DeletionPolicy": "Snapshot",
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-database-development/Database/Resource"
+   }
+  },
+  "DatabaseProxyIAMRoleFF34E3F6": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "rds.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    }
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-database-development/DatabaseProxy/IAMRole/Resource"
+   }
+  },
+  "DatabaseProxyIAMRoleDefaultPolicy8B366373": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Ref": "DatabaseSecret86DBB7B3"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "DatabaseProxyIAMRoleDefaultPolicy8B366373",
+    "Roles": [
+     {
+      "Ref": "DatabaseProxyIAMRoleFF34E3F6"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-database-development/DatabaseProxy/IAMRole/DefaultPolicy/Resource"
+   }
+  },
+  "DatabaseProxy3E84A7D6": {
+   "Type": "AWS::RDS::DBProxy",
+   "Properties": {
+    "Auth": [
+     {
+      "AuthScheme": "SECRETS",
+      "IAMAuth": "DISABLED",
+      "SecretArn": {
+       "Ref": "DatabaseSecret86DBB7B3"
+      }
+     }
+    ],
+    "DBProxyName": "agentis-genesis-db-proxy-development",
+    "EngineFamily": "MYSQL",
+    "IdleClientTimeout": 300,
+    "RequireTLS": true,
+    "RoleArn": {
+     "Fn::GetAtt": [
+      "DatabaseProxyIAMRoleFF34E3F6",
+      "Arn"
+     ]
+    },
+    "VpcSecurityGroupIds": [
+     {
+      "Fn::ImportValue": "agentis-genesis-lambda-sg-id-development"
+     }
+    ],
+    "VpcSubnetIds": [
+     {
+      "Fn::ImportValue": "agentis-genesis-database-subnet-ids-development"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-database-development/DatabaseProxy/Resource"
+   }
+  },
+  "DatabaseProxyProxyTargetGroup0630462F": {
+   "Type": "AWS::RDS::DBProxyTargetGroup",
+   "Properties": {
+    "ConnectionPoolConfigurationInfo": {
+     "MaxConnectionsPercent": 90,
+     "MaxIdleConnectionsPercent": 50
+    },
+    "DBInstanceIdentifiers": [
+     {
+      "Ref": "DatabaseB269D8BB"
+     }
+    ],
+    "DBProxyName": {
+     "Ref": "DatabaseProxy3E84A7D6"
+    },
+    "TargetGroupName": "default"
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-database-development/DatabaseProxy/ProxyTargetGroup"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/12NsU4DMRBEvyW9bwFTUAORUCqiS3q08S2Hkzs72l0nRJb/HWEDQqlmRm80Y8E+3MHtAs/SueHQTX4HeaPoDgbP8paFHJPKjAFHYsibms3ze/hxTbbII+mjKrqPmcK/wjUphpyFhhN7vbxwTMdVGJlEDA8CeYmKOxRaBVEMjr7Hlk9/6RevOX5eGru27bQuF+NxhtzHqe5UXcfJu9pvrhTTk8TE7es16TFpMSEOBHu5OVkL9h7sYi/ed5yC+pmgb/oFr5SpP0EBAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-database-development/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "DatabaseEndpoint": {
+   "Value": {
+    "Fn::GetAtt": [
+     "DatabaseB269D8BB",
+     "Endpoint.Address"
+    ]
+   },
+   "Export": {
+    "Name": "agentis-genesis-db-endpoint-development"
+   }
+  },
+  "DatabasePort": {
+   "Value": {
+    "Fn::GetAtt": [
+     "DatabaseB269D8BB",
+     "Endpoint.Port"
+    ]
+   },
+   "Export": {
+    "Name": "agentis-genesis-db-port-development"
+   }
+  },
+  "DatabaseSecretArn": {
+   "Value": {
+    "Ref": "DatabaseSecret86DBB7B3"
+   },
+   "Export": {
+    "Name": "agentis-genesis-db-secret-arn-development"
+   }
+  },
+  "DatabaseProxyEndpoint": {
+   "Value": {
+    "Fn::GetAtt": [
+     "DatabaseProxy3E84A7D6",
+     "Endpoint"
+    ]
+   },
+   "Export": {
+    "Name": "agentis-genesis-db-proxy-endpoint-development"
+   }
+  },
+  "DatabaseProxyArn": {
+   "Value": {
+    "Fn::GetAtt": [
+     "DatabaseProxy3E84A7D6",
+     "DBProxyArn"
+    ]
+   },
+   "Export": {
+    "Name": "agentis-genesis-db-proxy-arn-development"
+   }
+  },
+  "ExportsOutputRefDatabaseSecret86DBB7B353068790": {
+   "Value": {
+    "Ref": "DatabaseSecret86DBB7B3"
+   },
+   "Export": {
+    "Name": "agentis-genesis-database-development:ExportsOutputRefDatabaseSecret86DBB7B353068790"
+   }
+  },
+  "ExportsOutputRefDatabaseB269D8BB88F4B1C4": {
+   "Value": {
+    "Ref": "DatabaseB269D8BB"
+   },
+   "Export": {
+    "Name": "agentis-genesis-database-development:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+   }
+  },
+  "ExportsOutputFnGetAttDatabaseProxy3E84A7D6Endpoint89149F8B": {
+   "Value": {
+    "Fn::GetAtt": [
+     "DatabaseProxy3E84A7D6",
+     "Endpoint"
+    ]
+   },
+   "Export": {
+    "Name": "agentis-genesis-database-development:ExportsOutputFnGetAttDatabaseProxy3E84A7D6Endpoint89149F8B"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

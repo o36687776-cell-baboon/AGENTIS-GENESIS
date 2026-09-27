@@ -2,15 +2,15 @@ import * as cdk from "aws-cdk-lib";
 import * as rds from "aws-cdk-lib/aws-rds";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
-import * as iam from "aws-cdk-lib/aws-iam";
 import { Construct } from "constructs";
 
 export interface GenesisDatabaseStackProps extends cdk.StackProps {
   envName: string;
   appName: string;
-  vpc: ec2.Vpc;
-  dbSecurityGroup: ec2.SecurityGroup;
-  lambdaSecurityGroup: ec2.SecurityGroup;
+  dbSecurityGroupId: string;
+  lambdaSecurityGroupId: string;
+  dbSubnetGroupName: string;
+  vpcId: string;
 }
 
 export class GenesisDatabaseStack extends cdk.Stack {
@@ -22,7 +22,7 @@ export class GenesisDatabaseStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: GenesisDatabaseStackProps) {
     super(scope, id, props);
 
-    const { envName, appName, vpc, dbSecurityGroup, lambdaSecurityGroup } = props;
+    const { envName, appName, dbSecurityGroupId, lambdaSecurityGroupId, dbSubnetGroupName, vpcId } = props;
 
     this.dbSecret = new secretsmanager.Secret(this, "DatabaseSecret", {
       secretName: `${appName}/database/mariadb-${envName}`,
@@ -35,12 +35,16 @@ export class GenesisDatabaseStack extends cdk.Stack {
       },
     });
 
-    const dbSubnetGroup = new rds.SubnetGroup(this, "DatabaseSubnetGroup", {
-      vpc,
-      description: "Subnet group for Genesis MariaDB",
-      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
-      subnetGroupName: `${appName}-db-subnet-${envName}`,
+    const dbSubnetGroup = rds.SubnetGroup.fromSubnetGroupName(this, "DatabaseSubnetGroup", dbSubnetGroupName);
+    const vpc = ec2.Vpc.fromVpcAttributes(this, "Vpc", {
+      vpcId,
+      availabilityZones: cdk.Fn.getAzs(),
+      privateSubnetIds: cdk.Fn.importValue(`${appName}-private-subnet-ids-${envName}`).split(","),
+      isolatedSubnetIds: cdk.Fn.importValue(`${appName}-database-subnet-ids-${envName}`).split(","),
     });
+
+    const dbSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(this, "DatabaseSecurityGroup", dbSecurityGroupId);
+    const lambdaSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(this, "LambdaSecurityGroup", lambdaSecurityGroupId);
 
     const isProduction = envName === "production";
 
@@ -84,12 +88,9 @@ export class GenesisDatabaseStack extends cdk.Stack {
       idleClientTimeout: cdk.Duration.minutes(5),
       maxConnectionsPercent: 90,
       maxIdleConnectionsPercent: 50,
-      connectionBorrowTimeout: cdk.Duration.seconds(30),
     });
 
     this.dbProxyEndpoint = this.dbProxy.endpoint;
-
-    this.dbSecret.grantRead(this.database.grantPrincipal);
 
     new cdk.CfnOutput(this, "DatabaseEndpoint", {
       value: this.database.dbInstanceEndpointAddress,

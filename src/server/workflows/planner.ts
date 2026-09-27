@@ -1,4 +1,3 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import * as ai from "../ai";
 
 function createResponse(statusCode: number, body: any) {
@@ -9,14 +8,19 @@ function createResponse(statusCode: number, body: any) {
   };
 }
 
-export async function handler(event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> {
-  const body = event.body ? JSON.parse(event.body) : {};
-  const action = body.action;
+interface PlannerEvent {
+  action: string;
+  workTree?: any;
+  objective?: string;
+}
+
+export async function handler(event: PlannerEvent): Promise<any> {
+  const action = event.action;
 
   try {
     switch (action) {
       case "generatePlan": {
-        const { workTree, objective } = body;
+        const { workTree, objective } = event;
         const plan = await ai.generatePlan({
           objective: objective || workTree?.objective,
           context: workTree?.context,

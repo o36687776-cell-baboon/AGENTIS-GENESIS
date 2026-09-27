@@ -136,7 +136,7 @@ export interface WorkTreePlanRow {
   updated_at: Date;
 }
 
-function generateId(): string {
+export function generateId(): string {
   return uuidv4().replace(/-/g, "");
 }
 
@@ -168,7 +168,7 @@ export async function createWorkTree(data: {
 }
 
 export async function getWorkTree(id: string): Promise<WorkTreeRow | null> {
-  const rows = await query<WorkTreeRow[]>(
+  const rows = await query<WorkTreeRow>(
     `SELECT * FROM work_trees WHERE id = ?`,
     { id }
   );
@@ -176,7 +176,7 @@ export async function getWorkTree(id: string): Promise<WorkTreeRow | null> {
 }
 
 export async function getWorkTrees(): Promise<WorkTreeRow[]> {
-  return query<WorkTreeRow[]>(
+  return query<WorkTreeRow>(
     `SELECT * FROM work_trees ORDER BY created_at DESC`
   );
 }
@@ -277,14 +277,14 @@ export async function createAgent(data: {
 }
 
 export async function getAgentsByWorkTree(workTreeId: string): Promise<AgentRow[]> {
-  return query<AgentRow[]>(
+  return query<AgentRow>(
     `SELECT * FROM agents WHERE work_tree_id = ? ORDER BY created_at`,
     { workTreeId }
   );
 }
 
 export async function getAgent(id: string): Promise<AgentRow | null> {
-  const rows = await query<AgentRow[]>(`SELECT * FROM agents WHERE id = ?`, { id });
+  const rows = await query<AgentRow>(`SELECT * FROM agents WHERE id = ?`, { id });
   return rows[0] || null;
 }
 
@@ -358,14 +358,14 @@ export async function createTask(data: {
 }
 
 export async function getTasksByWorkTree(workTreeId: string): Promise<TaskRow[]> {
-  return query<TaskRow[]>(
+  return query<TaskRow>(
     `SELECT * FROM tasks WHERE work_tree_id = ? ORDER BY created_at`,
     { workTreeId }
   );
 }
 
 export async function getTask(id: string): Promise<TaskRow | null> {
-  const rows = await query<TaskRow[]>(`SELECT * FROM tasks WHERE id = ?`, { id });
+  const rows = await query<TaskRow>(`SELECT * FROM tasks WHERE id = ?`, { id });
   return rows[0] || null;
 }
 
@@ -457,7 +457,7 @@ export async function createArtifact(data: {
 }
 
 export async function getArtifactsByWorkTree(workTreeId: string): Promise<ArtifactRow[]> {
-  return query<ArtifactRow[]>(
+  return query<ArtifactRow>(
     `SELECT * FROM artifacts WHERE work_tree_id = ? ORDER BY created_at DESC`,
     { workTreeId }
   );
@@ -518,7 +518,7 @@ export async function createApproval(data: {
 }
 
 export async function getApprovalsByWorkTree(workTreeId: string): Promise<ApprovalRow[]> {
-  return query<ApprovalRow[]>(
+  return query<ApprovalRow>(
     `SELECT * FROM approvals WHERE work_tree_id = ? ORDER BY requested_at DESC`,
     { workTreeId }
   );
@@ -583,7 +583,7 @@ export async function createActivityEvent(data: {
 }
 
 export async function getActivityEventsByWorkTree(workTreeId: string, limit = 100): Promise<ActivityEventRow[]> {
-  return query<ActivityEventRow[]>(
+  return query<ActivityEventRow>(
     `SELECT * FROM activity_events WHERE work_tree_id = ? ORDER BY timestamp DESC LIMIT ?`,
     { workTreeId, limit }
   );
@@ -633,7 +633,7 @@ export async function createMemory(data: {
 }
 
 export async function getMemoriesByWorkTree(workTreeId: string): Promise<MemoryRow[]> {
-  return query<MemoryRow[]>(
+  return query<MemoryRow>(
     `SELECT * FROM memories WHERE work_tree_id = ? OR work_tree_id IS NULL ORDER BY created_at DESC`,
     { workTreeId }
   );
@@ -689,7 +689,7 @@ export async function createWorkTreePlan(data: {
 }
 
 export async function getWorkTreePlan(workTreeId: string): Promise<WorkTreePlanRow | null> {
-  const rows = await query<WorkTreePlanRow[]>(
+  const rows = await query<WorkTreePlanRow>(
     `SELECT * FROM work_tree_plans WHERE work_tree_id = ? ORDER BY created_at DESC LIMIT 1`,
     { workTreeId }
   );

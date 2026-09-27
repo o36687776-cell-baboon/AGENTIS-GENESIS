@@ -25,13 +25,19 @@ const vpcStack = new GenesisVpcStack(app, `${appName}-vpc-${envName}`, {
   appName,
 });
 
+const dbSecurityGroupId = cdk.Fn.importValue(`${appName}-db-sg-id-${envName}`);
+const lambdaSecurityGroupId = cdk.Fn.importValue(`${appName}-lambda-sg-id-${envName}`);
+const dbSubnetGroupName = cdk.Fn.importValue(`${appName}-db-subnet-group-name-${envName}`);
+const vpcId = cdk.Fn.importValue(`${appName}-vpc-id-${envName}`);
+
 const databaseStack = new GenesisDatabaseStack(app, `${appName}-database-${envName}`, {
   env,
   envName,
   appName,
-  vpc: vpcStack.vpc,
-  dbSecurityGroup: vpcStack.dbSecurityGroup,
-  lambdaSecurityGroup: vpcStack.lambdaSecurityGroup,
+  dbSecurityGroupId,
+  lambdaSecurityGroupId,
+  dbSubnetGroupName,
+  vpcId,
 });
 
 const storageStack = new GenesisStorageStack(app, `${appName}-storage-${envName}`, {
@@ -72,7 +78,6 @@ const stepFunctionsStack = new GenesisStepFunctionsStack(app, `${appName}-stepfu
   dbProxyEndpoint: databaseStack.dbProxyEndpoint,
   artifactBucket: storageStack.artifactBucket,
   bedrockApiKeySecret: secretsStack.bedrockApiKeySecret,
-  apiHandlerFunction: apiStack.apiHandlerFunction,
 });
 
 new GenesisMonitoringStack(app, `${appName}-monitoring-${envName}`, {

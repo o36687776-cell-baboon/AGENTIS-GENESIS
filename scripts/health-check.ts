@@ -6,8 +6,7 @@
 
 import { getConfig } from "../src/server/config";
 import { healthCheck as dbHealthCheck } from "../src/server/database";
-import { getBedrockApiKey } from "../src/server/ai/secrets";
-import { BedrockRuntimeClient, ListFoundationModelsCommand } from "@aws-sdk/client-bedrock-runtime";
+import { BedrockRuntimeClient, ConverseCommand } from "@aws-sdk/client-bedrock-runtime";
 import { S3Client, HeadBucketCommand } from "@aws-sdk/client-s3";
 import { SecretsManagerClient, GetSecretValueCommand } from "@aws-sdk/client-secrets-manager";
 
@@ -41,7 +40,11 @@ async function checkBedrock(): Promise<{ ok: boolean; error?: string }> {
   }
   try {
     const client = new BedrockRuntimeClient({ region: config.awsRegion });
-    await client.send(new ListFoundationModelsCommand({}));
+    await client.send(new ConverseCommand({
+      modelId: config.bedrockModelId,
+      messages: [{ role: "user", content: [{ text: "test" }] }],
+      inferenceConfig: { maxTokens: 10 },
+    }));
     return { ok: true };
   } catch (error) {
     return { ok: false, error: error instanceof Error ? error.message : "Unknown error" };

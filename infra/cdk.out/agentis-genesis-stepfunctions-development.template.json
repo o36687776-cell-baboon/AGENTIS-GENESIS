@@ -1,0 +1,946 @@
+{
+ "Resources": {
+  "StepFunctionsRole575CBBE2": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "states.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "RoleName": "agentis-genesis-stepfunctions-role-development"
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/StepFunctionsRole/Resource"
+   }
+  },
+  "StepFunctionsRoleDefaultPolicy14E0B433": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:aws:lambda:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":function:agentis-genesis-*"
+         ]
+        ]
+       }
+      },
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "AgentWorkerFunctionC0571EDB",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "AgentWorkerFunctionC0571EDB",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "PlannerFunction7813D2C8",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "PlannerFunction7813D2C8",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": "lambda:InvokeFunction",
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::GetAtt": [
+          "VerificationFunctionB0621202",
+          "Arn"
+         ]
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::GetAtt": [
+             "VerificationFunctionB0621202",
+             "Arn"
+            ]
+           },
+           ":*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "logs:CreateLogDelivery",
+        "logs:GetLogDelivery",
+        "logs:UpdateLogDelivery",
+        "logs:DeleteLogDelivery",
+        "logs:ListLogDeliveries",
+        "logs:PutResourcePolicy",
+        "logs:DescribeResourcePolicies",
+        "logs:DescribeLogGroups"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": [
+        "xray:PutTraceSegments",
+        "xray:PutTelemetryRecords",
+        "xray:GetSamplingRules",
+        "xray:GetSamplingTargets"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "StepFunctionsRoleDefaultPolicy14E0B433",
+    "Roles": [
+     {
+      "Ref": "StepFunctionsRole575CBBE2"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/StepFunctionsRole/DefaultPolicy/Resource"
+   }
+  },
+  "WorkerRole8DD27D41": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaVPCAccessExecutionRole"
+       ]
+      ]
+     },
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/CloudWatchLogsFullAccess"
+       ]
+      ]
+     }
+    ],
+    "RoleName": "agentis-genesis-worker-role-development"
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/WorkerRole/Resource"
+   }
+  },
+  "WorkerRoleDefaultPolicy1750E153": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseSecret86DBB7B353068790"
+       }
+      },
+      {
+       "Action": [
+        "secretsmanager:GetSecretValue",
+        "secretsmanager:DescribeSecret"
+       ],
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::ImportValue": "agentis-genesis-secrets-development:ExportsOutputRefBedrockApiKeySecret478226FA0DE7930F"
+       }
+      },
+      {
+       "Action": [
+        "s3:GetObject*",
+        "s3:GetBucket*",
+        "s3:List*",
+        "s3:DeleteObject*",
+        "s3:PutObject",
+        "s3:PutObjectLegalHold",
+        "s3:PutObjectRetention",
+        "s3:PutObjectTagging",
+        "s3:PutObjectVersionTagging",
+        "s3:Abort*"
+       ],
+       "Effect": "Allow",
+       "Resource": [
+        {
+         "Fn::ImportValue": "agentis-genesis-storage-development:ExportsOutputFnGetAttArtifactBucket7410C9EFArnA3946625"
+        },
+        {
+         "Fn::Join": [
+          "",
+          [
+           {
+            "Fn::ImportValue": "agentis-genesis-storage-development:ExportsOutputFnGetAttArtifactBucket7410C9EFArnA3946625"
+           },
+           "/*"
+          ]
+         ]
+        }
+       ]
+      },
+      {
+       "Action": [
+        "bedrock:InvokeModel",
+        "bedrock:InvokeModelWithResponseStream",
+        "bedrock:Converse",
+        "bedrock:ConverseStream",
+        "bedrock:ListFoundationModels"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      },
+      {
+       "Action": "rds-db:connect",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::Join": [
+         "",
+         [
+          "arn:aws:rds-db:",
+          {
+           "Ref": "AWS::Region"
+          },
+          ":",
+          {
+           "Ref": "AWS::AccountId"
+          },
+          ":dbuser:",
+          {
+           "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+          },
+          "/*"
+         ]
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "WorkerRoleDefaultPolicy1750E153",
+    "Roles": [
+     {
+      "Ref": "WorkerRole8DD27D41"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/WorkerRole/DefaultPolicy/Resource"
+   }
+  },
+  "PlannerFunction7813D2C8": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Architectures": [
+     "arm64"
+    ],
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
+     },
+     "S3Key": "220290fd4dd1bccfb43d30c7050a6be3550bb7e7940238e6c19d6f5a1ad5e60f.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "NODE_ENV": "development",
+      "ENVIRONMENT": "development",
+      "DATABASE_SECRET_ARN": {
+       "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseSecret86DBB7B353068790"
+      },
+      "DATABASE_PROXY_ENDPOINT": {
+       "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputFnGetAttDatabaseProxy3E84A7D6Endpoint89149F8B"
+      },
+      "DATABASE_NAME": "genesis",
+      "DATABASE_PORT": "3306",
+      "ARTIFACT_BUCKET_NAME": {
+       "Fn::ImportValue": "agentis-genesis-storage-development:ExportsOutputRefArtifactBucket7410C9EF659B6D66"
+      },
+      "BEDROCK_API_KEY_SECRET_ARN": {
+       "Fn::ImportValue": "agentis-genesis-secrets-development:ExportsOutputRefBedrockApiKeySecret478226FA0DE7930F"
+      },
+      "BEDROCK_MODEL_ID": "anthropic.claude-3-5-sonnet-20241022-v2:0",
+      "MOCK_AI": "true"
+     }
+    },
+    "FunctionName": "agentis-genesis-planner-development",
+    "Handler": "dist/planner.handler",
+    "MemorySize": 512,
+    "Role": {
+     "Fn::GetAtt": [
+      "WorkerRole8DD27D41",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 600,
+    "VpcConfig": {
+     "SecurityGroupIds": [
+      {
+       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputFnGetAttLambdaSecurityGroup0BD9FC99GroupId34A98CFB"
+      }
+     ],
+     "SubnetIds": [
+      {
+       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373"
+      },
+      {
+       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D"
+      }
+     ]
+    }
+   },
+   "DependsOn": [
+    "WorkerRoleDefaultPolicy1750E153",
+    "WorkerRole8DD27D41"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/PlannerFunction/Resource",
+    "aws:asset:path": "asset.220290fd4dd1bccfb43d30c7050a6be3550bb7e7940238e6c19d6f5a1ad5e60f",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "PlannerFunctionLogRetention59F367F5": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "PlannerFunction7813D2C8"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 7
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/PlannerFunction/LogRetention/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB": {
+   "Type": "AWS::IAM::Role",
+   "Properties": {
+    "AssumeRolePolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sts:AssumeRole",
+       "Effect": "Allow",
+       "Principal": {
+        "Service": "lambda.amazonaws.com"
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "ManagedPolicyArns": [
+     {
+      "Fn::Join": [
+       "",
+       [
+        "arn:",
+        {
+         "Ref": "AWS::Partition"
+        },
+        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+       ]
+      ]
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB": {
+   "Type": "AWS::IAM::Policy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": [
+        "logs:PutRetentionPolicy",
+        "logs:DeleteRetentionPolicy"
+       ],
+       "Effect": "Allow",
+       "Resource": "*"
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "PolicyName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+    "Roles": [
+     {
+      "Ref": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource"
+   }
+  },
+  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Handler": "index.handler",
+    "Runtime": "nodejs24.x",
+    "Timeout": 900,
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
+     },
+     "S3Key": "2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d.zip"
+    },
+    "Role": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
+      "Arn"
+     ]
+    }
+   },
+   "DependsOn": [
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
+    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource",
+    "aws:asset:path": "asset.2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "AgentWorkerFunctionC0571EDB": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Architectures": [
+     "arm64"
+    ],
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
+     },
+     "S3Key": "220290fd4dd1bccfb43d30c7050a6be3550bb7e7940238e6c19d6f5a1ad5e60f.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "NODE_ENV": "development",
+      "ENVIRONMENT": "development",
+      "DATABASE_SECRET_ARN": {
+       "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseSecret86DBB7B353068790"
+      },
+      "DATABASE_PROXY_ENDPOINT": {
+       "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputFnGetAttDatabaseProxy3E84A7D6Endpoint89149F8B"
+      },
+      "DATABASE_NAME": "genesis",
+      "DATABASE_PORT": "3306",
+      "ARTIFACT_BUCKET_NAME": {
+       "Fn::ImportValue": "agentis-genesis-storage-development:ExportsOutputRefArtifactBucket7410C9EF659B6D66"
+      },
+      "BEDROCK_API_KEY_SECRET_ARN": {
+       "Fn::ImportValue": "agentis-genesis-secrets-development:ExportsOutputRefBedrockApiKeySecret478226FA0DE7930F"
+      },
+      "BEDROCK_MODEL_ID": "anthropic.claude-3-5-sonnet-20241022-v2:0",
+      "MOCK_AI": "true"
+     }
+    },
+    "FunctionName": "agentis-genesis-agent-worker-development",
+    "Handler": "dist/agent-worker.handler",
+    "MemorySize": 512,
+    "Role": {
+     "Fn::GetAtt": [
+      "WorkerRole8DD27D41",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 600,
+    "VpcConfig": {
+     "SecurityGroupIds": [
+      {
+       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputFnGetAttLambdaSecurityGroup0BD9FC99GroupId34A98CFB"
+      }
+     ],
+     "SubnetIds": [
+      {
+       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373"
+      },
+      {
+       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D"
+      }
+     ]
+    }
+   },
+   "DependsOn": [
+    "WorkerRoleDefaultPolicy1750E153",
+    "WorkerRole8DD27D41"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/AgentWorkerFunction/Resource",
+    "aws:asset:path": "asset.220290fd4dd1bccfb43d30c7050a6be3550bb7e7940238e6c19d6f5a1ad5e60f",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "AgentWorkerFunctionLogRetention15DD28DE": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "AgentWorkerFunctionC0571EDB"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 7
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/AgentWorkerFunction/LogRetention/Resource"
+   }
+  },
+  "VerificationFunctionB0621202": {
+   "Type": "AWS::Lambda::Function",
+   "Properties": {
+    "Architectures": [
+     "arm64"
+    ],
+    "Code": {
+     "S3Bucket": {
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
+     },
+     "S3Key": "220290fd4dd1bccfb43d30c7050a6be3550bb7e7940238e6c19d6f5a1ad5e60f.zip"
+    },
+    "Environment": {
+     "Variables": {
+      "NODE_ENV": "development",
+      "ENVIRONMENT": "development",
+      "DATABASE_SECRET_ARN": {
+       "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseSecret86DBB7B353068790"
+      },
+      "DATABASE_PROXY_ENDPOINT": {
+       "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputFnGetAttDatabaseProxy3E84A7D6Endpoint89149F8B"
+      },
+      "DATABASE_NAME": "genesis",
+      "DATABASE_PORT": "3306",
+      "ARTIFACT_BUCKET_NAME": {
+       "Fn::ImportValue": "agentis-genesis-storage-development:ExportsOutputRefArtifactBucket7410C9EF659B6D66"
+      },
+      "BEDROCK_API_KEY_SECRET_ARN": {
+       "Fn::ImportValue": "agentis-genesis-secrets-development:ExportsOutputRefBedrockApiKeySecret478226FA0DE7930F"
+      },
+      "BEDROCK_MODEL_ID": "anthropic.claude-3-5-sonnet-20241022-v2:0",
+      "MOCK_AI": "true"
+     }
+    },
+    "FunctionName": "agentis-genesis-verification-development",
+    "Handler": "dist/verification.handler",
+    "MemorySize": 512,
+    "Role": {
+     "Fn::GetAtt": [
+      "WorkerRole8DD27D41",
+      "Arn"
+     ]
+    },
+    "Runtime": "nodejs20.x",
+    "Timeout": 600,
+    "VpcConfig": {
+     "SecurityGroupIds": [
+      {
+       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputFnGetAttLambdaSecurityGroup0BD9FC99GroupId34A98CFB"
+      }
+     ],
+     "SubnetIds": [
+      {
+       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373"
+      },
+      {
+       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D"
+      }
+     ]
+    }
+   },
+   "DependsOn": [
+    "WorkerRoleDefaultPolicy1750E153",
+    "WorkerRole8DD27D41"
+   ],
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/VerificationFunction/Resource",
+    "aws:asset:path": "asset.220290fd4dd1bccfb43d30c7050a6be3550bb7e7940238e6c19d6f5a1ad5e60f",
+    "aws:asset:is-bundled": false,
+    "aws:asset:property": "Code"
+   }
+  },
+  "VerificationFunctionLogRetentionCAB8235B": {
+   "Type": "Custom::LogRetention",
+   "Properties": {
+    "ServiceToken": {
+     "Fn::GetAtt": [
+      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
+      "Arn"
+     ]
+    },
+    "LogGroupName": {
+     "Fn::Join": [
+      "",
+      [
+       "/aws/lambda/",
+       {
+        "Ref": "VerificationFunctionB0621202"
+       }
+      ]
+     ]
+    },
+    "RetentionInDays": 7
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/VerificationFunction/LogRetention/Resource"
+   }
+  },
+  "StateMachineLogGroup15B91BCB": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/aws/vendedlogs/states/agentis-genesis-workflow-development",
+    "RetentionInDays": 7
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/StateMachineLogGroup/Resource"
+   }
+  },
+  "GenesisWorkflowFD3910B7": {
+   "Type": "AWS::StepFunctions::StateMachine",
+   "Properties": {
+    "DefinitionString": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"StartAt\":\"Load Work Tree\",\"States\":{\"Load Work Tree\":{\"Next\":\"Generate Plan\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.workTree\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"",
+       {
+        "Fn::GetAtt": [
+         "AgentWorkerFunctionC0571EDB",
+         "Arn"
+        ]
+       },
+       "\",\"Payload\":{\"action\":\"loadWorkTree\",\"workTreeId.$\":\"$.workTreeId\"}}},\"Generate Plan\":{\"Next\":\"Create Tasks\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.plan\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"",
+       {
+        "Fn::GetAtt": [
+         "PlannerFunction7813D2C8",
+         "Arn"
+        ]
+       },
+       "\",\"Payload\":{\"action\":\"generatePlan\",\"workTree.$\":\"$.workTree\",\"objective.$\":\"$.objective\"}}},\"Create Tasks\":{\"Next\":\"Execute Agents\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.tasks\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"",
+       {
+        "Fn::GetAtt": [
+         "AgentWorkerFunctionC0571EDB",
+         "Arn"
+        ]
+       },
+       "\",\"Payload\":{\"action\":\"createTasks\",\"workTreeId.$\":\"$.workTree.id\",\"plan.$\":\"$.plan\"}}},\"Execute Agents\":{\"Type\":\"Map\",\"ResultPath\":\"$.executionResults\",\"Next\":\"Store Results\",\"ItemsPath\":\"$.tasks\",\"MaxConcurrency\":3,\"Iterator\":{\"StartAt\":\"Execute Agent Task\",\"States\":{\"Execute Agent Task\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.result\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"",
+       {
+        "Fn::GetAtt": [
+         "AgentWorkerFunctionC0571EDB",
+         "Arn"
+        ]
+       },
+       "\",\"Payload\":{\"action\":\"executeTask\",\"task.$\":\"$\",\"workTreeId.$\":\"$.workTreeId\"}}}}}},\"Store Results\":{\"Next\":\"Verify Results\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.storedResults\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"",
+       {
+        "Fn::GetAtt": [
+         "AgentWorkerFunctionC0571EDB",
+         "Arn"
+        ]
+       },
+       "\",\"Payload\":{\"action\":\"storeResults\",\"workTreeId.$\":\"$.workTreeId\",\"executionResults.$\":\"$.executionResults\"}}},\"Verify Results\":{\"Next\":\"Approval Required?\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.verification\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"",
+       {
+        "Fn::GetAtt": [
+         "VerificationFunctionB0621202",
+         "Arn"
+        ]
+       },
+       "\",\"Payload\":{\"action\":\"verify\",\"workTreeId.$\":\"$.workTreeId\",\"results.$\":\"$.storedResults\"}}},\"Approval Required?\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.verification.Payload.requiresApproval\",\"BooleanEquals\":true,\"Next\":\"Wait for Approval\"}],\"Default\":\"No Approval Required\"},\"No Approval Required\":{\"Type\":\"Pass\",\"Next\":\"Finalize\"},\"Finalize\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.outcome\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"",
+       {
+        "Fn::GetAtt": [
+         "AgentWorkerFunctionC0571EDB",
+         "Arn"
+        ]
+       },
+       "\",\"Payload\":{\"action\":\"finalize\",\"workTreeId.$\":\"$.workTreeId\",\"results.$\":\"$.storedResults\",\"verification.$\":\"$.verification\"}}},\"Continue After Approval\":{\"Type\":\"Pass\",\"Next\":\"Finalize\"},\"Approval Granted?\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.approvalResult.Payload.approved\",\"BooleanEquals\":true,\"Next\":\"Continue After Approval\"}],\"Default\":\"Approval Rejected\"},\"Check Approval\":{\"Next\":\"Approval Granted?\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.approvalResult\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::lambda:invoke\",\"Parameters\":{\"FunctionName\":\"",
+       {
+        "Fn::GetAtt": [
+         "AgentWorkerFunctionC0571EDB",
+         "Arn"
+        ]
+       },
+       "\",\"Payload\":{\"action\":\"checkApproval\",\"workTreeId.$\":\"$.workTreeId\"}}},\"Wait for Approval\":{\"Type\":\"Wait\",\"TimestampPath\":\"$.verification.Payload.approvalDeadline\",\"Next\":\"Check Approval\"},\"Approval Rejected\":{\"Type\":\"Fail\",\"Error\":\"APPROVAL_REJECTED\",\"Cause\":\"Approval rejected by user\"}},\"TimeoutSeconds\":7200}"
+      ]
+     ]
+    },
+    "LoggingConfiguration": {
+     "Destinations": [
+      {
+       "CloudWatchLogsLogGroup": {
+        "LogGroupArn": {
+         "Fn::GetAtt": [
+          "StateMachineLogGroup15B91BCB",
+          "Arn"
+         ]
+        }
+       }
+      }
+     ],
+     "Level": "ALL"
+    },
+    "RoleArn": {
+     "Fn::GetAtt": [
+      "StepFunctionsRole575CBBE2",
+      "Arn"
+     ]
+    },
+    "StateMachineName": "agentis-genesis-workflow-development",
+    "TracingConfiguration": {
+     "Enabled": true
+    }
+   },
+   "DependsOn": [
+    "StepFunctionsRoleDefaultPolicy14E0B433",
+    "StepFunctionsRole575CBBE2"
+   ],
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/GenesisWorkflow/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/1WPT2uDQBDFP0vu47TVQ8+NkBIwNOihR5mso9mou+LMJhTxuxdNU9rT+z3m74sxfn3B5w3dJDJVG3X2hFOhZFqgm5STpR6n3HcMae1WPfrOmq/F3mmGjvpTRTjtgjNqvVtqD55BkpJEWAXfFgFJcBtMy7olYeh8IzhlvslZ2a3TmW/eRx+GZc2DZxDlof5ZKqWStILZenjvrr7l/w04HWiA9OytYfgkq3AkEdiR7aBQUj6QOVu3pvrr5xnWLwulxrpmDc3iw2gYfiGt3UfQIegMzleMF3m6xjHGCcabi1gbjcGp7Rnzu34D41jC+GQBAAA="
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "StateMachineArn": {
+   "Value": {
+    "Ref": "GenesisWorkflowFD3910B7"
+   },
+   "Export": {
+    "Name": "agentis-genesis-state-machine-arn-development"
+   }
+  },
+  "StateMachineName": {
+   "Value": {
+    "Fn::GetAtt": [
+     "GenesisWorkflowFD3910B7",
+     "Name"
+    ]
+   },
+   "Export": {
+    "Name": "agentis-genesis-state-machine-name-development"
+   }
+  },
+  "PlannerFunctionName": {
+   "Value": {
+    "Ref": "PlannerFunction7813D2C8"
+   },
+   "Export": {
+    "Name": "agentis-genesis-planner-function-name-development"
+   }
+  },
+  "AgentWorkerFunctionName": {
+   "Value": {
+    "Ref": "AgentWorkerFunctionC0571EDB"
+   },
+   "Export": {
+    "Name": "agentis-genesis-agent-worker-function-name-development"
+   }
+  },
+  "VerificationFunctionName": {
+   "Value": {
+    "Ref": "VerificationFunctionB0621202"
+   },
+   "Export": {
+    "Name": "agentis-genesis-verification-function-name-development"
+   }
+  },
+  "ExportsOutputRefGenesisWorkflowFD3910B71BC0A291": {
+   "Value": {
+    "Ref": "GenesisWorkflowFD3910B7"
+   },
+   "Export": {
+    "Name": "agentis-genesis-stepfunctions-development:ExportsOutputRefGenesisWorkflowFD3910B71BC0A291"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

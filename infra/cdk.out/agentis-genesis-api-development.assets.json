@@ -1,0 +1,51 @@
+{
+  "version": "54.0.0",
+  "files": {
+    "220290fd4dd1bccfb43d30c7050a6be3550bb7e7940238e6c19d6f5a1ad5e60f": {
+      "displayName": "ApiHandlerFunction/Code",
+      "source": {
+        "path": "asset.220290fd4dd1bccfb43d30c7050a6be3550bb7e7940238e6c19d6f5a1ad5e60f",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "current_account-us-east-1-14ee798e": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
+          "objectKey": "220290fd4dd1bccfb43d30c7050a6be3550bb7e7940238e6c19d6f5a1ad5e60f.zip",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
+        }
+      }
+    },
+    "2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d": {
+      "displayName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Code",
+      "source": {
+        "path": "asset.2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d",
+        "packaging": "zip"
+      },
+      "destinations": {
+        "current_account-us-east-1-213451c5": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
+          "objectKey": "2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d.zip",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
+        }
+      }
+    },
+    "6d5384e09c6fd5fff0d3f938e03b8d663872c2802a5fc55ed5ce265f6d5dd5ad": {
+      "displayName": "agentis-genesis-api-development Template",
+      "source": {
+        "path": "agentis-genesis-api-development.template.json",
+        "packaging": "file"
+      },
+      "destinations": {
+        "current_account-us-east-1-6eebf360": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
+          "objectKey": "6d5384e09c6fd5fff0d3f938e03b8d663872c2802a5fc55ed5ce265f6d5dd5ad.json",
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
+        }
+      }
+    }
+  },
+  "dockerImages": {}
+}

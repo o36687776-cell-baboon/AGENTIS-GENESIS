@@ -1,0 +1,303 @@
+{
+ "Resources": {
+  "GenesisDashboard6D14D33F": {
+   "Type": "AWS::CloudWatch::Dashboard",
+   "Properties": {
+    "DashboardBody": {
+     "Fn::Join": [
+      "",
+      [
+       "{\"widgets\":[{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":0,\"properties\":{\"view\":\"timeSeries\",\"title\":\"API Gateway Error Rate\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/ApiGateway\",\"5XXError\",\"ApiId\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiGateway11E7F47BFA6EBBFD"
+       },
+       "\",{\"stat\":\"Sum\"}],[\"AWS/ApiGateway\",\"4XXError\",\"ApiId\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiGateway11E7F47BFA6EBBFD"
+       },
+       "\",{\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":0,\"properties\":{\"view\":\"timeSeries\",\"title\":\"API Gateway Latency (p50, p95, p99)\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/ApiGateway\",\"Latency\",\"ApiId\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiGateway11E7F47BFA6EBBFD"
+       },
+       "\",{\"stat\":\"p50\"}],[\"AWS/ApiGateway\",\"Latency\",\"ApiId\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiGateway11E7F47BFA6EBBFD"
+       },
+       "\",{\"stat\":\"p95\"}],[\"AWS/ApiGateway\",\"Latency\",\"ApiId\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiGateway11E7F47BFA6EBBFD"
+       },
+       "\",{\"stat\":\"p99\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":6,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Lambda Errors\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiHandlerFunction9E589C02EF95A9EB"
+       },
+       "\",{\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":6,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Lambda Duration\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/Lambda\",\"Duration\",\"FunctionName\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiHandlerFunction9E589C02EF95A9EB"
+       },
+       "\",{\"stat\":\"p50\"}],[\"AWS/Lambda\",\"Duration\",\"FunctionName\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiHandlerFunction9E589C02EF95A9EB"
+       },
+       "\",{\"stat\":\"p95\"}],[\"AWS/Lambda\",\"Duration\",\"FunctionName\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiHandlerFunction9E589C02EF95A9EB"
+       },
+       "\",{\"stat\":\"p99\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":12,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Database Connections\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/RDS\",\"DatabaseConnections\",\"DBInstanceIdentifier\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+       },
+       "\"]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":12,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Database CPU Utilization\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/RDS\",\"CPUUtilization\",\"DBInstanceIdentifier\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+       },
+       "\"]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":18,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Database Free Storage\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/RDS\",\"FreeStorageSpace\",\"DBInstanceIdentifier\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+       },
+       "\"]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":18,\"properties\":{\"view\":\"timeSeries\",\"title\":\"S3 Bucket Size\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/S3\",\"BucketSizeBytes\",\"BucketName\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-storage-development:ExportsOutputRefArtifactBucket7410C9EF659B6D66"
+       },
+       "\",\"StorageType\",\"StandardStorage\",{\"period\":86400}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":24,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Step Functions Executions\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/States\",\"ExecutionsStarted\",\"StateMachineArn\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-stepfunctions-development:ExportsOutputRefGenesisWorkflowFD3910B71BC0A291"
+       },
+       "\",{\"stat\":\"Sum\"}],[\"AWS/States\",\"ExecutionsSucceeded\",\"StateMachineArn\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-stepfunctions-development:ExportsOutputRefGenesisWorkflowFD3910B71BC0A291"
+       },
+       "\",{\"stat\":\"Sum\"}],[\"AWS/States\",\"ExecutionsFailed\",\"StateMachineArn\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-stepfunctions-development:ExportsOutputRefGenesisWorkflowFD3910B71BC0A291"
+       },
+       "\",{\"stat\":\"Sum\"}],[\"AWS/States\",\"ExecutionsTimedOut\",\"StateMachineArn\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-stepfunctions-development:ExportsOutputRefGenesisWorkflowFD3910B71BC0A291"
+       },
+       "\",{\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":24,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Step Functions Execution Duration\",\"region\":\"",
+       {
+        "Ref": "AWS::Region"
+       },
+       "\",\"metrics\":[[\"AWS/States\",\"ExecutionTime\",\"StateMachineArn\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-stepfunctions-development:ExportsOutputRefGenesisWorkflowFD3910B71BC0A291"
+       },
+       "\",{\"stat\":\"p50\"}],[\"AWS/States\",\"ExecutionTime\",\"StateMachineArn\",\"",
+       {
+        "Fn::ImportValue": "agentis-genesis-stepfunctions-development:ExportsOutputRefGenesisWorkflowFD3910B71BC0A291"
+       },
+       "\",{\"stat\":\"p95\"}]],\"yAxis\":{}}}]}"
+      ]
+     ]
+    },
+    "DashboardName": "agentis-genesis-dashboard-development"
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-monitoring-development/GenesisDashboard/Resource"
+   }
+  },
+  "ApiErrorRateAlarm309C54E5": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmName": "agentis-genesis-api-error-rate-development",
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "Dimensions": [
+     {
+      "Name": "ApiId",
+      "Value": {
+       "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiGateway11E7F47BFA6EBBFD"
+      }
+     }
+    ],
+    "EvaluationPeriods": 2,
+    "MetricName": "5XXError",
+    "Namespace": "AWS/ApiGateway",
+    "Period": 300,
+    "Statistic": "Sum",
+    "Threshold": 10,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-monitoring-development/ApiErrorRateAlarm/Resource"
+   }
+  },
+  "LambdaErrorAlarm646BFA4C": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmName": "agentis-genesis-lambda-error-rate-development",
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "Dimensions": [
+     {
+      "Name": "FunctionName",
+      "Value": {
+       "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiHandlerFunction9E589C02EF95A9EB"
+      }
+     }
+    ],
+    "EvaluationPeriods": 2,
+    "MetricName": "Errors",
+    "Namespace": "AWS/Lambda",
+    "Period": 300,
+    "Statistic": "Sum",
+    "Threshold": 5,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-monitoring-development/LambdaErrorAlarm/Resource"
+   }
+  },
+  "DatabaseCpuAlarmFB0E33CD": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmName": "agentis-genesis-database-cpu-development",
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "Dimensions": [
+     {
+      "Name": "DBInstanceIdentifier",
+      "Value": {
+       "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+      }
+     }
+    ],
+    "EvaluationPeriods": 3,
+    "MetricName": "CPUUtilization",
+    "Namespace": "AWS/RDS",
+    "Period": 300,
+    "Statistic": "Average",
+    "Threshold": 80,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-monitoring-development/DatabaseCpuAlarm/Resource"
+   }
+  },
+  "StepFunctionsFailureAlarm49040B2D": {
+   "Type": "AWS::CloudWatch::Alarm",
+   "Properties": {
+    "AlarmName": "agentis-genesis-stepfunctions-failure-development",
+    "ComparisonOperator": "GreaterThanOrEqualToThreshold",
+    "Dimensions": [
+     {
+      "Name": "StateMachineArn",
+      "Value": {
+       "Fn::ImportValue": "agentis-genesis-stepfunctions-development:ExportsOutputRefGenesisWorkflowFD3910B71BC0A291"
+      }
+     }
+    ],
+    "EvaluationPeriods": 1,
+    "MetricName": "ExecutionsFailed",
+    "Namespace": "AWS/States",
+    "Period": 300,
+    "Statistic": "Sum",
+    "Threshold": 1,
+    "TreatMissingData": "notBreaching"
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-monitoring-development/StepFunctionsFailureAlarm/Resource"
+   }
+  },
+  "CDKMetadata": {
+   "Type": "AWS::CDK::Metadata",
+   "Properties": {
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/0WIvQ6CMBCAn4W9PfUcnInuJvIA5GghFEpLelc7EN7doIPT94OAtwucKyqsjZ21dx1sjZCZFRVujY/ZFhIzwvYgHrtIyar7EP5Re0rLsb6yH/bMsmbZVYi2h4lPb0TAK2A1sXM65SBu6eH14wfnLQ5nggAAAA=="
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-monitoring-development/CDKMetadata/Default"
+   }
+  }
+ },
+ "Outputs": {
+  "DashboardUrl": {
+   "Value": {
+    "Fn::Join": [
+     "",
+     [
+      "https://",
+      {
+       "Ref": "AWS::Region"
+      },
+      ".console.aws.amazon.com/cloudwatch/home?region=",
+      {
+       "Ref": "AWS::Region"
+      },
+      "#dashboards:name=agentis-genesis-dashboard-development"
+     ]
+    ]
+   },
+   "Export": {
+    "Name": "agentis-genesis-dashboard-url-development"
+   }
+  }
+ },
+ "Parameters": {
+  "BootstrapVersion": {
+   "Type": "AWS::SSM::Parameter::Value<String>",
+   "Default": "/cdk-bootstrap/hnb659fds/version",
+   "Description": "Version of the CDK Bootstrap resources in this environment, automatically retrieved from SSM Parameter Store. [cdk:skip]"
+  }
+ },
+ "Rules": {
+  "CheckBootstrapVersion": {
+   "Assertions": [
+    {
+     "Assert": {
+      "Fn::Not": [
+       {
+        "Fn::Contains": [
+         [
+          "1",
+          "2",
+          "3",
+          "4",
+          "5"
+         ],
+         {
+          "Ref": "BootstrapVersion"
+         }
+        ]
+       }
+      ]
+     },
+     "AssertDescription": "CDK bootstrap stack version 6 required. Please run 'cdk bootstrap' with a recent version of the CDK CLI."
+    }
+   ]
+  }
+ }
+}

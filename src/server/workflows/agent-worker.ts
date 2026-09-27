@@ -1,4 +1,3 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
 import * as db from "../database/services";
 import * as ai from "../ai";
 import { generateId } from "../database/services";
@@ -24,16 +23,15 @@ function createResponse(statusCode: number, body: any) {
   };
 }
 
-export async function handler(event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> {
-  const body = event.body ? JSON.parse(event.body) : {};
-  const action = body.action;
+export async function handler(event: WorkerEvent): Promise<any> {
+  const action = event.action;
 
   try {
     switch (action) {
       case "generatePlan": {
-        const { workTree, objective } = body;
+        const { workTree, objective } = event;
         const plan = await ai.generatePlan({
-          objective: objective || workTree?.objective,
+          objective: objective || workTree?.objective || "",
           context: workTree?.context,
           existingWorkTreeId: workTree?.id,
         });
@@ -41,7 +39,7 @@ export async function handler(event: APIGatewayProxyEventV2): Promise<APIGateway
       }
 
       case "loadWorkTree": {
-        const { workTreeId } = body;
+        const workTreeId = event.workTreeId || "";
         const workTree = await db.getWorkTree(workTreeId);
         if (!workTree) {
           return createResponse(404, { success: false, error: "Work tree not found" });
@@ -57,7 +55,8 @@ export async function handler(event: APIGatewayProxyEventV2): Promise<APIGateway
       }
 
       case "createTasks": {
-        const { workTreeId, plan } = body;
+        const workTreeId = event.workTreeId || "";
+        const plan = event.plan || { tasks: [] };
         const createdTasks = [];
         for (const task of plan.tasks) {
           const created = await db.createTask({
@@ -76,7 +75,11 @@ export async function handler(event: APIGatewayProxyEventV2): Promise<APIGateway
       }
 
       case "executeTask": {
-        const { task, workTreeId } = body;
+        const task = event.task;
+        const workTreeId = event.workTreeId || "";
+        if (!task || !task.id) {
+          return createResponse(400, { success: false, error: "Task is required" });
+        }
         const runId = generateId();
         await db.createActivityEvent({
           workTreeId,
@@ -108,23 +111,23 @@ export async function handler(event: APIGatewayProxyEventV2): Promise<APIGateway
       }
 
       case "storeResults": {
-        const { workTreeId, executionResults } = body;
+        const executionResults = event.executionResults || [];
         return createResponse(200, { success: true, data: { stored: executionResults.length } });
       }
 
       case "verify": {
-        const { workTreeId, results } = body;
+        const workTreeId = event.workTreeId || "";
         const requiresApproval = false;
         return createResponse(200, { success: true, data: { requiresApproval, approved: true } });
       }
 
       case "checkApproval": {
-        const { workTreeId } = body;
+        const workTreeId = event.workTreeId || "";
         return createResponse(200, { success: true, data: { approved: true } });
       }
 
       case "finalize": {
-        const { workTreeId, results, verification } = body;
+        const workTreeId = event.workTreeId || "";
         await db.updateWorkTree(workTreeId, { status: "completed", progress: 100, completed_at: new Date() });
         await db.createActivityEvent({
           workTreeId,

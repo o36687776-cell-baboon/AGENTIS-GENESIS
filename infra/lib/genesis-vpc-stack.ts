@@ -1,5 +1,6 @@
 import * as cdk from "aws-cdk-lib";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
+import * as rds from "aws-cdk-lib/aws-rds";
 import { Construct } from "constructs";
 
 export interface GenesisVpcStackProps extends cdk.StackProps {
@@ -11,6 +12,7 @@ export class GenesisVpcStack extends cdk.Stack {
   public readonly vpc: ec2.Vpc;
   public readonly dbSecurityGroup: ec2.SecurityGroup;
   public readonly lambdaSecurityGroup: ec2.SecurityGroup;
+  public readonly dbSubnetGroup: rds.SubnetGroup;
 
   constructor(scope: Construct, id: string, props: GenesisVpcStackProps) {
     super(scope, id, props);
@@ -43,6 +45,13 @@ export class GenesisVpcStack extends cdk.Stack {
       enableDnsSupport: true,
     });
 
+    this.lambdaSecurityGroup = new ec2.SecurityGroup(this, "LambdaSecurityGroup", {
+      vpc: this.vpc,
+      securityGroupName: `${appName}-lambda-sg-${envName}`,
+      description: "Security group for Lambda functions",
+      allowAllOutbound: true,
+    });
+
     this.dbSecurityGroup = new ec2.SecurityGroup(this, "DatabaseSecurityGroup", {
       vpc: this.vpc,
       securityGroupName: `${appName}-db-sg-${envName}`,
@@ -51,23 +60,23 @@ export class GenesisVpcStack extends cdk.Stack {
     });
 
     this.dbSecurityGroup.addIngressRule(
-      ec2.Peer.securityGroupId(this.lambdaSecurityGroup?.securityGroupId ?? ""),
+      ec2.Peer.securityGroupId(this.lambdaSecurityGroup.securityGroupId),
       ec2.Port.tcp(3306),
       "Allow Lambda to connect to MariaDB via RDS Proxy"
     );
-
-    this.lambdaSecurityGroup = new ec2.SecurityGroup(this, "LambdaSecurityGroup", {
-      vpc: this.vpc,
-      securityGroupName: `${appName}-lambda-sg-${envName}`,
-      description: "Security group for Lambda functions",
-      allowAllOutbound: true,
-    });
 
     this.lambdaSecurityGroup.addEgressRule(
       this.dbSecurityGroup,
       ec2.Port.tcp(3306),
       "Allow Lambda to connect to RDS Proxy"
     );
+
+    this.dbSubnetGroup = new rds.SubnetGroup(this, "DatabaseSubnetGroup", {
+      vpc: this.vpc,
+      description: "Subnet group for Genesis MariaDB",
+      vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
+      subnetGroupName: `${appName}-db-subnet-${envName}`,
+    });
 
     new cdk.CfnOutput(this, "VpcId", {
       value: this.vpc.vpcId,
@@ -92,6 +101,11 @@ export class GenesisVpcStack extends cdk.Stack {
     new cdk.CfnOutput(this, "DatabaseSubnetIds", {
       value: this.vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_ISOLATED }).subnetIds.join(","),
       exportName: `${appName}-database-subnet-ids-${envName}`,
+    });
+
+    new cdk.CfnOutput(this, "DatabaseSubnetGroupName", {
+      value: this.dbSubnetGroup.subnetGroupName,
+      exportName: `${appName}-db-subnet-group-name-${envName}`,
     });
   }
 }

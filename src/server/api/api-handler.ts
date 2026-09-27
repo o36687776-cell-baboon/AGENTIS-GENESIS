@@ -1,9 +1,7 @@
-import { APIGatewayProxyEventV2, APIGatewayProxyResultV2 } from "aws-lambda";
-import { getConfig } from "./config";
-import * as db from "./database/services";
-import * as artifacts from "./artifacts";
-import * as ai from "./ai";
-import { generateId } from "./database/services";
+import { getConfig } from "../config";
+import * as db from "../database/services";
+import * as ai from "../ai";
+import { generateId } from "../database/services";
 
 const config = getConfig();
 
@@ -17,7 +15,26 @@ interface ApiResponse<T = any> {
   };
 }
 
-function createResponse<T>(statusCode: number, body: ApiResponse<T>): APIGatewayProxyResultV2 {
+interface ApiEvent {
+  headers: Record<string, string>;
+  requestContext: {
+    requestId: string;
+    http: {
+      method: string;
+      path: string;
+    };
+  };
+  pathParameters?: Record<string, string>;
+  body?: string;
+}
+
+interface ApiResult {
+  statusCode: number;
+  headers: Record<string, string>;
+  body: string;
+}
+
+function createResponse<T>(statusCode: number, body: ApiResponse<T>): ApiResult {
   return {
     statusCode,
     headers: {
@@ -30,11 +47,11 @@ function createResponse<T>(statusCode: number, body: ApiResponse<T>): APIGateway
   };
 }
 
-function getRequestId(event: APIGatewayProxyEventV2): string {
+function getRequestId(event: ApiEvent): string {
   return event.headers["x-request-id"] || event.requestContext.requestId || generateId();
 }
 
-function parseBody(event: APIGatewayProxyEventV2): any {
+function parseBody(event: ApiEvent): any {
   if (!event.body) return null;
   try {
     return JSON.parse(event.body);
@@ -44,8 +61,7 @@ function parseBody(event: APIGatewayProxyEventV2): any {
 }
 
 async function handleHealth(): Promise<ApiResponse> {
-  const dbHealthy = await import("./database").then((m) => m.healthCheck());
-  const config = getConfig();
+  const dbHealthy = await import("../database").then((m) => m.healthCheck());
 
   return {
     success: true,
@@ -69,7 +85,7 @@ async function handleGetWorkTrees(): Promise<ApiResponse> {
   return { success: true, data: workTrees };
 }
 
-async function handleCreateWorkTree(event: APIGatewayProxyEventV2): Promise<ApiResponse> {
+async function handleCreateWorkTree(event: ApiEvent): Promise<ApiResponse> {
   const body = parseBody(event);
   if (!body || !body.name || !body.objective) {
     return { success: false, error: { code: "VALIDATION_ERROR", message: "name and objective are required", requestId: getRequestId(event) } };
@@ -91,7 +107,7 @@ async function handleCreateWorkTree(event: APIGatewayProxyEventV2): Promise<ApiR
   return { success: true, data: workTree };
 }
 
-async function handleGetWorkTree(event: APIGatewayProxyEventV2): Promise<ApiResponse> {
+async function handleGetWorkTree(event: ApiEvent): Promise<ApiResponse> {
   const id = event.pathParameters?.id;
   if (!id) {
     return { success: false, error: { code: "VALIDATION_ERROR", message: "Work tree ID is required", requestId: getRequestId(event) } };
@@ -125,7 +141,7 @@ async function handleGetWorkTree(event: APIGatewayProxyEventV2): Promise<ApiResp
   };
 }
 
-async function handlePlanWorkTree(event: APIGatewayProxyEventV2): Promise<ApiResponse> {
+async function handlePlanWorkTree(event: ApiEvent): Promise<ApiResponse> {
   const id = event.pathParameters?.id;
   if (!id) {
     return { success: false, error: { code: "VALIDATION_ERROR", message: "Work tree ID is required", requestId: getRequestId(event) } };
@@ -168,7 +184,7 @@ async function handlePlanWorkTree(event: APIGatewayProxyEventV2): Promise<ApiRes
   return { success: true, data: plan };
 }
 
-async function handleRunWorkTree(event: APIGatewayProxyEventV2): Promise<ApiResponse> {
+async function handleRunWorkTree(event: ApiEvent): Promise<ApiResponse> {
   const id = event.pathParameters?.id;
   if (!id) {
     return { success: false, error: { code: "VALIDATION_ERROR", message: "Work tree ID is required", requestId: getRequestId(event) } };
@@ -191,7 +207,7 @@ async function handleRunWorkTree(event: APIGatewayProxyEventV2): Promise<ApiResp
   return { success: true, data: { workTreeId: id, status: "running" } };
 }
 
-async function handlePauseWorkTree(event: APIGatewayProxyEventV2): Promise<ApiResponse> {
+async function handlePauseWorkTree(event: ApiEvent): Promise<ApiResponse> {
   const id = event.pathParameters?.id;
   if (!id) {
     return { success: false, error: { code: "VALIDATION_ERROR", message: "Work tree ID is required", requestId: getRequestId(event) } };
@@ -209,7 +225,7 @@ async function handlePauseWorkTree(event: APIGatewayProxyEventV2): Promise<ApiRe
   return { success: true, data: { workTreeId: id, status: "waiting" } };
 }
 
-async function handleResumeWorkTree(event: APIGatewayProxyEventV2): Promise<ApiResponse> {
+async function handleResumeWorkTree(event: ApiEvent): Promise<ApiResponse> {
   const id = event.pathParameters?.id;
   if (!id) {
     return { success: false, error: { code: "VALIDATION_ERROR", message: "Work tree ID is required", requestId: getRequestId(event) } };
@@ -227,7 +243,7 @@ async function handleResumeWorkTree(event: APIGatewayProxyEventV2): Promise<ApiR
   return { success: true, data: { workTreeId: id, status: "running" } };
 }
 
-async function handleGetActivity(event: APIGatewayProxyEventV2): Promise<ApiResponse> {
+async function handleGetActivity(event: ApiEvent): Promise<ApiResponse> {
   const id = event.pathParameters?.id;
   if (!id) {
     return { success: false, error: { code: "VALIDATION_ERROR", message: "Work tree ID is required", requestId: getRequestId(event) } };
@@ -247,7 +263,7 @@ async function handleGetAgents(): Promise<ApiResponse> {
   return { success: true, data: allAgents };
 }
 
-async function handleGetAgent(event: APIGatewayProxyEventV2): Promise<ApiResponse> {
+async function handleGetAgent(event: ApiEvent): Promise<ApiResponse> {
   const id = event.pathParameters?.id;
   if (!id) {
     return { success: false, error: { code: "VALIDATION_ERROR", message: "Agent ID is required", requestId: getRequestId(event) } };
@@ -271,7 +287,7 @@ async function handleGetTasks(): Promise<ApiResponse> {
   return { success: true, data: allTasks };
 }
 
-async function handleApprove(event: APIGatewayProxyEventV2): Promise<ApiResponse> {
+async function handleApprove(event: ApiEvent): Promise<ApiResponse> {
   const id = event.pathParameters?.id;
   if (!id) {
     return { success: false, error: { code: "VALIDATION_ERROR", message: "Approval ID is required", requestId: getRequestId(event) } };
@@ -282,7 +298,7 @@ async function handleApprove(event: APIGatewayProxyEventV2): Promise<ApiResponse
   return { success: true, data: { id, status: "approved" } };
 }
 
-async function handleReject(event: APIGatewayProxyEventV2): Promise<ApiResponse> {
+async function handleReject(event: ApiEvent): Promise<ApiResponse> {
   const id = event.pathParameters?.id;
   if (!id) {
     return { success: false, error: { code: "VALIDATION_ERROR", message: "Approval ID is required", requestId: getRequestId(event) } };
@@ -293,7 +309,7 @@ async function handleReject(event: APIGatewayProxyEventV2): Promise<ApiResponse>
   return { success: true, data: { id, status: "rejected" } };
 }
 
-async function handleAiChat(event: APIGatewayProxyEventV2): Promise<ApiResponse> {
+async function handleAiChat(event: ApiEvent): Promise<ApiResponse> {
   const body = parseBody(event);
   if (!body || !body.message) {
     return { success: false, error: { code: "VALIDATION_ERROR", message: "message is required", requestId: getRequestId(event) } };
@@ -315,7 +331,7 @@ async function handleAiChat(event: APIGatewayProxyEventV2): Promise<ApiResponse>
   };
 }
 
-export async function handler(event: APIGatewayProxyEventV2): Promise<APIGatewayProxyResultV2> {
+export async function handler(event: ApiEvent): Promise<ApiResult> {
   const requestId = getRequestId(event);
   const method = event.requestContext.http.method;
   const path = event.requestContext.http.path;

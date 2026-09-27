@@ -19,7 +19,6 @@ export interface GenesisStepFunctionsStackProps extends cdk.StackProps {
   dbProxyEndpoint: string;
   artifactBucket: s3.Bucket;
   bedrockApiKeySecret: secretsmanager.Secret;
-  apiHandlerFunction: lambda.Function;
 }
 
 export class GenesisStepFunctionsStack extends cdk.Stack {
@@ -31,7 +30,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: GenesisStepFunctionsStackProps) {
     super(scope, id, props);
 
-    const { envName, appName, vpc, lambdaSecurityGroup, database, dbSecret, dbProxyEndpoint, artifactBucket, bedrockApiKeySecret, apiHandlerFunction } = props;
+    const { envName, appName, vpc, lambdaSecurityGroup, database, dbSecret, dbProxyEndpoint, artifactBucket, bedrockApiKeySecret } = props;
 
     const isProduction = envName === "production";
 
@@ -62,7 +61,6 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
       securityGroups: [lambdaSecurityGroup],
       environment: {
         NODE_ENV: envName,
-        AWS_REGION: cdk.Aws.REGION,
         ENVIRONMENT: envName,
         DATABASE_SECRET_ARN: dbSecret.secretArn,
         DATABASE_PROXY_ENDPOINT: dbProxyEndpoint,
@@ -204,6 +202,17 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
       resultPath: "$.verification",
     });
 
+    const finalize = new sfn_tasks.LambdaInvoke(this, "Finalize", {
+      lambdaFunction: this.agentWorkerFunction,
+      payload: sfn.TaskInput.fromObject({
+        action: "finalize",
+        workTreeId: sfn.JsonPath.stringAt("$.workTreeId"),
+        results: sfn.JsonPath.stringAt("$.storedResults"),
+        verification: sfn.JsonPath.stringAt("$.verification"),
+      }),
+      resultPath: "$.outcome",
+    });
+
     const approvalRequired = new sfn.Choice(this, "Approval Required?")
       .when(
         sfn.Condition.booleanEquals("$.verification.Payload.requiresApproval", true),
@@ -221,24 +230,13 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
             new sfn.Choice(this, "Approval Granted?")
               .when(
                 sfn.Condition.booleanEquals("$.approvalResult.Payload.approved", true),
-                new sfn.Pass(this, "Continue After Approval")
+                new sfn.Pass(this, "Continue After Approval").next(finalize)
               )
               .otherwise(new sfn.Fail(this, "Approval Rejected", { cause: "Approval rejected by user", error: "APPROVAL_REJECTED" }))
           )
         )
       )
-      .otherwise(new sfn.Pass(this, "No Approval Required"));
-
-    const finalize = new sfn_tasks.LambdaInvoke(this, "Finalize", {
-      lambdaFunction: this.agentWorkerFunction,
-      payload: sfn.TaskInput.fromObject({
-        action: "finalize",
-        workTreeId: sfn.JsonPath.stringAt("$.workTreeId"),
-        results: sfn.JsonPath.stringAt("$.storedResults"),
-        verification: sfn.JsonPath.stringAt("$.verification"),
-      }),
-      resultPath: "$.outcome",
-    });
+      .otherwise(new sfn.Pass(this, "No Approval Required").next(finalize));
 
     const definition = loadWorkTree
       .next(generatePlan)
@@ -246,8 +244,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
       .next(executeAgents)
       .next(storeResults)
       .next(verifyResults)
-      .next(approvalRequired)
-      .next(finalize);
+      .next(approvalRequired);
 
     this.stateMachine = new sfn.StateMachine(this, "GenesisWorkflow", {
       stateMachineName: `${appName}-workflow-${envName}`,
