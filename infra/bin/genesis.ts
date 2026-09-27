@@ -11,6 +11,9 @@ import { GenesisMonitoringStack } from "../lib/genesis-monitoring-stack";
 
 const app = new cdk.App();
 
+// Set cross-stack reference strength to weak to allow independent stack updates
+app.node.setContext("@aws-cdk/core:defaultCrossStackReferences", "weak");
+
 const env = {
   account: process.env.CDK_DEFAULT_ACCOUNT || process.env.AWS_ACCOUNT_ID,
   region: process.env.CDK_DEFAULT_REGION || process.env.AWS_REGION || "us-east-1",
@@ -25,10 +28,18 @@ const vpcStack = new GenesisVpcStack(app, `${appName}-vpc-${envName}`, {
   appName,
 });
 
+// Import VPC stack outputs
 const dbSecurityGroupId = cdk.Fn.importValue(`${appName}-db-sg-id-${envName}`);
 const lambdaSecurityGroupId = cdk.Fn.importValue(`${appName}-lambda-sg-id-${envName}`);
 const dbSubnetGroupName = cdk.Fn.importValue(`${appName}-db-subnet-group-name-${envName}`);
 const vpcId = cdk.Fn.importValue(`${appName}-vpc-id-${envName}`);
+const availabilityZones = cdk.Fn.importValue(`${appName}-availability-zones-${envName}`);
+const privateSubnetIds = cdk.Fn.importValue(`${appName}-private-subnet-ids-${envName}`);
+const isolatedSubnetIds = cdk.Fn.importValue(`${appName}-database-subnet-ids-${envName}`);
+const privateSubnet1RouteTableId = cdk.Fn.importValue(`${appName}-private-subnet-1-route-table-id-${envName}`);
+const privateSubnet2RouteTableId = cdk.Fn.importValue(`${appName}-private-subnet-2-route-table-id-${envName}`);
+const databaseSubnet1RouteTableId = cdk.Fn.importValue(`${appName}-database-subnet-1-route-table-id-${envName}`);
+const databaseSubnet2RouteTableId = cdk.Fn.importValue(`${appName}-database-subnet-2-route-table-id-${envName}`);
 
 const databaseStack = new GenesisDatabaseStack(app, `${appName}-database-${envName}`, {
   env,
@@ -38,6 +49,13 @@ const databaseStack = new GenesisDatabaseStack(app, `${appName}-database-${envNa
   lambdaSecurityGroupId,
   dbSubnetGroupName,
   vpcId,
+  availabilityZones,
+  privateSubnetIds,
+  isolatedSubnetIds,
+  privateSubnet1RouteTableId,
+  privateSubnet2RouteTableId,
+  databaseSubnet1RouteTableId,
+  databaseSubnet2RouteTableId,
 });
 
 const storageStack = new GenesisStorageStack(app, `${appName}-storage-${envName}`, {
@@ -46,48 +64,78 @@ const storageStack = new GenesisStorageStack(app, `${appName}-storage-${envName}
   appName,
 });
 
+// Import storage outputs
+const artifactBucketName = cdk.Fn.importValue(`${appName}-artifact-bucket-name-${envName}`);
+const artifactBucketArn = cdk.Fn.importValue(`${appName}-artifact-bucket-arn-${envName}`);
+
 const secretsStack = new GenesisSecretsStack(app, `${appName}-secrets-${envName}`, {
   env,
   envName,
   appName,
-  database: databaseStack.database,
-  artifactBucket: storageStack.artifactBucket,
 });
+
+// Import secrets outputs
+const bedrockApiKeySecretArn = cdk.Fn.importValue(`${appName}-bedrock-api-key-secret-arn-${envName}`);
+const bedrockApiKeySecretName = cdk.Fn.importValue(`${appName}-bedrock-api-key-secret-name-${envName}`);
+
+// Import database outputs
+const dbSecretArn = cdk.Fn.importValue(`${appName}-db-secret-arn-${envName}`);
+const dbProxyEndpoint = cdk.Fn.importValue(`${appName}-db-proxy-endpoint-${envName}`);
+const dbProxyArn = cdk.Fn.importValue(`${appName}-db-proxy-arn-${envName}`);
+const dbInstanceIdentifier = cdk.Fn.importValue(`${appName}-db-instance-identifier-${envName}`);
 
 const apiStack = new GenesisApiStack(app, `${appName}-api-${envName}`, {
   env,
   envName,
   appName,
-  vpc: vpcStack.vpc,
-  lambdaSecurityGroup: vpcStack.lambdaSecurityGroup,
-  database: databaseStack.database,
-  dbSecret: databaseStack.dbSecret,
-  dbProxyEndpoint: databaseStack.dbProxyEndpoint,
-  artifactBucket: storageStack.artifactBucket,
-  bedrockApiKeySecret: secretsStack.bedrockApiKeySecret,
+  vpcId,
+  lambdaSecurityGroupId,
+  dbSecretArn,
+  dbProxyEndpoint,
+  dbInstanceIdentifier,
+  artifactBucketName,
+  artifactBucketArn,
+  bedrockApiKeySecretArn,
+  bedrockApiKeySecretName,
 });
 
 const stepFunctionsStack = new GenesisStepFunctionsStack(app, `${appName}-stepfunctions-${envName}`, {
   env,
   envName,
   appName,
-  vpc: vpcStack.vpc,
-  lambdaSecurityGroup: vpcStack.lambdaSecurityGroup,
-  database: databaseStack.database,
-  dbSecret: databaseStack.dbSecret,
-  dbProxyEndpoint: databaseStack.dbProxyEndpoint,
-  artifactBucket: storageStack.artifactBucket,
-  bedrockApiKeySecret: secretsStack.bedrockApiKeySecret,
+  vpcId,
+  lambdaSecurityGroupId,
+  dbSecretArn,
+  dbProxyEndpoint,
+  dbInstanceIdentifier,
+  artifactBucketName,
+  artifactBucketArn,
+  bedrockApiKeySecretArn,
+  bedrockApiKeySecretName,
 });
+
+// Import API outputs
+const apiGatewayId = cdk.Fn.importValue(`${appName}-api-gateway-id-${envName}`);
+const apiGatewayUrl = cdk.Fn.importValue(`${appName}-api-gateway-url-${envName}`);
+const apiHandlerFunctionName = cdk.Fn.importValue(`${appName}-api-handler-function-name-${envName}`);
+const apiHandlerFunctionArn = cdk.Fn.importValue(`${appName}-api-handler-function-arn-${envName}`);
+
+// Import StepFunctions outputs
+const stateMachineArn = cdk.Fn.importValue(`${appName}-state-machine-arn-${envName}`);
+const stateMachineName = cdk.Fn.importValue(`${appName}-state-machine-name-${envName}`);
 
 new GenesisMonitoringStack(app, `${appName}-monitoring-${envName}`, {
   env,
   envName,
   appName,
-  apiGateway: apiStack.apiGateway,
-  apiHandlerFunction: apiStack.apiHandlerFunction,
-  database: databaseStack.database,
-  dbProxy: databaseStack.dbProxy,
-  stepFunctionsStateMachine: stepFunctionsStack.stateMachine,
-  artifactBucket: storageStack.artifactBucket,
+  apiGatewayId,
+  apiGatewayUrl,
+  apiHandlerFunctionName,
+  apiHandlerFunctionArn,
+  dbInstanceIdentifier,
+  dbProxyArn,
+  stateMachineArn,
+  stateMachineName,
+  artifactBucketName,
+  artifactBucketArn,
 });

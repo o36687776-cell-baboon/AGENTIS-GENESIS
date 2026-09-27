@@ -11,6 +11,13 @@ export interface GenesisDatabaseStackProps extends cdk.StackProps {
   lambdaSecurityGroupId: string;
   dbSubnetGroupName: string;
   vpcId: string;
+  availabilityZones: string;
+  privateSubnetIds: string;
+  isolatedSubnetIds: string;
+  privateSubnet1RouteTableId: string;
+  privateSubnet2RouteTableId: string;
+  databaseSubnet1RouteTableId: string;
+  databaseSubnet2RouteTableId: string;
 }
 
 export class GenesisDatabaseStack extends cdk.Stack {
@@ -22,7 +29,7 @@ export class GenesisDatabaseStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: GenesisDatabaseStackProps) {
     super(scope, id, props);
 
-    const { envName, appName, dbSecurityGroupId, lambdaSecurityGroupId, dbSubnetGroupName, vpcId } = props;
+    const { envName, appName, dbSecurityGroupId, lambdaSecurityGroupId, dbSubnetGroupName, vpcId, availabilityZones, privateSubnetIds, isolatedSubnetIds, privateSubnet1RouteTableId, privateSubnet2RouteTableId, databaseSubnet1RouteTableId, databaseSubnet2RouteTableId } = props;
 
     this.dbSecret = new secretsmanager.Secret(this, "DatabaseSecret", {
       secretName: `${appName}/database/mariadb-${envName}`,
@@ -36,11 +43,14 @@ export class GenesisDatabaseStack extends cdk.Stack {
     });
 
     const dbSubnetGroup = rds.SubnetGroup.fromSubnetGroupName(this, "DatabaseSubnetGroup", dbSubnetGroupName);
+
     const vpc = ec2.Vpc.fromVpcAttributes(this, "Vpc", {
       vpcId,
-      availabilityZones: cdk.Fn.getAzs(),
-      privateSubnetIds: cdk.Fn.importValue(`${appName}-private-subnet-ids-${envName}`).split(","),
-      isolatedSubnetIds: cdk.Fn.importValue(`${appName}-database-subnet-ids-${envName}`).split(","),
+      availabilityZones: availabilityZones.split(","),
+      privateSubnetIds: privateSubnetIds.split(","),
+      isolatedSubnetIds: isolatedSubnetIds.split(","),
+      privateSubnetRouteTableIds: [privateSubnet1RouteTableId, privateSubnet2RouteTableId],
+      isolatedSubnetRouteTableIds: [databaseSubnet1RouteTableId, databaseSubnet2RouteTableId],
     });
 
     const dbSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(this, "DatabaseSecurityGroup", dbSecurityGroupId);
@@ -51,7 +61,7 @@ export class GenesisDatabaseStack extends cdk.Stack {
     this.database = new rds.DatabaseInstance(this, "Database", {
       instanceIdentifier: `${appName}-mariadb-${envName}`,
       engine: rds.DatabaseInstanceEngine.mariaDb({
-        version: rds.MariaDbEngineVersion.VER_10_11,
+        version: rds.MariaDbEngineVersion.VER_10_11_19,
       }),
       vpc,
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
@@ -115,6 +125,11 @@ export class GenesisDatabaseStack extends cdk.Stack {
     new cdk.CfnOutput(this, "DatabaseProxyArn", {
       value: this.dbProxy.dbProxyArn,
       exportName: `${appName}-db-proxy-arn-${envName}`,
+    });
+
+    new cdk.CfnOutput(this, "DatabaseInstanceIdentifier", {
+      value: this.database.instanceIdentifier,
+      exportName: `${appName}-db-instance-identifier-${envName}`,
     });
   }
 }

@@ -49,7 +49,7 @@ export class GenesisVpcStack extends cdk.Stack {
       vpc: this.vpc,
       securityGroupName: `${appName}-lambda-sg-${envName}`,
       description: "Security group for Lambda functions",
-      allowAllOutbound: true,
+      allowAllOutbound: false,
     });
 
     this.dbSecurityGroup = new ec2.SecurityGroup(this, "DatabaseSecurityGroup", {
@@ -71,12 +71,23 @@ export class GenesisVpcStack extends cdk.Stack {
       "Allow Lambda to connect to RDS Proxy"
     );
 
+    // Allow Lambda to access internet (for Bedrock, Secrets Manager, S3 via VPC endpoints or NAT)
+    this.lambdaSecurityGroup.addEgressRule(
+      ec2.Peer.anyIpv4(),
+      ec2.Port.tcp(443),
+      "Allow HTTPS outbound for AWS APIs"
+    );
+
     this.dbSubnetGroup = new rds.SubnetGroup(this, "DatabaseSubnetGroup", {
       vpc: this.vpc,
       description: "Subnet group for Genesis MariaDB",
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },
       subnetGroupName: `${appName}-db-subnet-${envName}`,
     });
+
+    // Export VPC attributes for cross-stack references
+    const privateSubnetIds = this.vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }).subnetIds;
+    const isolatedSubnetIds = this.vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_ISOLATED }).subnetIds;
 
     new cdk.CfnOutput(this, "VpcId", {
       value: this.vpc.vpcId,
@@ -94,18 +105,42 @@ export class GenesisVpcStack extends cdk.Stack {
     });
 
     new cdk.CfnOutput(this, "PrivateSubnetIds", {
-      value: this.vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }).subnetIds.join(","),
+      value: privateSubnetIds.join(","),
       exportName: `${appName}-private-subnet-ids-${envName}`,
     });
 
     new cdk.CfnOutput(this, "DatabaseSubnetIds", {
-      value: this.vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_ISOLATED }).subnetIds.join(","),
+      value: isolatedSubnetIds.join(","),
       exportName: `${appName}-database-subnet-ids-${envName}`,
     });
 
     new cdk.CfnOutput(this, "DatabaseSubnetGroupName", {
       value: this.dbSubnetGroup.subnetGroupName,
       exportName: `${appName}-db-subnet-group-name-${envName}`,
+    });
+
+    // Export availability zones for VPC.fromVpcAttributes
+    new cdk.CfnOutput(this, "AvailabilityZones", {
+      value: this.vpc.availabilityZones.join(","),
+      exportName: `${appName}-availability-zones-${envName}`,
+    });
+
+    // Export private subnet route table IDs
+    const privateSubnets = this.vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }).subnets;
+    privateSubnets.forEach((subnet, index) => {
+      new cdk.CfnOutput(this, `PrivateSubnet${index + 1}RouteTableId`, {
+        value: subnet.routeTable.routeTableId,
+        exportName: `${appName}-private-subnet-${index + 1}-route-table-id-${envName}`,
+      });
+    });
+
+    // Export isolated subnet route table IDs
+    const isolatedSubnets = this.vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_ISOLATED }).subnets;
+    isolatedSubnets.forEach((subnet, index) => {
+      new cdk.CfnOutput(this, `DatabaseSubnet${index + 1}RouteTableId`, {
+        value: subnet.routeTable.routeTableId,
+        exportName: `${appName}-database-subnet-${index + 1}-route-table-id-${envName}`,
+      });
     });
   }
 }

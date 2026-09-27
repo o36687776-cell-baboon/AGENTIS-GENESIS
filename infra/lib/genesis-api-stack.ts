@@ -6,19 +6,21 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as s3 from "aws-cdk-lib/aws-s3";
-import * as rds from "aws-cdk-lib/aws-rds";
+import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
 
 export interface GenesisApiStackProps extends cdk.StackProps {
   envName: string;
   appName: string;
-  vpc: ec2.Vpc;
-  lambdaSecurityGroup: ec2.SecurityGroup;
-  database: rds.DatabaseInstance;
-  dbSecret: secretsmanager.Secret;
+  vpcId: string;
+  lambdaSecurityGroupId: string;
+  dbSecretArn: string;
   dbProxyEndpoint: string;
-  artifactBucket: s3.Bucket;
-  bedrockApiKeySecret: secretsmanager.Secret;
+  dbInstanceIdentifier: string;
+  artifactBucketName: string;
+  artifactBucketArn: string;
+  bedrockApiKeySecretArn: string;
+  bedrockApiKeySecretName: string;
 }
 
 export class GenesisApiStack extends cdk.Stack {
@@ -28,9 +30,27 @@ export class GenesisApiStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: GenesisApiStackProps) {
     super(scope, id, props);
 
-    const { envName, appName, vpc, lambdaSecurityGroup, database, dbSecret, dbProxyEndpoint, artifactBucket, bedrockApiKeySecret } = props;
+    const { envName, appName, vpcId, lambdaSecurityGroupId, dbSecretArn, dbProxyEndpoint, dbInstanceIdentifier, artifactBucketName, artifactBucketArn, bedrockApiKeySecretArn, bedrockApiKeySecretName } = props;
 
     const isProduction = envName === "production";
+
+    // Import VPC and security group
+    const vpc = ec2.Vpc.fromVpcAttributes(this, "ImportedVpc", {
+      vpcId,
+      availabilityZones: cdk.Fn.getAzs(),
+    });
+
+    const lambdaSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(this, "ImportedLambdaSecurityGroup", lambdaSecurityGroupId);
+
+    // Import secrets
+    const dbSecret = secretsmanager.Secret.fromSecretArn(this, "ImportedDbSecret", dbSecretArn);
+    const bedrockApiKeySecret = secretsmanager.Secret.fromSecretArn(this, "ImportedBedrockApiKeySecret", bedrockApiKeySecretArn);
+
+    // Import S3 bucket
+    const artifactBucket = s3.Bucket.fromBucketAttributes(this, "ImportedArtifactBucket", {
+      bucketName: artifactBucketName,
+      bucketArn: artifactBucketArn,
+    });
 
     const apiHandlerRole = new iam.Role(this, "ApiHandlerRole", {
       roleName: `${appName}-api-handler-role-${envName}`,
@@ -56,32 +76,22 @@ export class GenesisApiStack extends cdk.Stack {
     );
 
     dbSecret.grantRead(apiHandlerRole);
-
     bedrockApiKeySecret.grantRead(apiHandlerRole);
-
     artifactBucket.grantReadWrite(apiHandlerRole);
 
     apiHandlerRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        actions: [
-          "rds-db:connect",
-        ],
-        resources: [
-          `arn:aws:rds-db:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:dbuser:${database.instanceIdentifier}/*`,
-        ],
+        actions: ["rds-db:connect"],
+        resources: [`arn:aws:rds-db:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:dbuser:${dbInstanceIdentifier}/*`],
       })
     );
 
     apiHandlerRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        actions: [
-          "secretsmanager:GetSecretValue",
-        ],
-        resources: [
-          `arn:aws:secretsmanager:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:secret:${appName}/*`,
-        ],
+        actions: ["secretsmanager:GetSecretValue"],
+        resources: [`arn:aws:secretsmanager:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:secret:${appName}/*`],
       })
     );
 
@@ -94,15 +104,20 @@ export class GenesisApiStack extends cdk.Stack {
           "states:ListExecutions",
           "states:StopExecution",
         ],
-        resources: [
-          `arn:aws:states:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:stateMachine:${appName}-workflow-*`,
-        ],
+        resources: [`arn:aws:states:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:stateMachine:${appName}-workflow-*`],
       })
     );
 
+    // Create log group for Lambda
+    const apiHandlerLogGroup = new logs.LogGroup(this, "ApiHandlerLogGroup", {
+      logGroupName: `/aws/lambda/${appName}-api-handler-${envName}`,
+      retention: isProduction ? logs.RetentionDays.ONE_MONTH : logs.RetentionDays.ONE_WEEK,
+      removalPolicy: isProduction ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+    });
+
     this.apiHandlerFunction = new lambda.Function(this, "ApiHandlerFunction", {
       functionName: `${appName}-api-handler-${envName}`,
-      runtime: lambda.Runtime.NODEJS_20_X,
+      runtime: lambda.Runtime.NODEJS_22_X,
       architecture: lambda.Architecture.ARM_64,
       handler: "dist/api-handler.handler",
       code: lambda.Code.fromAsset("../dist/server"),
@@ -115,17 +130,18 @@ export class GenesisApiStack extends cdk.Stack {
       environment: {
         NODE_ENV: envName,
         ENVIRONMENT: envName,
-        DATABASE_SECRET_ARN: dbSecret.secretArn,
+        DATABASE_SECRET_ARN: dbSecretArn,
         DATABASE_PROXY_ENDPOINT: dbProxyEndpoint,
         DATABASE_NAME: "genesis",
         DATABASE_PORT: "3306",
-        ARTIFACT_BUCKET_NAME: artifactBucket.bucketName,
-        BEDROCK_API_KEY_SECRET_ARN: bedrockApiKeySecret.secretArn,
+        ARTIFACT_BUCKET_NAME: artifactBucketName,
+        BEDROCK_API_KEY_SECRET_ARN: bedrockApiKeySecretArn,
         BEDROCK_MODEL_ID: "anthropic.claude-3-5-sonnet-20241022-v2:0",
         MOCK_AI: envName === "development" ? "true" : "false",
         API_BASE_URL: `https://${appName}-${envName}.api.${cdk.Aws.REGION}.amazonaws.com`,
       },
-      logRetention: isProduction ? cdk.aws_logs.RetentionDays.ONE_MONTH : cdk.aws_logs.RetentionDays.ONE_WEEK,
+      logGroup: apiHandlerLogGroup,
+      reservedConcurrentExecutions: 20,
     });
 
     this.apiGateway = new apigateway.HttpApi(this, "ApiGateway", {
