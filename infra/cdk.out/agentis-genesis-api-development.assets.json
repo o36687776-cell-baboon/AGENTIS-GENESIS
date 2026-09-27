@@ -4,7 +4,7 @@
     "d1f574f30d614d8e4e6002c5ed38b193b9d672ad4dd8de3f2348d3217dd2ead0": {
       "displayName": "ApiHandlerFunction/Code",
       "source": {
-        "path": "/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/dist/server",
+        "path": "asset.d1f574f30d614d8e4e6002c5ed38b193b9d672ad4dd8de3f2348d3217dd2ead0",
         "packaging": "zip"
       },
       "destinations": {
@@ -16,16 +16,16 @@
         }
       }
     },
-    "1218d947a998f784d4f2288a04b068fc6ee977d99ac427cdb485125f62431474": {
+    "5fdf73e44d0ac321d6718701d06647ec6136ec00beacc569c13e62475cee91ba": {
       "displayName": "agentis-genesis-api-development Template",
       "source": {
         "path": "agentis-genesis-api-development.template.json",
         "packaging": "file"
       },
       "destinations": {
-        "current_account-us-east-1-7f5e16c6": {
+        "current_account-us-east-1-715099d3": {
           "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
-          "objectKey": "1218d947a998f784d4f2288a04b068fc6ee977d99ac427cdb485125f62431474.json",
+          "objectKey": "5fdf73e44d0ac321d6718701d06647ec6136ec00beacc569c13e62475cee91ba.json",
           "region": "us-east-1",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
         }
