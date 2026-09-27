@@ -1,0 +1,97 @@
+import * as cdk from "aws-cdk-lib";
+import * as ec2 from "aws-cdk-lib/aws-ec2";
+import { Construct } from "constructs";
+
+export interface GenesisVpcStackProps extends cdk.StackProps {
+  envName: string;
+  appName: string;
+}
+
+export class GenesisVpcStack extends cdk.Stack {
+  public readonly vpc: ec2.Vpc;
+  public readonly dbSecurityGroup: ec2.SecurityGroup;
+  public readonly lambdaSecurityGroup: ec2.SecurityGroup;
+
+  constructor(scope: Construct, id: string, props: GenesisVpcStackProps) {
+    super(scope, id, props);
+
+    const { envName, appName } = props;
+
+    this.vpc = new ec2.Vpc(this, "Vpc", {
+      vpcName: `${appName}-vpc-${envName}`,
+      ipAddresses: ec2.IpAddresses.cidr("10.0.0.0/16"),
+      maxAzs: 2,
+      natGateways: envName === "production" ? 2 : 1,
+      subnetConfiguration: [
+        {
+          name: "public",
+          subnetType: ec2.SubnetType.PUBLIC,
+          cidrMask: 24,
+        },
+        {
+          name: "private",
+          subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS,
+          cidrMask: 24,
+        },
+        {
+          name: "database",
+          subnetType: ec2.SubnetType.PRIVATE_ISOLATED,
+          cidrMask: 24,
+        },
+      ],
+      enableDnsHostnames: true,
+      enableDnsSupport: true,
+    });
+
+    this.dbSecurityGroup = new ec2.SecurityGroup(this, "DatabaseSecurityGroup", {
+      vpc: this.vpc,
+      securityGroupName: `${appName}-db-sg-${envName}`,
+      description: "Security group for RDS MariaDB",
+      allowAllOutbound: false,
+    });
+
+    this.dbSecurityGroup.addIngressRule(
+      ec2.Peer.securityGroupId(this.lambdaSecurityGroup?.securityGroupId ?? ""),
+      ec2.Port.tcp(3306),
+      "Allow Lambda to connect to MariaDB via RDS Proxy"
+    );
+
+    this.lambdaSecurityGroup = new ec2.SecurityGroup(this, "LambdaSecurityGroup", {
+      vpc: this.vpc,
+      securityGroupName: `${appName}-lambda-sg-${envName}`,
+      description: "Security group for Lambda functions",
+      allowAllOutbound: true,
+    });
+
+    this.lambdaSecurityGroup.addEgressRule(
+      this.dbSecurityGroup,
+      ec2.Port.tcp(3306),
+      "Allow Lambda to connect to RDS Proxy"
+    );
+
+    new cdk.CfnOutput(this, "VpcId", {
+      value: this.vpc.vpcId,
+      exportName: `${appName}-vpc-id-${envName}`,
+    });
+
+    new cdk.CfnOutput(this, "DatabaseSecurityGroupId", {
+      value: this.dbSecurityGroup.securityGroupId,
+      exportName: `${appName}-db-sg-id-${envName}`,
+    });
+
+    new cdk.CfnOutput(this, "LambdaSecurityGroupId", {
+      value: this.lambdaSecurityGroup.securityGroupId,
+      exportName: `${appName}-lambda-sg-id-${envName}`,
+    });
+
+    new cdk.CfnOutput(this, "PrivateSubnetIds", {
+      value: this.vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }).subnetIds.join(","),
+      exportName: `${appName}-private-subnet-ids-${envName}`,
+    });
+
+    new cdk.CfnOutput(this, "DatabaseSubnetIds", {
+      value: this.vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_ISOLATED }).subnetIds.join(","),
+      exportName: `${appName}-database-subnet-ids-${envName}`,
+    });
+  }
+}
