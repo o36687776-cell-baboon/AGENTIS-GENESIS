@@ -3,7 +3,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals, ts-node, ts-node, ts-node..."
       ]
     },
@@ -15,41 +15,8 @@
       "trace": [
         "    ...new Vpc2 in aws-cdk-lib...",
         "    at new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:22:16)",
-        "    at <anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "    at <anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "    ...node internals, ts-node..."
-      ]
-    }
-  ],
-  "/agentis-genesis-vpc-development/LambdaSecurityGroup": [
-    {
-      "type": "aws:cdk:warning",
-      "data": "Ignoring Egress rule since 'allowAllOutbound' is set to true; To add customized rules, set allowAllOutbound=false on the SecurityGroup [ack: @aws-cdk/aws-ec2:ipv4IgnoreEgressRule]",
-      "trace": [
-        "Annotations.addMessage (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/core/lib/annotations.js:1:3506)",
-        "Annotations.addWarningV2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/core/lib/annotations.js:1:2194)",
-        "PropertyInjectable.addEgressRule (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/security-group.js:1:12648)",
-        "PropertyInjectable.<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/core/lib/metadata-resource.js:1:2059)",
-        "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:68:30)",
-        "Object.<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
-        "Module._compile (node:internal/modules/cjs/loader:1781:14)",
-        "Module.m._compile (/home/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/index.ts:1618:23)",
-        "node:internal/modules/cjs/loader:1913:10",
-        "Object.require.extensions.<computed> [as .ts] (/home/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/index.ts:1621:12)",
-        "Module.load (node:internal/modules/cjs/loader:1505:32)",
-        "Function._load (node:internal/modules/cjs/loader:1309:12)",
-        "wrapModuleLoad (node:internal/modules/cjs/loader:254:19)",
-        "Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)",
-        "phase4 (/home/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/bin.ts:649:14)",
-        "bootstrap (/home/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/bin.ts:95:10)",
-        "main (/home/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/bin.ts:55:10)",
-        "Object.<anonymous> (/home/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/bin.ts:800:3)",
-        "Module._compile (node:internal/modules/cjs/loader:1781:14)",
-        "Object.<anonymous> (node:internal/modules/cjs/loader:1913:10)",
-        "Module.load (node:internal/modules/cjs/loader:1505:32)",
-        "Function._load (node:internal/modules/cjs/loader:1309:12)",
-        "wrapModuleLoad (node:internal/modules/cjs/loader:254:19)",
-        "Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)",
-        "node:internal/main/run_main_module:36:49"
       ]
     }
   ],
@@ -61,8 +28,8 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:81:5)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:92:5)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -75,8 +42,8 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:86:5)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:97:5)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -89,8 +56,8 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:91:5)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:102:5)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -103,8 +70,8 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:96:5)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:107:5)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -117,8 +84,8 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:101:5)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:112:5)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -131,8 +98,22 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:106:5)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:117:5)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/agentis-genesis-vpc-development/AvailabilityZones": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "AvailabilityZones"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:123:5)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -173,7 +154,7 @@
       "data": [
         "...new Vpc2 in aws-cdk-lib...",
         "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:22:16)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -188,7 +169,7 @@
       "data": [
         "...new Vpc2 in aws-cdk-lib...",
         "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:22:16)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -203,7 +184,7 @@
       "data": [
         "...new Vpc2 in aws-cdk-lib...",
         "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:22:16)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -218,7 +199,22 @@
       "data": [
         "...new SecurityGroup2 in aws-cdk-lib...",
         "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:48:32)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/agentis-genesis-vpc-development/LambdaSecurityGroup/to agentisgenesisvpcdevelopmentDatabaseSecurityGroup366E2E43:3306": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "LambdaSecurityGrouptoagentisgenesisvpcdevelopmentDatabaseSecurityGroup366E2E433306EDC28A1D"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "...PropertyInjectable.<anonymous> in aws-cdk-lib...",
+        "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:68:30)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -233,7 +229,7 @@
       "data": [
         "...new SecurityGroup2 in aws-cdk-lib...",
         "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:55:28)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -247,8 +243,8 @@
       "type": "aws:cdk:creationStack",
       "data": [
         "...new SubnetGroup2 in aws-cdk-lib...",
-        "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:74:26)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:81:26)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -266,45 +262,6 @@
       ]
     }
   ],
-  "/agentis-genesis-vpc-development/Exports/Output{\"Ref\":\"VpcprivateSubnet1SubnetCEAD3716\"}": [
-    {
-      "type": "aws:cdk:logicalId",
-      "data": "ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373"
-    },
-    {
-      "type": "aws:cdk:creationStack",
-      "data": [
-        "...aws-cdk-lib...",
-        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
-      ]
-    }
-  ],
-  "/agentis-genesis-vpc-development/Exports/Output{\"Ref\":\"VpcprivateSubnet2Subnet2DE7549C\"}": [
-    {
-      "type": "aws:cdk:logicalId",
-      "data": "ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D"
-    },
-    {
-      "type": "aws:cdk:creationStack",
-      "data": [
-        "...aws-cdk-lib...",
-        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
-      ]
-    }
-  ],
-  "/agentis-genesis-vpc-development/Exports/Output{\"Fn::GetAtt\":[\"LambdaSecurityGroup0BD9FC99\",\"GroupId\"]}": [
-    {
-      "type": "aws:cdk:logicalId",
-      "data": "ExportsOutputFnGetAttLambdaSecurityGroup0BD9FC99GroupId34A98CFB"
-    },
-    {
-      "type": "aws:cdk:creationStack",
-      "data": [
-        "...aws-cdk-lib...",
-        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
-      ]
-    }
-  ],
   "/agentis-genesis-vpc-development/Vpc/publicSubnet1/Subnet": [
     {
       "type": "aws:cdk:logicalId",
@@ -313,7 +270,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:270 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:270 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]
@@ -327,7 +284,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:270 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:270 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]
@@ -341,7 +298,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:270 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:270 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]
@@ -355,11 +312,11 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:210 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:210 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...new Vpc2 in aws-cdk-lib...",
         "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:22:16)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals, ts-node..."
       ]
     }
@@ -374,7 +331,7 @@
       "data": [
         "...new Vpc2 in aws-cdk-lib...",
         "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:22:16)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals, ts-node..."
       ]
     }
@@ -389,7 +346,7 @@
       "data": [
         "...new Vpc2 in aws-cdk-lib...",
         "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:22:16)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals, ts-node..."
       ]
     }
@@ -402,7 +359,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:270 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:270 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]
@@ -416,7 +373,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:270 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:270 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]
@@ -430,7 +387,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:270 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:270 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]
@@ -444,11 +401,11 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:210 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:210 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...new Vpc2 in aws-cdk-lib...",
         "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:22:16)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals, ts-node..."
       ]
     }
@@ -461,7 +418,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:272 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:272 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]
@@ -475,7 +432,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:272 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:272 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]
@@ -489,7 +446,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:272 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:272 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]
@@ -505,7 +462,7 @@
       "data": [
         "...new Vpc2 in aws-cdk-lib...",
         "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:22:16)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals..."
       ]
     }
@@ -518,7 +475,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:272 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:272 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]
@@ -532,7 +489,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:272 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:272 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]
@@ -546,7 +503,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:272 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:272 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]
@@ -562,7 +519,7 @@
       "data": [
         "...new Vpc2 in aws-cdk-lib...",
         "new GenesisVpcStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-vpc-stack.ts:22:16)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:22:18)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:25:1)",
         "...node internals..."
       ]
     }
@@ -575,7 +532,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:274 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:274 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]
@@ -589,7 +546,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:274 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:274 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]
@@ -603,7 +560,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:274 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:274 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]
@@ -617,7 +574,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:274 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:274 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]
@@ -631,7 +588,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:274 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:274 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]
@@ -645,7 +602,7 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:274 in aws-cdk-lib...",
+        ".../workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:274 in aws-cdk-lib...",
         "Array.forEach (:)",
         "...aws-cdk-lib..."
       ]

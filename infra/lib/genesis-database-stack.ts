@@ -14,10 +14,6 @@ export interface GenesisDatabaseStackProps extends cdk.StackProps {
   availabilityZones: string;
   privateSubnetIds: string;
   isolatedSubnetIds: string;
-  privateSubnet1RouteTableId: string;
-  privateSubnet2RouteTableId: string;
-  databaseSubnet1RouteTableId: string;
-  databaseSubnet2RouteTableId: string;
 }
 
 export class GenesisDatabaseStack extends cdk.Stack {
@@ -29,7 +25,7 @@ export class GenesisDatabaseStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: GenesisDatabaseStackProps) {
     super(scope, id, props);
 
-    const { envName, appName, dbSecurityGroupId, lambdaSecurityGroupId, dbSubnetGroupName, vpcId, availabilityZones, privateSubnetIds, isolatedSubnetIds, privateSubnet1RouteTableId, privateSubnet2RouteTableId, databaseSubnet1RouteTableId, databaseSubnet2RouteTableId } = props;
+    const { envName, appName, dbSecurityGroupId, lambdaSecurityGroupId, dbSubnetGroupName, vpcId, availabilityZones, privateSubnetIds, isolatedSubnetIds } = props;
 
     this.dbSecret = new secretsmanager.Secret(this, "DatabaseSecret", {
       secretName: `${appName}/database/mariadb-${envName}`,
@@ -49,8 +45,6 @@ export class GenesisDatabaseStack extends cdk.Stack {
       availabilityZones: availabilityZones.split(","),
       privateSubnetIds: privateSubnetIds.split(","),
       isolatedSubnetIds: isolatedSubnetIds.split(","),
-      privateSubnetRouteTableIds: [privateSubnet1RouteTableId, privateSubnet2RouteTableId],
-      isolatedSubnetRouteTableIds: [databaseSubnet1RouteTableId, databaseSubnet2RouteTableId],
     });
 
     const dbSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(this, "DatabaseSecurityGroup", dbSecurityGroupId);
@@ -61,7 +55,7 @@ export class GenesisDatabaseStack extends cdk.Stack {
     this.database = new rds.DatabaseInstance(this, "Database", {
       instanceIdentifier: `${appName}-mariadb-${envName}`,
       engine: rds.DatabaseInstanceEngine.mariaDb({
-        version: rds.MariaDbEngineVersion.VER_10_11_19,
+        version: rds.MariaDbEngineVersion.VER_10_11_9,
       }),
       vpc,
       vpcSubnets: { subnetType: ec2.SubnetType.PRIVATE_ISOLATED },

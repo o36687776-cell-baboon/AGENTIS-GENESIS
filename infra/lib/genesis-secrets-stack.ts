@@ -5,8 +5,6 @@ import { Construct } from "constructs";
 export interface GenesisSecretsStackProps extends cdk.StackProps {
   envName: string;
   appName: string;
-  database: any;
-  artifactBucket: any;
 }
 
 export class GenesisSecretsStack extends cdk.Stack {

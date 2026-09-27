@@ -4,7 +4,7 @@
     "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6": {
       "displayName": "agentis-genesis-storage-development/Custom::S3AutoDeleteObjectsCustomResourceProvider Code",
       "source": {
-        "path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
+        "path": "/tmp/cdk-custom-resourceqfnU1O",
         "packaging": "zip"
       },
       "destinations": {
@@ -16,16 +16,16 @@
         }
       }
     },
-    "1c84f25412912a9c995c120924195788ef5eb45ac4d551cff9b80713db028303": {
+    "1945d7f5fe06373f89dab4f8430edc4ad814ea85cd37f44ffd874495d4a6c4e1": {
       "displayName": "agentis-genesis-storage-development Template",
       "source": {
         "path": "agentis-genesis-storage-development.template.json",
         "packaging": "file"
       },
       "destinations": {
-        "current_account-us-east-1-a6547d85": {
+        "current_account-us-east-1-951ea5a4": {
           "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
-          "objectKey": "1c84f25412912a9c995c120924195788ef5eb45ac4d551cff9b80713db028303.json",
+          "objectKey": "1945d7f5fe06373f89dab4f8430edc4ad814ea85cd37f44ffd874495d4a6c4e1.json",
           "region": "us-east-1",
           "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
         }

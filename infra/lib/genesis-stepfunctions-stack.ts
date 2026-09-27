@@ -6,19 +6,22 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as s3 from "aws-cdk-lib/aws-s3";
-import * as rds from "aws-cdk-lib/aws-rds";
+import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
 
 export interface GenesisStepFunctionsStackProps extends cdk.StackProps {
   envName: string;
   appName: string;
-  vpc: ec2.Vpc;
-  lambdaSecurityGroup: ec2.SecurityGroup;
-  database: rds.DatabaseInstance;
-  dbSecret: secretsmanager.Secret;
+  vpcId: string;
+  lambdaSecurityGroupId: string;
+  dbSecretArn: string;
   dbProxyEndpoint: string;
-  artifactBucket: s3.Bucket;
-  bedrockApiKeySecret: secretsmanager.Secret;
+  dbInstanceIdentifier: string;
+  artifactBucketName: string;
+  artifactBucketArn: string;
+  bedrockApiKeySecretArn: string;
+  privateSubnetIds: string;
+  isolatedSubnetIds: string;
 }
 
 export class GenesisStepFunctionsStack extends cdk.Stack {
@@ -30,9 +33,29 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: GenesisStepFunctionsStackProps) {
     super(scope, id, props);
 
-    const { envName, appName, vpc, lambdaSecurityGroup, database, dbSecret, dbProxyEndpoint, artifactBucket, bedrockApiKeySecret } = props;
+    const { envName, appName, vpcId, lambdaSecurityGroupId, dbSecretArn, dbProxyEndpoint, dbInstanceIdentifier, artifactBucketName, artifactBucketArn, bedrockApiKeySecretArn, privateSubnetIds, isolatedSubnetIds } = props;
 
     const isProduction = envName === "production";
+
+    // Import VPC and security group
+    const vpc = ec2.Vpc.fromVpcAttributes(this, "ImportedVpc", {
+      vpcId,
+      availabilityZones: cdk.Fn.getAzs(),
+      privateSubnetIds: privateSubnetIds.split(","),
+      isolatedSubnetIds: isolatedSubnetIds.split(","),
+    });
+
+    const lambdaSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(this, "ImportedLambdaSecurityGroup", lambdaSecurityGroupId);
+
+    // Import secrets
+    const dbSecret = secretsmanager.Secret.fromSecretCompleteArn(this, "ImportedDbSecret", dbSecretArn);
+    const bedrockApiKeySecret = secretsmanager.Secret.fromSecretCompleteArn(this, "ImportedBedrockApiKeySecret", bedrockApiKeySecretArn);
+
+    // Import S3 bucket
+    const artifactBucket = s3.Bucket.fromBucketAttributes(this, "ImportedArtifactBucket", {
+      bucketName: artifactBucketName,
+      bucketArn: artifactBucketArn,
+    });
 
     const stepFunctionsRole = new iam.Role(this, "StepFunctionsRole", {
       roleName: `${appName}-stepfunctions-role-${envName}`,
@@ -42,17 +65,13 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
     stepFunctionsRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        actions: [
-          "lambda:InvokeFunction",
-        ],
-        resources: [
-          `arn:aws:lambda:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:function:${appName}-*`,
-        ],
+        actions: ["lambda:InvokeFunction"],
+        resources: [`arn:aws:lambda:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:function:${appName}-*`],
       })
     );
 
     const commonLambdaProps = {
-      runtime: lambda.Runtime.NODEJS_20_X,
+      runtime: lambda.Runtime.NODEJS_22_X,
       architecture: lambda.Architecture.ARM_64,
       timeout: cdk.Duration.minutes(10),
       memorySize: isProduction ? 1024 : 512,
@@ -62,16 +81,15 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
       environment: {
         NODE_ENV: envName,
         ENVIRONMENT: envName,
-        DATABASE_SECRET_ARN: dbSecret.secretArn,
+        DATABASE_SECRET_ARN: dbSecretArn,
         DATABASE_PROXY_ENDPOINT: dbProxyEndpoint,
         DATABASE_NAME: "genesis",
         DATABASE_PORT: "3306",
-        ARTIFACT_BUCKET_NAME: artifactBucket.bucketName,
-        BEDROCK_API_KEY_SECRET_ARN: bedrockApiKeySecret.secretArn,
+        ARTIFACT_BUCKET_NAME: artifactBucketName,
+        BEDROCK_API_KEY_SECRET_ARN: bedrockApiKeySecretArn,
         BEDROCK_MODEL_ID: "anthropic.claude-3-5-sonnet-20241022-v2:0",
         MOCK_AI: envName === "development" ? "true" : "false",
       },
-      logRetention: isProduction ? cdk.aws_logs.RetentionDays.ONE_MONTH : cdk.aws_logs.RetentionDays.ONE_WEEK,
     };
 
     const workerRole = new iam.Role(this, "WorkerRole", {
@@ -104,20 +122,37 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
     workerRole.addToPolicy(
       new iam.PolicyStatement({
         effect: iam.Effect.ALLOW,
-        actions: [
-          "rds-db:connect",
-        ],
-        resources: [
-          `arn:aws:rds-db:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:dbuser:${database.instanceIdentifier}/*`,
-        ],
+        actions: ["rds-db:connect"],
+        resources: [`arn:aws:rds-db:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:dbuser:${dbInstanceIdentifier}/*`],
       })
     );
+
+    // Create log groups
+    const plannerLogGroup = new logs.LogGroup(this, "PlannerLogGroup", {
+      logGroupName: `/aws/lambda/${appName}-planner-${envName}`,
+      retention: isProduction ? logs.RetentionDays.ONE_MONTH : logs.RetentionDays.ONE_WEEK,
+      removalPolicy: isProduction ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+    });
+
+    const agentWorkerLogGroup = new logs.LogGroup(this, "AgentWorkerLogGroup", {
+      logGroupName: `/aws/lambda/${appName}-agent-worker-${envName}`,
+      retention: isProduction ? logs.RetentionDays.ONE_MONTH : logs.RetentionDays.ONE_WEEK,
+      removalPolicy: isProduction ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+    });
+
+    const verificationLogGroup = new logs.LogGroup(this, "VerificationLogGroup", {
+      logGroupName: `/aws/lambda/${appName}-verification-${envName}`,
+      retention: isProduction ? logs.RetentionDays.ONE_MONTH : logs.RetentionDays.ONE_WEEK,
+      removalPolicy: isProduction ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
+    });
 
     this.plannerFunction = new lambda.Function(this, "PlannerFunction", {
       functionName: `${appName}-planner-${envName}`,
       handler: "dist/planner.handler",
       code: lambda.Code.fromAsset("../dist/server"),
       role: workerRole,
+      logGroup: plannerLogGroup,
+      reservedConcurrentExecutions: 10,
       ...commonLambdaProps,
     });
 
@@ -126,6 +161,8 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
       handler: "dist/agent-worker.handler",
       code: lambda.Code.fromAsset("../dist/server"),
       role: workerRole,
+      logGroup: agentWorkerLogGroup,
+      reservedConcurrentExecutions: 10,
       ...commonLambdaProps,
     });
 
@@ -134,8 +171,19 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
       handler: "dist/verification.handler",
       code: lambda.Code.fromAsset("../dist/server"),
       role: workerRole,
+      logGroup: verificationLogGroup,
+      reservedConcurrentExecutions: 5,
       ...commonLambdaProps,
     });
+
+    // Define retry policy for Lambda invocations
+    const lambdaRetryPolicy = {
+      maxAttempts: 3,
+      interval: cdk.Duration.seconds(2),
+      backoffRate: 2,
+      maxDelay: cdk.Duration.seconds(30),
+      jitterStrategy: sfn.JitterType.FULL,
+    };
 
     const loadWorkTree = new sfn_tasks.LambdaInvoke(this, "Load Work Tree", {
       lambdaFunction: this.agentWorkerFunction,
@@ -144,6 +192,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
         workTreeId: sfn.JsonPath.stringAt("$.workTreeId"),
       }),
       resultPath: "$.workTree",
+      ...lambdaRetryPolicy,
     });
 
     const generatePlan = new sfn_tasks.LambdaInvoke(this, "Generate Plan", {
@@ -154,6 +203,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
         objective: sfn.JsonPath.stringAt("$.objective"),
       }),
       resultPath: "$.plan",
+      ...lambdaRetryPolicy,
     });
 
     const createTasks = new sfn_tasks.LambdaInvoke(this, "Create Tasks", {
@@ -164,6 +214,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
         plan: sfn.JsonPath.stringAt("$.plan"),
       }),
       resultPath: "$.tasks",
+      ...lambdaRetryPolicy,
     });
 
     const executeAgents = new sfn.Map(this, "Execute Agents", {
@@ -179,6 +230,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
           workTreeId: sfn.JsonPath.stringAt("$.workTreeId"),
         }),
         resultPath: "$.result",
+        ...lambdaRetryPolicy,
       })
     );
 
@@ -190,6 +242,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
         executionResults: sfn.JsonPath.stringAt("$.executionResults"),
       }),
       resultPath: "$.storedResults",
+      ...lambdaRetryPolicy,
     });
 
     const verifyResults = new sfn_tasks.LambdaInvoke(this, "Verify Results", {
@@ -200,6 +253,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
         results: sfn.JsonPath.stringAt("$.storedResults"),
       }),
       resultPath: "$.verification",
+      ...lambdaRetryPolicy,
     });
 
     const finalize = new sfn_tasks.LambdaInvoke(this, "Finalize", {
@@ -211,6 +265,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
         verification: sfn.JsonPath.stringAt("$.verification"),
       }),
       resultPath: "$.outcome",
+      ...lambdaRetryPolicy,
     });
 
     const approvalRequired = new sfn.Choice(this, "Approval Required?")
@@ -226,6 +281,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
               workTreeId: sfn.JsonPath.stringAt("$.workTreeId"),
             }),
             resultPath: "$.approvalResult",
+            ...lambdaRetryPolicy,
           }).next(
             new sfn.Choice(this, "Approval Granted?")
               .when(
@@ -253,9 +309,9 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
       timeout: cdk.Duration.hours(2),
       tracingEnabled: true,
       logs: {
-        destination: new cdk.aws_logs.LogGroup(this, "StateMachineLogGroup", {
+        destination: new logs.LogGroup(this, "StateMachineLogGroup", {
           logGroupName: `/aws/vendedlogs/states/${appName}-workflow-${envName}`,
-          retention: isProduction ? cdk.aws_logs.RetentionDays.ONE_MONTH : cdk.aws_logs.RetentionDays.ONE_WEEK,
+          retention: isProduction ? logs.RetentionDays.ONE_MONTH : logs.RetentionDays.ONE_WEEK,
           removalPolicy: isProduction ? cdk.RemovalPolicy.RETAIN : cdk.RemovalPolicy.DESTROY,
         }),
         level: sfn.LogLevel.ALL,

@@ -83,7 +83,7 @@
     ],
     "EnablePerformanceInsights": false,
     "Engine": "mariadb",
-    "EngineVersion": "10.11",
+    "EngineVersion": "10.11.9",
     "MasterUserPassword": {
      "Fn::Join": [
       "",
@@ -296,31 +296,12 @@
     "Name": "agentis-genesis-db-proxy-arn-development"
    }
   },
-  "ExportsOutputRefDatabaseSecret86DBB7B353068790": {
-   "Value": {
-    "Ref": "DatabaseSecret86DBB7B3"
-   },
-   "Export": {
-    "Name": "agentis-genesis-database-development:ExportsOutputRefDatabaseSecret86DBB7B353068790"
-   }
-  },
-  "ExportsOutputRefDatabaseB269D8BB88F4B1C4": {
+  "DatabaseInstanceIdentifier": {
    "Value": {
     "Ref": "DatabaseB269D8BB"
    },
    "Export": {
-    "Name": "agentis-genesis-database-development:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
-   }
-  },
-  "ExportsOutputFnGetAttDatabaseProxy3E84A7D6Endpoint89149F8B": {
-   "Value": {
-    "Fn::GetAtt": [
-     "DatabaseProxy3E84A7D6",
-     "Endpoint"
-    ]
-   },
-   "Export": {
-    "Name": "agentis-genesis-database-development:ExportsOutputFnGetAttDatabaseProxy3E84A7D6Endpoint89149F8B"
+    "Name": "agentis-genesis-db-instance-identifier-development"
    }
   }
  },

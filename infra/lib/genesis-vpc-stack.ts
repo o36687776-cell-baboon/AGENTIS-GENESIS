@@ -124,23 +124,5 @@ export class GenesisVpcStack extends cdk.Stack {
       value: this.vpc.availabilityZones.join(","),
       exportName: `${appName}-availability-zones-${envName}`,
     });
-
-    // Export private subnet route table IDs
-    const privateSubnets = this.vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_WITH_EGRESS }).subnets;
-    privateSubnets.forEach((subnet, index) => {
-      new cdk.CfnOutput(this, `PrivateSubnet${index + 1}RouteTableId`, {
-        value: subnet.routeTable.routeTableId,
-        exportName: `${appName}-private-subnet-${index + 1}-route-table-id-${envName}`,
-      });
-    });
-
-    // Export isolated subnet route table IDs
-    const isolatedSubnets = this.vpc.selectSubnets({ subnetType: ec2.SubnetType.PRIVATE_ISOLATED }).subnets;
-    isolatedSubnets.forEach((subnet, index) => {
-      new cdk.CfnOutput(this, `DatabaseSubnet${index + 1}RouteTableId`, {
-        value: subnet.routeTable.routeTableId,
-        exportName: `${appName}-database-subnet-${index + 1}-route-table-id-${envName}`,
-      });
-    });
   }
 }

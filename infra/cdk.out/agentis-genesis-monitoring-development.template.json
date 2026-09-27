@@ -13,11 +13,11 @@
        },
        "\",\"metrics\":[[\"AWS/ApiGateway\",\"5XXError\",\"ApiId\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiGateway11E7F47BFA6EBBFD"
+        "Fn::ImportValue": "agentis-genesis-api-gateway-id-development"
        },
        "\",{\"stat\":\"Sum\"}],[\"AWS/ApiGateway\",\"4XXError\",\"ApiId\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiGateway11E7F47BFA6EBBFD"
+        "Fn::ImportValue": "agentis-genesis-api-gateway-id-development"
        },
        "\",{\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":0,\"properties\":{\"view\":\"timeSeries\",\"title\":\"API Gateway Latency (p50, p95, p99)\",\"region\":\"",
        {
@@ -25,15 +25,15 @@
        },
        "\",\"metrics\":[[\"AWS/ApiGateway\",\"Latency\",\"ApiId\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiGateway11E7F47BFA6EBBFD"
+        "Fn::ImportValue": "agentis-genesis-api-gateway-id-development"
        },
        "\",{\"stat\":\"p50\"}],[\"AWS/ApiGateway\",\"Latency\",\"ApiId\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiGateway11E7F47BFA6EBBFD"
+        "Fn::ImportValue": "agentis-genesis-api-gateway-id-development"
        },
        "\",{\"stat\":\"p95\"}],[\"AWS/ApiGateway\",\"Latency\",\"ApiId\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiGateway11E7F47BFA6EBBFD"
+        "Fn::ImportValue": "agentis-genesis-api-gateway-id-development"
        },
        "\",{\"stat\":\"p99\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":6,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Lambda Errors\",\"region\":\"",
        {
@@ -41,7 +41,17 @@
        },
        "\",\"metrics\":[[\"AWS/Lambda\",\"Errors\",\"FunctionName\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiHandlerFunction9E589C02EF95A9EB"
+        "Fn::Select": [
+         6,
+         {
+          "Fn::Split": [
+           ":",
+           {
+            "Fn::ImportValue": "agentis-genesis-api-handler-function-arn-development"
+           }
+          ]
+         }
+        ]
        },
        "\",{\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":6,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Lambda Duration\",\"region\":\"",
        {
@@ -49,15 +59,45 @@
        },
        "\",\"metrics\":[[\"AWS/Lambda\",\"Duration\",\"FunctionName\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiHandlerFunction9E589C02EF95A9EB"
+        "Fn::Select": [
+         6,
+         {
+          "Fn::Split": [
+           ":",
+           {
+            "Fn::ImportValue": "agentis-genesis-api-handler-function-arn-development"
+           }
+          ]
+         }
+        ]
        },
        "\",{\"stat\":\"p50\"}],[\"AWS/Lambda\",\"Duration\",\"FunctionName\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiHandlerFunction9E589C02EF95A9EB"
+        "Fn::Select": [
+         6,
+         {
+          "Fn::Split": [
+           ":",
+           {
+            "Fn::ImportValue": "agentis-genesis-api-handler-function-arn-development"
+           }
+          ]
+         }
+        ]
        },
        "\",{\"stat\":\"p95\"}],[\"AWS/Lambda\",\"Duration\",\"FunctionName\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiHandlerFunction9E589C02EF95A9EB"
+        "Fn::Select": [
+         6,
+         {
+          "Fn::Split": [
+           ":",
+           {
+            "Fn::ImportValue": "agentis-genesis-api-handler-function-arn-development"
+           }
+          ]
+         }
+        ]
        },
        "\",{\"stat\":\"p99\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":12,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Database Connections\",\"region\":\"",
        {
@@ -65,7 +105,7 @@
        },
        "\",\"metrics\":[[\"AWS/RDS\",\"DatabaseConnections\",\"DBInstanceIdentifier\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+        "Fn::ImportValue": "agentis-genesis-db-instance-identifier-development"
        },
        "\"]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":12,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Database CPU Utilization\",\"region\":\"",
        {
@@ -73,7 +113,7 @@
        },
        "\",\"metrics\":[[\"AWS/RDS\",\"CPUUtilization\",\"DBInstanceIdentifier\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+        "Fn::ImportValue": "agentis-genesis-db-instance-identifier-development"
        },
        "\"]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":18,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Database Free Storage\",\"region\":\"",
        {
@@ -81,7 +121,7 @@
        },
        "\",\"metrics\":[[\"AWS/RDS\",\"FreeStorageSpace\",\"DBInstanceIdentifier\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+        "Fn::ImportValue": "agentis-genesis-db-instance-identifier-development"
        },
        "\"]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":18,\"properties\":{\"view\":\"timeSeries\",\"title\":\"S3 Bucket Size\",\"region\":\"",
        {
@@ -89,7 +129,7 @@
        },
        "\",\"metrics\":[[\"AWS/S3\",\"BucketSizeBytes\",\"BucketName\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-storage-development:ExportsOutputRefArtifactBucket7410C9EF659B6D66"
+        "Fn::ImportValue": "agentis-genesis-artifact-bucket-name-development"
        },
        "\",\"StorageType\",\"StandardStorage\",{\"period\":86400}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":0,\"y\":24,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Step Functions Executions\",\"region\":\"",
        {
@@ -97,19 +137,19 @@
        },
        "\",\"metrics\":[[\"AWS/States\",\"ExecutionsStarted\",\"StateMachineArn\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-stepfunctions-development:ExportsOutputRefGenesisWorkflowFD3910B71BC0A291"
+        "Fn::ImportValue": "agentis-genesis-state-machine-arn-development"
        },
        "\",{\"stat\":\"Sum\"}],[\"AWS/States\",\"ExecutionsSucceeded\",\"StateMachineArn\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-stepfunctions-development:ExportsOutputRefGenesisWorkflowFD3910B71BC0A291"
+        "Fn::ImportValue": "agentis-genesis-state-machine-arn-development"
        },
        "\",{\"stat\":\"Sum\"}],[\"AWS/States\",\"ExecutionsFailed\",\"StateMachineArn\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-stepfunctions-development:ExportsOutputRefGenesisWorkflowFD3910B71BC0A291"
+        "Fn::ImportValue": "agentis-genesis-state-machine-arn-development"
        },
        "\",{\"stat\":\"Sum\"}],[\"AWS/States\",\"ExecutionsTimedOut\",\"StateMachineArn\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-stepfunctions-development:ExportsOutputRefGenesisWorkflowFD3910B71BC0A291"
+        "Fn::ImportValue": "agentis-genesis-state-machine-arn-development"
        },
        "\",{\"stat\":\"Sum\"}]],\"yAxis\":{}}},{\"type\":\"metric\",\"width\":12,\"height\":6,\"x\":12,\"y\":24,\"properties\":{\"view\":\"timeSeries\",\"title\":\"Step Functions Execution Duration\",\"region\":\"",
        {
@@ -117,11 +157,11 @@
        },
        "\",\"metrics\":[[\"AWS/States\",\"ExecutionTime\",\"StateMachineArn\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-stepfunctions-development:ExportsOutputRefGenesisWorkflowFD3910B71BC0A291"
+        "Fn::ImportValue": "agentis-genesis-state-machine-arn-development"
        },
        "\",{\"stat\":\"p50\"}],[\"AWS/States\",\"ExecutionTime\",\"StateMachineArn\",\"",
        {
-        "Fn::ImportValue": "agentis-genesis-stepfunctions-development:ExportsOutputRefGenesisWorkflowFD3910B71BC0A291"
+        "Fn::ImportValue": "agentis-genesis-state-machine-arn-development"
        },
        "\",{\"stat\":\"p95\"}]],\"yAxis\":{}}}]}"
       ]
@@ -142,7 +182,7 @@
      {
       "Name": "ApiId",
       "Value": {
-       "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiGateway11E7F47BFA6EBBFD"
+       "Fn::ImportValue": "agentis-genesis-api-gateway-id-development"
       }
      }
     ],
@@ -167,7 +207,17 @@
      {
       "Name": "FunctionName",
       "Value": {
-       "Fn::ImportValue": "agentis-genesis-api-development:ExportsOutputRefApiHandlerFunction9E589C02EF95A9EB"
+       "Fn::Select": [
+        6,
+        {
+         "Fn::Split": [
+          ":",
+          {
+           "Fn::ImportValue": "agentis-genesis-api-handler-function-arn-development"
+          }
+         ]
+        }
+       ]
       }
      }
     ],
@@ -192,7 +242,7 @@
      {
       "Name": "DBInstanceIdentifier",
       "Value": {
-       "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+       "Fn::ImportValue": "agentis-genesis-db-instance-identifier-development"
       }
      }
     ],
@@ -217,7 +267,7 @@
      {
       "Name": "StateMachineArn",
       "Value": {
-       "Fn::ImportValue": "agentis-genesis-stepfunctions-development:ExportsOutputRefGenesisWorkflowFD3910B71BC0A291"
+       "Fn::ImportValue": "agentis-genesis-state-machine-arn-development"
       }
      }
     ],
@@ -236,7 +286,7 @@
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/0WIvQ6CMBCAn4W9PfUcnInuJvIA5GghFEpLelc7EN7doIPT94OAtwucKyqsjZ21dx1sjZCZFRVujY/ZFhIzwvYgHrtIyar7EP5Re0rLsb6yH/bMsmbZVYi2h4lPb0TAK2A1sXM65SBu6eH14wfnLQ5nggAAAA=="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/0WJOw7CMBAFz5LeWcAU1ECERIUEB0DrD4oTZ428a1JEuTtKKKhm5j0N+rCDbYUj19b1dQwGpoeg7RWO/JwiDsYhXApZCYlOyF5lx9CgoEH2V2JBsn49bEzFjSi2halBbk3C7NT5Rf84RszDMq0yz4veiryLzIqS89Dx5qM16D3oquMQ6lxIwuDh/uMXY0oIRrEAAAA="
    },
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-monitoring-development/CDKMetadata/Default"

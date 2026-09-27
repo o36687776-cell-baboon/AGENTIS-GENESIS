@@ -266,7 +266,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-storage-development/Custom::S3AutoDeleteObjectsCustomResourceProvider/Handler",
-    "aws:asset:path": "asset.faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6",
+    "aws:asset:path": "/tmp/cdk-custom-resourceqfnU1O",
     "aws:asset:property": "Code"
    }
   },
@@ -298,25 +298,6 @@
    },
    "Export": {
     "Name": "agentis-genesis-artifact-bucket-arn-development"
-   }
-  },
-  "ExportsOutputFnGetAttArtifactBucket7410C9EFArnA3946625": {
-   "Value": {
-    "Fn::GetAtt": [
-     "ArtifactBucket7410C9EF",
-     "Arn"
-    ]
-   },
-   "Export": {
-    "Name": "agentis-genesis-storage-development:ExportsOutputFnGetAttArtifactBucket7410C9EFArnA3946625"
-   }
-  },
-  "ExportsOutputRefArtifactBucket7410C9EF659B6D66": {
-   "Value": {
-    "Ref": "ArtifactBucket7410C9EF"
-   },
-   "Export": {
-    "Name": "agentis-genesis-storage-development:ExportsOutputRefArtifactBucket7410C9EF659B6D66"
    }
   }
  },

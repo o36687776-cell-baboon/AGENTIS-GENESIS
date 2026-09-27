@@ -22,7 +22,7 @@ const env = {
 const envName = process.env.ENVIRONMENT || "development";
 const appName = "agentis-genesis";
 
-const vpcStack = new GenesisVpcStack(app, `${appName}-vpc-${envName}`, {
+new GenesisVpcStack(app, `${appName}-vpc-${envName}`, {
   env,
   envName,
   appName,
@@ -36,12 +36,8 @@ const vpcId = cdk.Fn.importValue(`${appName}-vpc-id-${envName}`);
 const availabilityZones = cdk.Fn.importValue(`${appName}-availability-zones-${envName}`);
 const privateSubnetIds = cdk.Fn.importValue(`${appName}-private-subnet-ids-${envName}`);
 const isolatedSubnetIds = cdk.Fn.importValue(`${appName}-database-subnet-ids-${envName}`);
-const privateSubnet1RouteTableId = cdk.Fn.importValue(`${appName}-private-subnet-1-route-table-id-${envName}`);
-const privateSubnet2RouteTableId = cdk.Fn.importValue(`${appName}-private-subnet-2-route-table-id-${envName}`);
-const databaseSubnet1RouteTableId = cdk.Fn.importValue(`${appName}-database-subnet-1-route-table-id-${envName}`);
-const databaseSubnet2RouteTableId = cdk.Fn.importValue(`${appName}-database-subnet-2-route-table-id-${envName}`);
 
-const databaseStack = new GenesisDatabaseStack(app, `${appName}-database-${envName}`, {
+new GenesisDatabaseStack(app, `${appName}-database-${envName}`, {
   env,
   envName,
   appName,
@@ -52,13 +48,9 @@ const databaseStack = new GenesisDatabaseStack(app, `${appName}-database-${envNa
   availabilityZones,
   privateSubnetIds,
   isolatedSubnetIds,
-  privateSubnet1RouteTableId,
-  privateSubnet2RouteTableId,
-  databaseSubnet1RouteTableId,
-  databaseSubnet2RouteTableId,
 });
 
-const storageStack = new GenesisStorageStack(app, `${appName}-storage-${envName}`, {
+new GenesisStorageStack(app, `${appName}-storage-${envName}`, {
   env,
   envName,
   appName,
@@ -68,7 +60,7 @@ const storageStack = new GenesisStorageStack(app, `${appName}-storage-${envName}
 const artifactBucketName = cdk.Fn.importValue(`${appName}-artifact-bucket-name-${envName}`);
 const artifactBucketArn = cdk.Fn.importValue(`${appName}-artifact-bucket-arn-${envName}`);
 
-const secretsStack = new GenesisSecretsStack(app, `${appName}-secrets-${envName}`, {
+new GenesisSecretsStack(app, `${appName}-secrets-${envName}`, {
   env,
   envName,
   appName,
@@ -76,15 +68,13 @@ const secretsStack = new GenesisSecretsStack(app, `${appName}-secrets-${envName}
 
 // Import secrets outputs
 const bedrockApiKeySecretArn = cdk.Fn.importValue(`${appName}-bedrock-api-key-secret-arn-${envName}`);
-const bedrockApiKeySecretName = cdk.Fn.importValue(`${appName}-bedrock-api-key-secret-name-${envName}`);
 
 // Import database outputs
 const dbSecretArn = cdk.Fn.importValue(`${appName}-db-secret-arn-${envName}`);
 const dbProxyEndpoint = cdk.Fn.importValue(`${appName}-db-proxy-endpoint-${envName}`);
-const dbProxyArn = cdk.Fn.importValue(`${appName}-db-proxy-arn-${envName}`);
 const dbInstanceIdentifier = cdk.Fn.importValue(`${appName}-db-instance-identifier-${envName}`);
 
-const apiStack = new GenesisApiStack(app, `${appName}-api-${envName}`, {
+new GenesisApiStack(app, `${appName}-api-${envName}`, {
   env,
   envName,
   appName,
@@ -96,10 +86,11 @@ const apiStack = new GenesisApiStack(app, `${appName}-api-${envName}`, {
   artifactBucketName,
   artifactBucketArn,
   bedrockApiKeySecretArn,
-  bedrockApiKeySecretName,
+  privateSubnetIds,
+  isolatedSubnetIds,
 });
 
-const stepFunctionsStack = new GenesisStepFunctionsStack(app, `${appName}-stepfunctions-${envName}`, {
+new GenesisStepFunctionsStack(app, `${appName}-stepfunctions-${envName}`, {
   env,
   envName,
   appName,
@@ -111,31 +102,24 @@ const stepFunctionsStack = new GenesisStepFunctionsStack(app, `${appName}-stepfu
   artifactBucketName,
   artifactBucketArn,
   bedrockApiKeySecretArn,
-  bedrockApiKeySecretName,
+  privateSubnetIds,
+  isolatedSubnetIds,
 });
 
 // Import API outputs
 const apiGatewayId = cdk.Fn.importValue(`${appName}-api-gateway-id-${envName}`);
-const apiGatewayUrl = cdk.Fn.importValue(`${appName}-api-gateway-url-${envName}`);
-const apiHandlerFunctionName = cdk.Fn.importValue(`${appName}-api-handler-function-name-${envName}`);
 const apiHandlerFunctionArn = cdk.Fn.importValue(`${appName}-api-handler-function-arn-${envName}`);
 
 // Import StepFunctions outputs
 const stateMachineArn = cdk.Fn.importValue(`${appName}-state-machine-arn-${envName}`);
-const stateMachineName = cdk.Fn.importValue(`${appName}-state-machine-name-${envName}`);
 
 new GenesisMonitoringStack(app, `${appName}-monitoring-${envName}`, {
   env,
   envName,
   appName,
   apiGatewayId,
-  apiGatewayUrl,
-  apiHandlerFunctionName,
   apiHandlerFunctionArn,
   dbInstanceIdentifier,
-  dbProxyArn,
   stateMachineArn,
-  stateMachineName,
   artifactBucketName,
-  artifactBucketArn,
 });

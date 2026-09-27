@@ -221,7 +221,7 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseSecret86DBB7B353068790"
+        "Fn::ImportValue": "agentis-genesis-db-secret-arn-development"
        }
       },
       {
@@ -231,7 +231,7 @@
        ],
        "Effect": "Allow",
        "Resource": {
-        "Fn::ImportValue": "agentis-genesis-secrets-development:ExportsOutputRefBedrockApiKeySecret478226FA0DE7930F"
+        "Fn::ImportValue": "agentis-genesis-bedrock-api-key-secret-arn-development"
        }
       },
       {
@@ -250,14 +250,14 @@
        "Effect": "Allow",
        "Resource": [
         {
-         "Fn::ImportValue": "agentis-genesis-storage-development:ExportsOutputFnGetAttArtifactBucket7410C9EFArnA3946625"
+         "Fn::ImportValue": "agentis-genesis-artifact-bucket-arn-development"
         },
         {
          "Fn::Join": [
           "",
           [
            {
-            "Fn::ImportValue": "agentis-genesis-storage-development:ExportsOutputFnGetAttArtifactBucket7410C9EFArnA3946625"
+            "Fn::ImportValue": "agentis-genesis-artifact-bucket-arn-development"
            },
            "/*"
           ]
@@ -293,7 +293,7 @@
           },
           ":dbuser:",
           {
-           "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseB269D8BB88F4B1C4"
+           "Fn::ImportValue": "agentis-genesis-db-instance-identifier-development"
           },
           "/*"
          ]
@@ -314,6 +314,42 @@
     "aws:cdk:path": "agentis-genesis-stepfunctions-development/WorkerRole/DefaultPolicy/Resource"
    }
   },
+  "PlannerLogGroup6777DA5C": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/aws/lambda/agentis-genesis-planner-development",
+    "RetentionInDays": 7
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/PlannerLogGroup/Resource"
+   }
+  },
+  "AgentWorkerLogGroup347323DD": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/aws/lambda/agentis-genesis-agent-worker-development",
+    "RetentionInDays": 7
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/AgentWorkerLogGroup/Resource"
+   }
+  },
+  "VerificationLogGroupE48B76B8": {
+   "Type": "AWS::Logs::LogGroup",
+   "Properties": {
+    "LogGroupName": "/aws/lambda/agentis-genesis-verification-development",
+    "RetentionInDays": 7
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/VerificationLogGroup/Resource"
+   }
+  },
   "PlannerFunction7813D2C8": {
    "Type": "AWS::Lambda::Function",
    "Properties": {
@@ -324,25 +360,25 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
      },
-     "S3Key": "220290fd4dd1bccfb43d30c7050a6be3550bb7e7940238e6c19d6f5a1ad5e60f.zip"
+     "S3Key": "d1f574f30d614d8e4e6002c5ed38b193b9d672ad4dd8de3f2348d3217dd2ead0.zip"
     },
     "Environment": {
      "Variables": {
       "NODE_ENV": "development",
       "ENVIRONMENT": "development",
       "DATABASE_SECRET_ARN": {
-       "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseSecret86DBB7B353068790"
+       "Fn::ImportValue": "agentis-genesis-db-secret-arn-development"
       },
       "DATABASE_PROXY_ENDPOINT": {
-       "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputFnGetAttDatabaseProxy3E84A7D6Endpoint89149F8B"
+       "Fn::ImportValue": "agentis-genesis-db-proxy-endpoint-development"
       },
       "DATABASE_NAME": "genesis",
       "DATABASE_PORT": "3306",
       "ARTIFACT_BUCKET_NAME": {
-       "Fn::ImportValue": "agentis-genesis-storage-development:ExportsOutputRefArtifactBucket7410C9EF659B6D66"
+       "Fn::ImportValue": "agentis-genesis-artifact-bucket-name-development"
       },
       "BEDROCK_API_KEY_SECRET_ARN": {
-       "Fn::ImportValue": "agentis-genesis-secrets-development:ExportsOutputRefBedrockApiKeySecret478226FA0DE7930F"
+       "Fn::ImportValue": "agentis-genesis-bedrock-api-key-secret-arn-development"
       },
       "BEDROCK_MODEL_ID": "anthropic.claude-3-5-sonnet-20241022-v2:0",
       "MOCK_AI": "true"
@@ -350,27 +386,30 @@
     },
     "FunctionName": "agentis-genesis-planner-development",
     "Handler": "dist/planner.handler",
+    "LoggingConfig": {
+     "LogGroup": {
+      "Ref": "PlannerLogGroup6777DA5C"
+     }
+    },
     "MemorySize": 512,
+    "ReservedConcurrentExecutions": 10,
     "Role": {
      "Fn::GetAtt": [
       "WorkerRole8DD27D41",
       "Arn"
      ]
     },
-    "Runtime": "nodejs20.x",
+    "Runtime": "nodejs22.x",
     "Timeout": 600,
     "VpcConfig": {
      "SecurityGroupIds": [
       {
-       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputFnGetAttLambdaSecurityGroup0BD9FC99GroupId34A98CFB"
+       "Fn::ImportValue": "agentis-genesis-lambda-sg-id-development"
       }
      ],
      "SubnetIds": [
       {
-       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373"
-      },
-      {
-       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D"
+       "Fn::ImportValue": "agentis-genesis-private-subnet-ids-development"
       }
      ]
     }
@@ -381,124 +420,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-stepfunctions-development/PlannerFunction/Resource",
-    "aws:asset:path": "asset.220290fd4dd1bccfb43d30c7050a6be3550bb7e7940238e6c19d6f5a1ad5e60f",
-    "aws:asset:is-bundled": false,
-    "aws:asset:property": "Code"
-   }
-  },
-  "PlannerFunctionLogRetention59F367F5": {
-   "Type": "Custom::LogRetention",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "PlannerFunction7813D2C8"
-       }
-      ]
-     ]
-    },
-    "RetentionInDays": 7
-   },
-   "Metadata": {
-    "aws:cdk:path": "agentis-genesis-stepfunctions-development/PlannerFunction/LogRetention/Resource"
-   }
-  },
-  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB": {
-   "Type": "AWS::IAM::Role",
-   "Properties": {
-    "AssumeRolePolicyDocument": {
-     "Statement": [
-      {
-       "Action": "sts:AssumeRole",
-       "Effect": "Allow",
-       "Principal": {
-        "Service": "lambda.amazonaws.com"
-       }
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "ManagedPolicyArns": [
-     {
-      "Fn::Join": [
-       "",
-       [
-        "arn:",
-        {
-         "Ref": "AWS::Partition"
-        },
-        ":iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
-       ]
-      ]
-     }
-    ]
-   },
-   "Metadata": {
-    "aws:cdk:path": "agentis-genesis-stepfunctions-development/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/Resource"
-   }
-  },
-  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB": {
-   "Type": "AWS::IAM::Policy",
-   "Properties": {
-    "PolicyDocument": {
-     "Statement": [
-      {
-       "Action": [
-        "logs:PutRetentionPolicy",
-        "logs:DeleteRetentionPolicy"
-       ],
-       "Effect": "Allow",
-       "Resource": "*"
-      }
-     ],
-     "Version": "2012-10-17"
-    },
-    "PolicyName": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
-    "Roles": [
-     {
-      "Ref": "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
-     }
-    ]
-   },
-   "Metadata": {
-    "aws:cdk:path": "agentis-genesis-stepfunctions-development/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/ServiceRole/DefaultPolicy/Resource"
-   }
-  },
-  "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A": {
-   "Type": "AWS::Lambda::Function",
-   "Properties": {
-    "Handler": "index.handler",
-    "Runtime": "nodejs24.x",
-    "Timeout": 900,
-    "Code": {
-     "S3Bucket": {
-      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
-     },
-     "S3Key": "2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d.zip"
-    },
-    "Role": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB",
-      "Arn"
-     ]
-    }
-   },
-   "DependsOn": [
-    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRoleDefaultPolicyADDA7DEB",
-    "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aServiceRole9741ECFB"
-   ],
-   "Metadata": {
-    "aws:cdk:path": "agentis-genesis-stepfunctions-development/LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8a/Resource",
-    "aws:asset:path": "asset.2819175352ad1ce0dae768e83fc328fb70fb5f10b4a8ff0ccbcb791f02b0716d",
+    "aws:asset:path": "/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/dist/server",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }
@@ -513,25 +435,25 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
      },
-     "S3Key": "220290fd4dd1bccfb43d30c7050a6be3550bb7e7940238e6c19d6f5a1ad5e60f.zip"
+     "S3Key": "d1f574f30d614d8e4e6002c5ed38b193b9d672ad4dd8de3f2348d3217dd2ead0.zip"
     },
     "Environment": {
      "Variables": {
       "NODE_ENV": "development",
       "ENVIRONMENT": "development",
       "DATABASE_SECRET_ARN": {
-       "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseSecret86DBB7B353068790"
+       "Fn::ImportValue": "agentis-genesis-db-secret-arn-development"
       },
       "DATABASE_PROXY_ENDPOINT": {
-       "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputFnGetAttDatabaseProxy3E84A7D6Endpoint89149F8B"
+       "Fn::ImportValue": "agentis-genesis-db-proxy-endpoint-development"
       },
       "DATABASE_NAME": "genesis",
       "DATABASE_PORT": "3306",
       "ARTIFACT_BUCKET_NAME": {
-       "Fn::ImportValue": "agentis-genesis-storage-development:ExportsOutputRefArtifactBucket7410C9EF659B6D66"
+       "Fn::ImportValue": "agentis-genesis-artifact-bucket-name-development"
       },
       "BEDROCK_API_KEY_SECRET_ARN": {
-       "Fn::ImportValue": "agentis-genesis-secrets-development:ExportsOutputRefBedrockApiKeySecret478226FA0DE7930F"
+       "Fn::ImportValue": "agentis-genesis-bedrock-api-key-secret-arn-development"
       },
       "BEDROCK_MODEL_ID": "anthropic.claude-3-5-sonnet-20241022-v2:0",
       "MOCK_AI": "true"
@@ -539,27 +461,30 @@
     },
     "FunctionName": "agentis-genesis-agent-worker-development",
     "Handler": "dist/agent-worker.handler",
+    "LoggingConfig": {
+     "LogGroup": {
+      "Ref": "AgentWorkerLogGroup347323DD"
+     }
+    },
     "MemorySize": 512,
+    "ReservedConcurrentExecutions": 10,
     "Role": {
      "Fn::GetAtt": [
       "WorkerRole8DD27D41",
       "Arn"
      ]
     },
-    "Runtime": "nodejs20.x",
+    "Runtime": "nodejs22.x",
     "Timeout": 600,
     "VpcConfig": {
      "SecurityGroupIds": [
       {
-       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputFnGetAttLambdaSecurityGroup0BD9FC99GroupId34A98CFB"
+       "Fn::ImportValue": "agentis-genesis-lambda-sg-id-development"
       }
      ],
      "SubnetIds": [
       {
-       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373"
-      },
-      {
-       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D"
+       "Fn::ImportValue": "agentis-genesis-private-subnet-ids-development"
       }
      ]
     }
@@ -570,35 +495,9 @@
    ],
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-stepfunctions-development/AgentWorkerFunction/Resource",
-    "aws:asset:path": "asset.220290fd4dd1bccfb43d30c7050a6be3550bb7e7940238e6c19d6f5a1ad5e60f",
+    "aws:asset:path": "/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/dist/server",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
-   }
-  },
-  "AgentWorkerFunctionLogRetention15DD28DE": {
-   "Type": "Custom::LogRetention",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "AgentWorkerFunctionC0571EDB"
-       }
-      ]
-     ]
-    },
-    "RetentionInDays": 7
-   },
-   "Metadata": {
-    "aws:cdk:path": "agentis-genesis-stepfunctions-development/AgentWorkerFunction/LogRetention/Resource"
    }
   },
   "VerificationFunctionB0621202": {
@@ -611,25 +510,25 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
      },
-     "S3Key": "220290fd4dd1bccfb43d30c7050a6be3550bb7e7940238e6c19d6f5a1ad5e60f.zip"
+     "S3Key": "d1f574f30d614d8e4e6002c5ed38b193b9d672ad4dd8de3f2348d3217dd2ead0.zip"
     },
     "Environment": {
      "Variables": {
       "NODE_ENV": "development",
       "ENVIRONMENT": "development",
       "DATABASE_SECRET_ARN": {
-       "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputRefDatabaseSecret86DBB7B353068790"
+       "Fn::ImportValue": "agentis-genesis-db-secret-arn-development"
       },
       "DATABASE_PROXY_ENDPOINT": {
-       "Fn::ImportValue": "agentis-genesis-database-development:ExportsOutputFnGetAttDatabaseProxy3E84A7D6Endpoint89149F8B"
+       "Fn::ImportValue": "agentis-genesis-db-proxy-endpoint-development"
       },
       "DATABASE_NAME": "genesis",
       "DATABASE_PORT": "3306",
       "ARTIFACT_BUCKET_NAME": {
-       "Fn::ImportValue": "agentis-genesis-storage-development:ExportsOutputRefArtifactBucket7410C9EF659B6D66"
+       "Fn::ImportValue": "agentis-genesis-artifact-bucket-name-development"
       },
       "BEDROCK_API_KEY_SECRET_ARN": {
-       "Fn::ImportValue": "agentis-genesis-secrets-development:ExportsOutputRefBedrockApiKeySecret478226FA0DE7930F"
+       "Fn::ImportValue": "agentis-genesis-bedrock-api-key-secret-arn-development"
       },
       "BEDROCK_MODEL_ID": "anthropic.claude-3-5-sonnet-20241022-v2:0",
       "MOCK_AI": "true"
@@ -637,27 +536,30 @@
     },
     "FunctionName": "agentis-genesis-verification-development",
     "Handler": "dist/verification.handler",
+    "LoggingConfig": {
+     "LogGroup": {
+      "Ref": "VerificationLogGroupE48B76B8"
+     }
+    },
     "MemorySize": 512,
+    "ReservedConcurrentExecutions": 5,
     "Role": {
      "Fn::GetAtt": [
       "WorkerRole8DD27D41",
       "Arn"
      ]
     },
-    "Runtime": "nodejs20.x",
+    "Runtime": "nodejs22.x",
     "Timeout": 600,
     "VpcConfig": {
      "SecurityGroupIds": [
       {
-       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputFnGetAttLambdaSecurityGroup0BD9FC99GroupId34A98CFB"
+       "Fn::ImportValue": "agentis-genesis-lambda-sg-id-development"
       }
      ],
      "SubnetIds": [
       {
-       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373"
-      },
-      {
-       "Fn::ImportValue": "agentis-genesis-vpc-development:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D"
+       "Fn::ImportValue": "agentis-genesis-private-subnet-ids-development"
       }
      ]
     }
@@ -668,35 +570,9 @@
    ],
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-stepfunctions-development/VerificationFunction/Resource",
-    "aws:asset:path": "asset.220290fd4dd1bccfb43d30c7050a6be3550bb7e7940238e6c19d6f5a1ad5e60f",
+    "aws:asset:path": "/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/dist/server",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
-   }
-  },
-  "VerificationFunctionLogRetentionCAB8235B": {
-   "Type": "Custom::LogRetention",
-   "Properties": {
-    "ServiceToken": {
-     "Fn::GetAtt": [
-      "LogRetentionaae0aa3c5b4d4f87b02d85b201efdd8aFD4BFC8A",
-      "Arn"
-     ]
-    },
-    "LogGroupName": {
-     "Fn::Join": [
-      "",
-      [
-       "/aws/lambda/",
-       {
-        "Ref": "VerificationFunctionB0621202"
-       }
-      ]
-     ]
-    },
-    "RetentionInDays": 7
-   },
-   "Metadata": {
-    "aws:cdk:path": "agentis-genesis-stepfunctions-development/VerificationFunction/LogRetention/Resource"
    }
   },
   "StateMachineLogGroup15B91BCB": {
@@ -849,7 +725,7 @@
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/1WPT2uDQBDFP0vu47TVQ8+NkBIwNOihR5mso9mou+LMJhTxuxdNU9rT+z3m74sxfn3B5w3dJDJVG3X2hFOhZFqgm5STpR6n3HcMae1WPfrOmq/F3mmGjvpTRTjtgjNqvVtqD55BkpJEWAXfFgFJcBtMy7olYeh8IzhlvslZ2a3TmW/eRx+GZc2DZxDlof5ZKqWStILZenjvrr7l/w04HWiA9OytYfgkq3AkEdiR7aBQUj6QOVu3pvrr5xnWLwulxrpmDc3iw2gYfiGt3UfQIegMzleMF3m6xjHGCcabi1gbjcGp7Rnzu34D41jC+GQBAAA="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/1WOwWrDMAyGn6V3Rducw85roWPQspIcdgyq46ZuHDtEcsswfveRdIXt9H8/n5CkUL2+4POKblzoti+cPWKqhXQPleEQJ22AbtwkLnEddW9kTWzA0oCpCs7A5uSXPARn9fdc75TBhY4x7UL3PoU4zubBGRwNx5YwbaPXYoOf7YMzcNkQsxHGtzmAxYynX8uNEPeMu2XDh7+G3vwfwLSnETbnYLWBL7ICB2KGLVkHtZCYPemz9cvrf3vOsJyrhTrru1l/RhmjZPChNXjhp6tSqEpUqwtbW0zRix0MVvf8AU8lxGdLAQAA"
    },
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-stepfunctions-development/CDKMetadata/Default"
@@ -898,14 +774,6 @@
    },
    "Export": {
     "Name": "agentis-genesis-verification-function-name-development"
-   }
-  },
-  "ExportsOutputRefGenesisWorkflowFD3910B71BC0A291": {
-   "Value": {
-    "Ref": "GenesisWorkflowFD3910B7"
-   },
-   "Export": {
-    "Name": "agentis-genesis-stepfunctions-development:ExportsOutputRefGenesisWorkflowFD3910B71BC0A291"
    }
   }
  },

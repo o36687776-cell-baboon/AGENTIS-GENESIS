@@ -20,7 +20,8 @@ export interface GenesisApiStackProps extends cdk.StackProps {
   artifactBucketName: string;
   artifactBucketArn: string;
   bedrockApiKeySecretArn: string;
-  bedrockApiKeySecretName: string;
+  privateSubnetIds: string;
+  isolatedSubnetIds: string;
 }
 
 export class GenesisApiStack extends cdk.Stack {
@@ -30,7 +31,7 @@ export class GenesisApiStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: GenesisApiStackProps) {
     super(scope, id, props);
 
-    const { envName, appName, vpcId, lambdaSecurityGroupId, dbSecretArn, dbProxyEndpoint, dbInstanceIdentifier, artifactBucketName, artifactBucketArn, bedrockApiKeySecretArn, bedrockApiKeySecretName } = props;
+    const { envName, appName, vpcId, lambdaSecurityGroupId, dbSecretArn, dbProxyEndpoint, dbInstanceIdentifier, artifactBucketName, artifactBucketArn, bedrockApiKeySecretArn, privateSubnetIds, isolatedSubnetIds } = props;
 
     const isProduction = envName === "production";
 
@@ -38,13 +39,15 @@ export class GenesisApiStack extends cdk.Stack {
     const vpc = ec2.Vpc.fromVpcAttributes(this, "ImportedVpc", {
       vpcId,
       availabilityZones: cdk.Fn.getAzs(),
+      privateSubnetIds: privateSubnetIds.split(","),
+      isolatedSubnetIds: isolatedSubnetIds.split(","),
     });
 
     const lambdaSecurityGroup = ec2.SecurityGroup.fromSecurityGroupId(this, "ImportedLambdaSecurityGroup", lambdaSecurityGroupId);
 
     // Import secrets
-    const dbSecret = secretsmanager.Secret.fromSecretArn(this, "ImportedDbSecret", dbSecretArn);
-    const bedrockApiKeySecret = secretsmanager.Secret.fromSecretArn(this, "ImportedBedrockApiKeySecret", bedrockApiKeySecretArn);
+    const dbSecret = secretsmanager.Secret.fromSecretCompleteArn(this, "ImportedDbSecret", dbSecretArn);
+    const bedrockApiKeySecret = secretsmanager.Secret.fromSecretCompleteArn(this, "ImportedBedrockApiKeySecret", bedrockApiKeySecretArn);
 
     // Import S3 bucket
     const artifactBucket = s3.Bucket.fromBucketAttributes(this, "ImportedArtifactBucket", {

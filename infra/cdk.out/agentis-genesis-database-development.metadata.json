@@ -3,42 +3,8 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:33:23)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:40:1)",
         "...node internals, ts-node, ts-node, ts-node..."
-      ]
-    }
-  ],
-  "/agentis-genesis-database-development/Vpc": [
-    {
-      "type": "aws:cdk:warning",
-      "data": "fromVpcAttributes: 'availabilityZones' is a list token: the imported VPC will not work with constructs that require a list of subnets at synthesis time. Use 'Vpc.fromLookup()' or 'Fn.importListValue' instead. [ack: @aws-cdk/aws-ec2:vpcAttributeIsListTokenavailabilityZones]",
-      "trace": [
-        "Annotations.addMessage (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/core/lib/annotations.js:1:3506)",
-        "Annotations.addWarningV2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/core/lib/annotations.js:1:2194)",
-        "new ImportedVpc2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:44878)",
-        "new ImportedVpc2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/core/lib/prop-injectable.js:1:861)",
-        "Function.fromVpcAttributes (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:14040)",
-        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:39:25)",
-        "Object.<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:33:23)",
-        "Module._compile (node:internal/modules/cjs/loader:1781:14)",
-        "Module.m._compile (/home/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/index.ts:1618:23)",
-        "node:internal/modules/cjs/loader:1913:10",
-        "Object.require.extensions.<computed> [as .ts] (/home/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/index.ts:1621:12)",
-        "Module.load (node:internal/modules/cjs/loader:1505:32)",
-        "Function._load (node:internal/modules/cjs/loader:1309:12)",
-        "wrapModuleLoad (node:internal/modules/cjs/loader:254:19)",
-        "Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)",
-        "phase4 (/home/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/bin.ts:649:14)",
-        "bootstrap (/home/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/bin.ts:95:10)",
-        "main (/home/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/bin.ts:55:10)",
-        "Object.<anonymous> (/home/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/bin.ts:800:3)",
-        "Module._compile (node:internal/modules/cjs/loader:1781:14)",
-        "Object.<anonymous> (node:internal/modules/cjs/loader:1913:10)",
-        "Module.load (node:internal/modules/cjs/loader:1505:32)",
-        "Function._load (node:internal/modules/cjs/loader:1309:12)",
-        "wrapModuleLoad (node:internal/modules/cjs/loader:254:19)",
-        "Function.executeUserEntryPoint [as runMain] (node:internal/modules/run_main:171:5)",
-        "node:internal/main/run_main_module:36:49"
       ]
     }
   ],
@@ -50,8 +16,8 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:95:5)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:33:23)",
+        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:99:5)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:40:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -64,8 +30,8 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:100:5)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:33:23)",
+        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:104:5)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:40:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -78,8 +44,8 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:105:5)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:33:23)",
+        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:109:5)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:40:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -92,8 +58,8 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:110:5)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:33:23)",
+        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:114:5)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:40:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -106,8 +72,22 @@
     {
       "type": "aws:cdk:creationStack",
       "data": [
-        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:115:5)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:33:23)",
+        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:119:5)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:40:1)",
+        "...node internals, ts-node, ts-node..."
+      ]
+    }
+  ],
+  "/agentis-genesis-database-development/DatabaseInstanceIdentifier": [
+    {
+      "type": "aws:cdk:logicalId",
+      "data": "DatabaseInstanceIdentifier"
+    },
+    {
+      "type": "aws:cdk:creationStack",
+      "data": [
+        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:124:5)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:40:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -147,8 +127,8 @@
       "type": "aws:cdk:creationStack",
       "data": [
         "...new Secret2 in aws-cdk-lib...",
-        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:27:21)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:33:23)",
+        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:30:21)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:40:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -158,19 +138,19 @@
       "type": "aws:cdk:warning",
       "data": "No routeTableId was provided to the subnet at 'agentis-genesis-database-development/Vpc/PrivateSubnet1'. Attempting to read its .routeTable.routeTableId will return null/undefined. (More info: https://github.com/aws/aws-cdk/pull/3171) [ack: @aws-cdk/aws-ec2:noSubnetRouteTableId]",
       "trace": [
-        "Annotations.addMessage (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/core/lib/annotations.js:1:3506)",
-        "Annotations.addWarningV2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/core/lib/annotations.js:1:2194)",
-        "new ImportedSubnet2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:51452)",
-        "new ImportedSubnet2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/core/lib/prop-injectable.js:1:861)",
-        "Function.fromSubnetAttributes (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:33329)",
-        "/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/util.js:1:2658",
+        "Annotations.addMessage (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/core/lib/annotations.js:1:3506)",
+        "Annotations.addWarningV2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/core/lib/annotations.js:1:2194)",
+        "new ImportedSubnet2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:51452)",
+        "new ImportedSubnet2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/core/lib/prop-injectable.js:1:861)",
+        "Function.fromSubnetAttributes (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:33329)",
+        "/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/util.js:1:2658",
         "Array.map (<anonymous>)",
-        "ImportSubnetGroup.import (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/util.js:1:2576)",
-        "new ImportedVpc2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:46110)",
-        "new ImportedVpc2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/core/lib/prop-injectable.js:1:861)",
-        "Function.fromVpcAttributes (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:14040)",
-        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:39:25)",
-        "Object.<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:33:23)",
+        "ImportSubnetGroup.import (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/util.js:1:2576)",
+        "new ImportedVpc2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:46110)",
+        "new ImportedVpc2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/core/lib/prop-injectable.js:1:861)",
+        "Function.fromVpcAttributes (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:14040)",
+        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:43:25)",
+        "Object.<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:40:1)",
         "Module._compile (node:internal/modules/cjs/loader:1781:14)",
         "Module.m._compile (/home/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/index.ts:1618:23)",
         "node:internal/modules/cjs/loader:1913:10",
@@ -198,19 +178,19 @@
       "type": "aws:cdk:warning",
       "data": "No routeTableId was provided to the subnet at 'agentis-genesis-database-development/Vpc/IsolatedSubnet1'. Attempting to read its .routeTable.routeTableId will return null/undefined. (More info: https://github.com/aws/aws-cdk/pull/3171) [ack: @aws-cdk/aws-ec2:noSubnetRouteTableId]",
       "trace": [
-        "Annotations.addMessage (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/core/lib/annotations.js:1:3506)",
-        "Annotations.addWarningV2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/core/lib/annotations.js:1:2194)",
-        "new ImportedSubnet2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:51452)",
-        "new ImportedSubnet2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/core/lib/prop-injectable.js:1:861)",
-        "Function.fromSubnetAttributes (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:33329)",
-        "/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/util.js:1:2658",
+        "Annotations.addMessage (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/core/lib/annotations.js:1:3506)",
+        "Annotations.addWarningV2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/core/lib/annotations.js:1:2194)",
+        "new ImportedSubnet2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:51452)",
+        "new ImportedSubnet2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/core/lib/prop-injectable.js:1:861)",
+        "Function.fromSubnetAttributes (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:33329)",
+        "/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/util.js:1:2658",
         "Array.map (<anonymous>)",
-        "ImportSubnetGroup.import (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/util.js:1:2576)",
-        "new ImportedVpc2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:46148)",
-        "new ImportedVpc2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/core/lib/prop-injectable.js:1:861)",
-        "Function.fromVpcAttributes (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:14040)",
-        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:39:25)",
-        "Object.<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:33:23)",
+        "ImportSubnetGroup.import (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/util.js:1:2576)",
+        "new ImportedVpc2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:46148)",
+        "new ImportedVpc2 (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/core/lib/prop-injectable.js:1:861)",
+        "Function.fromVpcAttributes (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/node_modules/aws-cdk-lib/aws-ec2/lib/vpc.js:1:14040)",
+        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:43:25)",
+        "Object.<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:40:1)",
         "Module._compile (node:internal/modules/cjs/loader:1781:14)",
         "Module.m._compile (/home/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/.npm/_npx/1bf7c3c15bf47d04/node_modules/ts-node/src/index.ts:1618:23)",
         "node:internal/modules/cjs/loader:1913:10",
@@ -255,8 +235,8 @@
       "type": "aws:cdk:creationStack",
       "data": [
         "...new DatabaseInstance2 in aws-cdk-lib...",
-        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:51:21)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:33:23)",
+        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:55:21)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:40:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -270,8 +250,8 @@
       "type": "aws:cdk:creationStack",
       "data": [
         "...new DatabaseProxy2 in aws-cdk-lib...",
-        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:80:20)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:33:23)",
+        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:84:20)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:40:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -285,8 +265,8 @@
       "type": "aws:cdk:creationStack",
       "data": [
         "...new DatabaseProxy2 in aws-cdk-lib...",
-        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:80:20)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:33:23)",
+        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:84:20)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:40:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }
@@ -304,45 +284,6 @@
       ]
     }
   ],
-  "/agentis-genesis-database-development/Exports/Output{\"Ref\":\"DatabaseSecret86DBB7B3\"}": [
-    {
-      "type": "aws:cdk:logicalId",
-      "data": "ExportsOutputRefDatabaseSecret86DBB7B353068790"
-    },
-    {
-      "type": "aws:cdk:creationStack",
-      "data": [
-        "...aws-cdk-lib...",
-        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
-      ]
-    }
-  ],
-  "/agentis-genesis-database-development/Exports/Output{\"Ref\":\"DatabaseB269D8BB\"}": [
-    {
-      "type": "aws:cdk:logicalId",
-      "data": "ExportsOutputRefDatabaseB269D8BB88F4B1C4"
-    },
-    {
-      "type": "aws:cdk:creationStack",
-      "data": [
-        "...aws-cdk-lib...",
-        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
-      ]
-    }
-  ],
-  "/agentis-genesis-database-development/Exports/Output{\"Fn::GetAtt\":[\"DatabaseProxy3E84A7D6\",\"Endpoint\"]}": [
-    {
-      "type": "aws:cdk:logicalId",
-      "data": "ExportsOutputFnGetAttDatabaseProxy3E84A7D6Endpoint89149F8B"
-    },
-    {
-      "type": "aws:cdk:creationStack",
-      "data": [
-        "...aws-cdk-lib...",
-        "(no user code in 10 frames, use --stack-trace-limit to capture more)"
-      ]
-    }
-  ],
   "/agentis-genesis-database-development/DatabaseSecret/Attachment/Resource": [
     {
       "type": "aws:cdk:logicalId",
@@ -352,8 +293,8 @@
       "type": "aws:cdk:creationStack",
       "data": [
         "...new DatabaseInstance2 in aws-cdk-lib...",
-        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:51:21)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:33:23)",
+        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:55:21)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:40:1)",
         "...node internals, ts-node..."
       ]
     }
@@ -367,8 +308,8 @@
       "type": "aws:cdk:creationStack",
       "data": [
         "...new DatabaseProxy2 in aws-cdk-lib...",
-        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:80:20)",
-        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:33:23)",
+        "new GenesisDatabaseStack (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/lib/genesis-database-stack.ts:84:20)",
+        "<anonymous> (/workspace/950c883d-6e35-4804-a6e2-11a1e8cc9419/sessions/agent_a5280be3-144b-488b-b3fc-57fd2fcbb63f/infra/bin/genesis.ts:40:1)",
         "...node internals, ts-node, ts-node..."
       ]
     }

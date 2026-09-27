@@ -558,8 +558,10 @@
     "SecurityGroupEgress": [
      {
       "CidrIp": "0.0.0.0/0",
-      "Description": "Allow all outbound traffic by default",
-      "IpProtocol": "-1"
+      "Description": "Allow HTTPS outbound for AWS APIs",
+      "FromPort": 443,
+      "IpProtocol": "tcp",
+      "ToPort": 443
      }
     ],
     "VpcId": {
@@ -568,6 +570,30 @@
    },
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-vpc-development/LambdaSecurityGroup/Resource"
+   }
+  },
+  "LambdaSecurityGrouptoagentisgenesisvpcdevelopmentDatabaseSecurityGroup366E2E433306EDC28A1D": {
+   "Type": "AWS::EC2::SecurityGroupEgress",
+   "Properties": {
+    "Description": "Allow Lambda to connect to RDS Proxy",
+    "DestinationSecurityGroupId": {
+     "Fn::GetAtt": [
+      "DatabaseSecurityGroup7319C0F6",
+      "GroupId"
+     ]
+    },
+    "FromPort": 3306,
+    "GroupId": {
+     "Fn::GetAtt": [
+      "LambdaSecurityGroup0BD9FC99",
+      "GroupId"
+     ]
+    },
+    "IpProtocol": "tcp",
+    "ToPort": 3306
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-vpc-development/LambdaSecurityGroup/to agentisgenesisvpcdevelopmentDatabaseSecurityGroup366E2E43:3306"
    }
   },
   "DatabaseSecurityGroup7319C0F6": {
@@ -627,7 +653,7 @@
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/02OwW7CMBBEv4W7s23dA2dKK8SljRLEtdpstqoh2JG9S4Si/HsVUiWcZuZpNBoLdv0CzyvsUkb1OWtcBX0pSGeDXfrumSz0x5bM9scf863JtWoclVp5lpEtrggqfMCq4YUvbJNSIIfigp/Lo/nY56N8ouxQuMObyaO7ovAyvPfC0fNcmJ78p40I0u+FvZiSSaOT2y4Gbe8fHsFgYp2gn2bnyvvbAxgGU3AKGul+7UulVRmMDzXDKT1drQX7CnZ1Ss5lUb24C0Mx6R91kHf6SAEAAA=="
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/32OwU7DQAxEv6X3zQLLgXMpVdULRAnqFTkbA27T3WhtN6qi/DtKgxJOnGb8NBqPs+7pwd6voOPM16esocr2pYA/Gej4o0fvbH9ovdl8hkO+MblWDflSq4AyssUVUQXfoWpw4QtbM0dPIBTDHB7Ndp+P8gqyA8EOriZPdAHBpXgfBFPAOTAt+b3WIuC/zxjElOg1kVx3KWp72/Av2H4lZB5Mqtn207c5+PL8BwyDKZCjJn9b/KbSqgwmxBrtke8uzln3aN3qyERZ0iB0RltM+gPMwnW5XwEAAA=="
    },
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-vpc-development/CDKMetadata/Default"
@@ -711,31 +737,33 @@
     "Name": "agentis-genesis-db-subnet-group-name-development"
    }
   },
-  "ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373": {
+  "AvailabilityZones": {
    "Value": {
-    "Ref": "VpcprivateSubnet1SubnetCEAD3716"
-   },
-   "Export": {
-    "Name": "agentis-genesis-vpc-development:ExportsOutputRefVpcprivateSubnet1SubnetCEAD37168693D373"
-   }
-  },
-  "ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D": {
-   "Value": {
-    "Ref": "VpcprivateSubnet2Subnet2DE7549C"
-   },
-   "Export": {
-    "Name": "agentis-genesis-vpc-development:ExportsOutputRefVpcprivateSubnet2Subnet2DE7549CDF5ACE3D"
-   }
-  },
-  "ExportsOutputFnGetAttLambdaSecurityGroup0BD9FC99GroupId34A98CFB": {
-   "Value": {
-    "Fn::GetAtt": [
-     "LambdaSecurityGroup0BD9FC99",
-     "GroupId"
+    "Fn::Join": [
+     "",
+     [
+      {
+       "Fn::Select": [
+        0,
+        {
+         "Fn::GetAZs": ""
+        }
+       ]
+      },
+      ",",
+      {
+       "Fn::Select": [
+        1,
+        {
+         "Fn::GetAZs": ""
+        }
+       ]
+      }
+     ]
     ]
    },
    "Export": {
-    "Name": "agentis-genesis-vpc-development:ExportsOutputFnGetAttLambdaSecurityGroup0BD9FC99GroupId34A98CFB"
+    "Name": "agentis-genesis-availability-zones-development"
    }
   }
  },
