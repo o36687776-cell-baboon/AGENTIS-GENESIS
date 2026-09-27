@@ -4,10 +4,18 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "next build && tsc -p infra/tsconfig.json",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "db:migrate": "tsx scripts/migrate.ts",
+    "infra:synth": "cd infra && cdk synth",
+    "infra:deploy": "cd infra && cdk deploy",
+    "infra:diff": "cd infra && cdk diff",
+    "infra:destroy": "cd infra && cdk destroy",
+    "infra:bootstrap": "cd infra && cdk bootstrap",
+    "aws:health": "tsx scripts/health-check.ts",
+    "bedrock:test": "tsx scripts/bedrock-test.ts"
   },
   "dependencies": {
     "next": "15.1.6",
@@ -16,15 +24,26 @@
     "framer-motion": "^11.11.0",
     "zustand": "^5.0.0",
     "clsx": "^2.1.1",
-    "tailwind-merge": "^2.5.0"
+    "tailwind-merge": "^2.5.0",
+    "@aws-sdk/client-bedrock-runtime": "^3.500.0",
+    "@aws-sdk/client-secrets-manager": "^3.500.0",
+    "@aws-sdk/client-s3": "^3.500.0",
+    "@aws-sdk/s3-request-presigner": "^3.500.0",
+    "mysql2": "^3.9.0",
+    "uuid": "^9.0.0"
   },
   "devDependencies": {
     "@types/node": "^22",
     "@types/react": "^19",
     "@types/react-dom": "^19",
+    "@types/uuid": "^9.0.0",
     "typescript": "^5",
     "tailwindcss": "^3.4",
     "postcss": "^8",
-    "autoprefixer": "^10"
+    "autoprefixer": "^10",
+    "tsx": "^4.7.0",
+    "aws-cdk": "^2.147.0",
+    "aws-cdk-lib": "^2.147.0",
+    "constructs": "^10.3.0"
   }
 }

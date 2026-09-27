@@ -2,9 +2,9 @@
 
 import { create } from "zustand";
 import { devtools } from "zustand/middleware";
-import { Agent, Task, WorkTree, WorkTreeNode } from "@/types";
-import { mockAgents, mockTasks } from "@/data/mockData";
-import { MockApi } from "@/services/mockApi";
+import { Agent, Task, WorkTree, WorkTreeNode, SystemStatus } from "@/types";
+import { mockAgents, mockTasks, allWorkTrees, generateActivityFeed, mockSystemStatus } from "@/data/mockData";
+import { RealApi, USE_REAL_API } from "@/services/realApi";
 
 export type ActiveSection =
   | "dashboard"
@@ -43,16 +43,7 @@ export interface AppDataState {
   workTrees: Record<string, WorkTree>;
   agents: Record<string, Agent>;
   tasks: Record<string, Task>;
-  systemStatus: {
-    agents: number;
-    tasks: number;
-    running: number;
-    queued: number;
-    errors: number;
-    apiHealth: number;
-    memory: "healthy" | "degraded" | "critical";
-    security: "protected" | "warning" | "compromised";
-  };
+  systemStatus: SystemStatus;
   workTreeNodes: Record<string, WorkTreeNode>;
   workTreeList: WorkTree[];
   agentList: Agent[];
@@ -60,17 +51,28 @@ export interface AppDataState {
   workTreeNodeList: WorkTreeNode[];
   isLoading: boolean;
   error: string | null;
+  useRealApi: boolean;
 
   getWorkTree: (id: string) => WorkTree | undefined;
   loadWorkTrees: () => Promise<void>;
   loadSystemStatus: () => Promise<void>;
   loadWorkTree: (id: string) => Promise<WorkTree | null>;
   updateAgentStatus: (id: string, status: Agent["status"]) => void;
-   updateTaskStatus: (id: string, status: Task["status"]) => void;
+  updateTaskStatus: (id: string, status: Task["status"]) => void;
   toggleNodeCollapse: (id: string) => void;
+  createWorkTree: (data: { name: string; objective: string; context?: Record<string, any> }) => Promise<WorkTree | null>;
+  planWorkTree: (id: string, objective?: string) => Promise<any>;
+  runWorkTree: (id: string) => Promise<any>;
+  pauseWorkTree: (id: string) => Promise<any>;
+  resumeWorkTree: (id: string) => Promise<any>;
+  aiChat: (message: string) => Promise<string>;
 }
 
 export type AppStore = UIState & AppDataState;
+
+function mapWorkTreeToStore(wt: WorkTree): WorkTree {
+  return wt;
+}
 
 export const useStore = create<AppStore>()(
   devtools((set, get) => ({
@@ -113,11 +115,12 @@ export const useStore = create<AppStore>()(
     workTreeNodeList: [],
     isLoading: false,
     error: null,
+    useRealApi: USE_REAL_API,
 
     loadWorkTrees: async () => {
       set({ isLoading: true, error: null });
       try {
-        const workTrees = await MockApi.getWorkTrees();
+        const workTrees = await RealApi.getWorkTrees();
         const trees: Record<string, WorkTree> = {};
         const agents: Record<string, Agent> = {};
         const tasks: Record<string, Task> = {};
@@ -136,13 +139,13 @@ export const useStore = create<AppStore>()(
               id: a.id,
               type: "task",
               title: a.action,
-              state: "id" in a ? "completed" : "running",
+              state: (a.type === "success" || a.type === "completed") ? "completed" : "running",
               agent: a.agent,
             };
           });
         });
 
-         set({
+        set({
           workTrees: trees,
           agents,
           tasks,
@@ -157,14 +160,54 @@ export const useStore = create<AppStore>()(
           set({ selectedWorkTreeId: workTrees[0].id });
         }
       } catch (err) {
-        set({ error: "Failed to load work trees", isLoading: false });
+        console.error("Failed to load work trees:", err);
+        const workTrees = allWorkTrees;
+        const trees: Record<string, WorkTree> = {};
+        const agents: Record<string, Agent> = {};
+        const tasks: Record<string, Task> = {};
+        const nodes: Record<string, WorkTreeNode> = {};
+
+        workTrees.forEach((wt) => {
+          trees[wt.id] = wt;
+          wt.agents.forEach((a) => {
+            agents[a.id] = a;
+          });
+          wt.tasks.forEach((t) => {
+            tasks[t.id] = t;
+          });
+          wt.activity.forEach((a) => {
+            nodes[a.id] = {
+              id: a.id,
+              type: "task",
+              title: a.action,
+              state: "completed",
+              agent: a.agent,
+            };
+          });
+        });
+
+        set({
+          workTrees: trees,
+          agents,
+          tasks,
+          workTreeNodes: nodes,
+          workTreeList: workTrees,
+          agentList: Object.values(agents),
+          taskList: Object.values(tasks),
+          workTreeNodeList: Object.values(nodes),
+          isLoading: false,
+          error: "Using mock data - backend not configured",
+        });
+        if (!get().selectedWorkTreeId && workTrees.length > 0) {
+          set({ selectedWorkTreeId: workTrees[0].id });
+        }
       }
     },
 
     loadSystemStatus: async () => {
       set({ isLoading: true });
       try {
-        const status = await MockApi.getSystemStatus();
+        const status = await RealApi.getSystemStatus();
         set({
           systemStatus: {
             agents: status.agents,
@@ -180,16 +223,7 @@ export const useStore = create<AppStore>()(
         });
       } catch {
         set({
-          systemStatus: {
-            agents: 4,
-            tasks: 10,
-            running: 3,
-            queued: 4,
-            errors: 1,
-            apiHealth: 99.9,
-            memory: "healthy",
-            security: "protected",
-          },
+          systemStatus: mockSystemStatus,
           isLoading: false,
         });
       }
@@ -198,7 +232,7 @@ export const useStore = create<AppStore>()(
     loadWorkTree: async (id) => {
       set({ isLoading: true });
       try {
-        const wt = await MockApi.getWorkTree(id);
+        const wt = await RealApi.getWorkTree(id);
         if (wt) {
           set((s) => {
             const nextWorkTrees = { ...s.workTrees, [wt.id]: wt };
@@ -229,7 +263,7 @@ export const useStore = create<AppStore>()(
       }
     },
 
-  updateAgentStatus: (id, status) =>
+    updateAgentStatus: (id, status) =>
       set((s) => {
         const nextAgents = { ...s.agents, [id]: { ...s.agents[id], status } };
         return { agents: nextAgents, agentList: Object.values(nextAgents) };
@@ -252,6 +286,74 @@ export const useStore = create<AppStore>()(
           workTreeNodeList: Object.values(nextNodes),
         };
       }),
+
+    createWorkTree: async (data) => {
+      const wt = await RealApi.createWorkTree(data);
+      if (wt) {
+        set((s) => {
+          const nextWorkTrees = { ...s.workTrees, [wt.id]: wt };
+          return {
+            workTrees: nextWorkTrees,
+            workTreeList: Object.values(nextWorkTrees),
+            selectedWorkTreeId: wt.id,
+          };
+        });
+      }
+      return wt;
+    },
+
+    planWorkTree: async (id, objective) => {
+      return RealApi.planWorkTree(id, objective);
+    },
+
+    runWorkTree: async (id) => {
+      const result = await RealApi.runWorkTree(id);
+      if (result) {
+        set((s) => {
+          const wt = s.workTrees[id];
+          if (wt) {
+            const nextWorkTrees = { ...s.workTrees, [id]: { ...wt, status: "running" } };
+            return { workTrees: nextWorkTrees, workTreeList: Object.values(nextWorkTrees) };
+          }
+          return s;
+        });
+      }
+      return result;
+    },
+
+    pauseWorkTree: async (id) => {
+      const result = await RealApi.pauseWorkTree(id);
+      if (result) {
+        set((s) => {
+          const wt = s.workTrees[id];
+          if (wt) {
+            const nextWorkTrees = { ...s.workTrees, [id]: { ...wt, status: "waiting" } };
+            return { workTrees: nextWorkTrees, workTreeList: Object.values(nextWorkTrees) };
+          }
+          return s;
+        });
+      }
+      return result;
+    },
+
+    resumeWorkTree: async (id) => {
+      const result = await RealApi.resumeWorkTree(id);
+      if (result) {
+        set((s) => {
+          const wt = s.workTrees[id];
+          if (wt) {
+            const nextWorkTrees = { ...s.workTrees, [id]: { ...wt, status: "running" } };
+            return { workTrees: nextWorkTrees, workTreeList: Object.values(nextWorkTrees) };
+          }
+          return s;
+        });
+      }
+      return result;
+    },
+
+    aiChat: async (message) => {
+      return RealApi.aiChat(message);
+    },
 
     getWorkTree: (id) => get().workTrees[id],
   }))
@@ -291,12 +393,19 @@ export const useAppData = () =>
     systemStatus: s.systemStatus,
     isLoading: s.isLoading,
     error: s.error,
+    useRealApi: s.useRealApi,
     loadWorkTrees: s.loadWorkTrees,
     loadSystemStatus: s.loadSystemStatus,
     loadWorkTree: s.loadWorkTree,
     updateAgentStatus: s.updateAgentStatus,
     updateTaskStatus: s.updateTaskStatus,
     toggleNodeCollapse: s.toggleNodeCollapse,
+    createWorkTree: s.createWorkTree,
+    planWorkTree: s.planWorkTree,
+    runWorkTree: s.runWorkTree,
+    pauseWorkTree: s.pauseWorkTree,
+    resumeWorkTree: s.resumeWorkTree,
+    aiChat: s.aiChat,
   }));
 
 export const useAppAgents = () =>
