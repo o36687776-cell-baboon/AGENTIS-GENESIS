@@ -219,7 +219,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
      },
-     "S3Key": "d1f574f30d614d8e4e6002c5ed38b193b9d672ad4dd8de3f2348d3217dd2ead0.zip"
+     "S3Key": "f40ee92d7b3c7476c10a690339f56733a97a264413eeb748948ef6444503c543.zip"
     },
     "Environment": {
      "Variables": {
@@ -256,7 +256,7 @@
      }
     },
     "FunctionName": "agentis-genesis-api-handler-development",
-    "Handler": "dist/api-handler.handler",
+    "Handler": "api-handler.handler",
     "LoggingConfig": {
      "LogGroup": {
       "Ref": "ApiHandlerLogGroup4D57C896"
@@ -291,7 +291,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-api-development/ApiHandlerFunction/Resource",
-    "aws:asset:path": "asset.d1f574f30d614d8e4e6002c5ed38b193b9d672ad4dd8de3f2348d3217dd2ead0",
+    "aws:asset:path": "asset.f40ee92d7b3c7476c10a690339f56733a97a264413eeb748948ef6444503c543",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }

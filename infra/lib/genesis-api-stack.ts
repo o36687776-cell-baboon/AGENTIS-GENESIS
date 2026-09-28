@@ -122,7 +122,7 @@ export class GenesisApiStack extends cdk.Stack {
       functionName: `${appName}-api-handler-${envName}`,
       runtime: lambda.Runtime.NODEJS_22_X,
       architecture: lambda.Architecture.ARM_64,
-      handler: "dist/api-handler.handler",
+      handler: "api-handler.handler",
       code: lambda.Code.fromAsset("../dist/server"),
       timeout: cdk.Duration.seconds(30),
       memorySize: isProduction ? 1024 : 512,

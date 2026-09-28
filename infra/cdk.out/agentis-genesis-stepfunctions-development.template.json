@@ -360,7 +360,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
      },
-     "S3Key": "d1f574f30d614d8e4e6002c5ed38b193b9d672ad4dd8de3f2348d3217dd2ead0.zip"
+     "S3Key": "f40ee92d7b3c7476c10a690339f56733a97a264413eeb748948ef6444503c543.zip"
     },
     "Environment": {
      "Variables": {
@@ -385,7 +385,7 @@
      }
     },
     "FunctionName": "agentis-genesis-planner-development",
-    "Handler": "dist/planner.handler",
+    "Handler": "planner.handler",
     "LoggingConfig": {
      "LogGroup": {
       "Ref": "PlannerLogGroup6777DA5C"
@@ -420,7 +420,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-stepfunctions-development/PlannerFunction/Resource",
-    "aws:asset:path": "asset.d1f574f30d614d8e4e6002c5ed38b193b9d672ad4dd8de3f2348d3217dd2ead0",
+    "aws:asset:path": "asset.f40ee92d7b3c7476c10a690339f56733a97a264413eeb748948ef6444503c543",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }
@@ -435,7 +435,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
      },
-     "S3Key": "d1f574f30d614d8e4e6002c5ed38b193b9d672ad4dd8de3f2348d3217dd2ead0.zip"
+     "S3Key": "f40ee92d7b3c7476c10a690339f56733a97a264413eeb748948ef6444503c543.zip"
     },
     "Environment": {
      "Variables": {
@@ -460,7 +460,7 @@
      }
     },
     "FunctionName": "agentis-genesis-agent-worker-development",
-    "Handler": "dist/agent-worker.handler",
+    "Handler": "agent-worker.handler",
     "LoggingConfig": {
      "LogGroup": {
       "Ref": "AgentWorkerLogGroup347323DD"
@@ -495,7 +495,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-stepfunctions-development/AgentWorkerFunction/Resource",
-    "aws:asset:path": "asset.d1f574f30d614d8e4e6002c5ed38b193b9d672ad4dd8de3f2348d3217dd2ead0",
+    "aws:asset:path": "asset.f40ee92d7b3c7476c10a690339f56733a97a264413eeb748948ef6444503c543",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }
@@ -510,7 +510,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
      },
-     "S3Key": "d1f574f30d614d8e4e6002c5ed38b193b9d672ad4dd8de3f2348d3217dd2ead0.zip"
+     "S3Key": "f40ee92d7b3c7476c10a690339f56733a97a264413eeb748948ef6444503c543.zip"
     },
     "Environment": {
      "Variables": {
@@ -535,7 +535,7 @@
      }
     },
     "FunctionName": "agentis-genesis-verification-development",
-    "Handler": "dist/verification.handler",
+    "Handler": "verification.handler",
     "LoggingConfig": {
      "LogGroup": {
       "Ref": "VerificationLogGroupE48B76B8"
@@ -570,7 +570,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-stepfunctions-development/VerificationFunction/Resource",
-    "aws:asset:path": "asset.d1f574f30d614d8e4e6002c5ed38b193b9d672ad4dd8de3f2348d3217dd2ead0",
+    "aws:asset:path": "asset.f40ee92d7b3c7476c10a690339f56733a97a264413eeb748948ef6444503c543",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }

@@ -148,7 +148,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
 
     this.plannerFunction = new lambda.Function(this, "PlannerFunction", {
       functionName: `${appName}-planner-${envName}`,
-      handler: "dist/planner.handler",
+      handler: "planner.handler",
       code: lambda.Code.fromAsset("../dist/server"),
       role: workerRole,
       logGroup: plannerLogGroup,
@@ -158,7 +158,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
 
     this.agentWorkerFunction = new lambda.Function(this, "AgentWorkerFunction", {
       functionName: `${appName}-agent-worker-${envName}`,
-      handler: "dist/agent-worker.handler",
+      handler: "agent-worker.handler",
       code: lambda.Code.fromAsset("../dist/server"),
       role: workerRole,
       logGroup: agentWorkerLogGroup,
@@ -168,7 +168,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
 
     this.verificationFunction = new lambda.Function(this, "VerificationFunction", {
       functionName: `${appName}-verification-${envName}`,
-      handler: "dist/verification.handler",
+      handler: "verification.handler",
       code: lambda.Code.fromAsset("../dist/server"),
       role: workerRole,
       logGroup: verificationLogGroup,
