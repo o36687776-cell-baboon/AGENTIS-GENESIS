@@ -1,3 +1,4 @@
+import { useRouter } from "next/navigation";
 import { Icon } from "@/design-system/icons";
 import { useStore } from "@/state/store";
 import type { ActiveSection } from "@/state/store";
@@ -8,19 +9,26 @@ interface NavItemProps {
   icon: string;
   section?: string;
   indicator?: boolean;
+  href?: string;
 }
 
-export function NavItem({ id, label, icon, indicator }: NavItemProps) {
+export function NavItem({ id, label, icon, indicator, href }: NavItemProps) {
   const activeSection = useStore((s) => s.activeSection);
   const setActiveSection = useStore((s) => s.setActiveSection);
   const collapsed = useStore((s) => s.sidebarCollapsed);
+  const router = useRouter();
 
   const active = activeSection === id;
+
+  const handleClick = () => {
+    setActiveSection(id);
+    if (href) router.push(href);
+  };
 
   return (
     <button
       type="button"
-      onClick={() => setActiveSection(id)}
+      onClick={handleClick}
       className={`nav-item group relative flex items-center gap-2.5 rounded-md px-2.5 py-2 text-left text-sm transition-all duration-160 ${
         collapsed ? "justify-center" : ""
       } ${

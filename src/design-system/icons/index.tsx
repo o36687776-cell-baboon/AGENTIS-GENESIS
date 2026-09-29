@@ -252,6 +252,13 @@ export const LockIcon = (props: Omit<GenesisIconProps, "children">) => (
   </GenesisIcon>
 );
 
+export const CodeIcon = (props: Omit<GenesisIconProps, "children">) => (
+  <GenesisIcon {...props}>
+    <path d="M16 18l6-6-6-6" />
+    <path d="M8 6l-6 6 6 6" />
+  </GenesisIcon>
+);
+
 export type GenesisIconName =
   | "home"
   | "worktree"
@@ -279,7 +286,9 @@ export type GenesisIconName =
   | "plus"
   | "external"
   | "signal"
-  | "timeline";
+  | "timeline"
+  | "code"
+  | "lock";
 
 export const iconMap: Record<GenesisIconName, React.FC<Omit<GenesisIconProps, "children">>> = {
   home: HomeIcon,
@@ -309,6 +318,8 @@ export const iconMap: Record<GenesisIconName, React.FC<Omit<GenesisIconProps, "c
   external: ExternalIcon,
   signal: SignalIcon,
   timeline: TimelineIcon,
+  code: CodeIcon,
+  lock: LockIcon,
 };
 
 export function Icon({ name, ...props }: { name: GenesisIconName } & Omit<GenesisIconProps, "children">) {

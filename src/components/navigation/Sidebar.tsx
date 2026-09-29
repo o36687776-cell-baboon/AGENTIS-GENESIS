@@ -22,6 +22,10 @@ export function Sidebar() {
     { id: "knowledge", label: "Knowledge", icon: "knowledge" },
   ];
 
+  const developerItems = [
+    { id: "sdk" as ActiveSection, label: "SDK", icon: "code", href: "/sdk" },
+  ];
+
   const systemItems = [
     { id: "system" as ActiveSection, label: "System", icon: "system" },
     { id: "settings" as ActiveSection, label: "Settings", icon: "settings" },
@@ -58,6 +62,18 @@ export function Sidebar() {
               label={item.label}
               icon={item.icon}
               indicator={item.indicator}
+            />
+          ))}
+        </NavSection>
+        <div className="my-4 h-px bg-[var(--border-subtle)]" />
+        <NavSection label="DEVELOPER">
+          {developerItems.map((item) => (
+            <NavItem
+              key={item.id}
+              id={item.id}
+              label={item.label}
+              icon={item.icon}
+              href={item.href}
             />
           ))}
         </NavSection>

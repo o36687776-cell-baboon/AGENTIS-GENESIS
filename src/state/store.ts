@@ -17,6 +17,7 @@ export type ActiveSection =
   | "automations"
   | "memory"
   | "knowledge"
+  | "sdk"
   | "system"
   | "settings";
 
