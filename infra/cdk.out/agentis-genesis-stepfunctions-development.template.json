@@ -47,6 +47,16 @@
        }
       },
       {
+       "Action": "sqs:SendMessage",
+       "Effect": "Allow",
+       "Resource": {
+        "Fn::GetAtt": [
+         "ExecutionDeadLetterQueue6A6C1EAD",
+         "Arn"
+        ]
+       }
+      },
+      {
        "Action": "lambda:InvokeFunction",
        "Effect": "Allow",
        "Resource": [
@@ -360,7 +370,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
      },
-     "S3Key": "f40ee92d7b3c7476c10a690339f56733a97a264413eeb748948ef6444503c543.zip"
+     "S3Key": "2430d79ae59799c32a44cf152efc138014cd62b511124fa978f73da0319f5495.zip"
     },
     "Environment": {
      "Variables": {
@@ -385,7 +395,7 @@
      }
     },
     "FunctionName": "agentis-genesis-planner-development",
-    "Handler": "planner.handler",
+    "Handler": "workflows/planner.handler",
     "LoggingConfig": {
      "LogGroup": {
       "Ref": "PlannerLogGroup6777DA5C"
@@ -420,7 +430,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-stepfunctions-development/PlannerFunction/Resource",
-    "aws:asset:path": "asset.f40ee92d7b3c7476c10a690339f56733a97a264413eeb748948ef6444503c543",
+    "aws:asset:path": "asset.2430d79ae59799c32a44cf152efc138014cd62b511124fa978f73da0319f5495",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }
@@ -435,7 +445,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
      },
-     "S3Key": "f40ee92d7b3c7476c10a690339f56733a97a264413eeb748948ef6444503c543.zip"
+     "S3Key": "2430d79ae59799c32a44cf152efc138014cd62b511124fa978f73da0319f5495.zip"
     },
     "Environment": {
      "Variables": {
@@ -460,7 +470,7 @@
      }
     },
     "FunctionName": "agentis-genesis-agent-worker-development",
-    "Handler": "agent-worker.handler",
+    "Handler": "workflows/agent-worker.handler",
     "LoggingConfig": {
      "LogGroup": {
       "Ref": "AgentWorkerLogGroup347323DD"
@@ -495,7 +505,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-stepfunctions-development/AgentWorkerFunction/Resource",
-    "aws:asset:path": "asset.f40ee92d7b3c7476c10a690339f56733a97a264413eeb748948ef6444503c543",
+    "aws:asset:path": "asset.2430d79ae59799c32a44cf152efc138014cd62b511124fa978f73da0319f5495",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }
@@ -510,7 +520,7 @@
      "S3Bucket": {
       "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
      },
-     "S3Key": "f40ee92d7b3c7476c10a690339f56733a97a264413eeb748948ef6444503c543.zip"
+     "S3Key": "2430d79ae59799c32a44cf152efc138014cd62b511124fa978f73da0319f5495.zip"
     },
     "Environment": {
      "Variables": {
@@ -535,7 +545,7 @@
      }
     },
     "FunctionName": "agentis-genesis-verification-development",
-    "Handler": "verification.handler",
+    "Handler": "workflows/verification.handler",
     "LoggingConfig": {
      "LogGroup": {
       "Ref": "VerificationLogGroupE48B76B8"
@@ -570,9 +580,58 @@
    ],
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-stepfunctions-development/VerificationFunction/Resource",
-    "aws:asset:path": "asset.f40ee92d7b3c7476c10a690339f56733a97a264413eeb748948ef6444503c543",
+    "aws:asset:path": "asset.2430d79ae59799c32a44cf152efc138014cd62b511124fa978f73da0319f5495",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
+   }
+  },
+  "ExecutionDeadLetterQueue6A6C1EAD": {
+   "Type": "AWS::SQS::Queue",
+   "Properties": {
+    "KmsMasterKeyId": "alias/aws/sqs",
+    "MessageRetentionPeriod": 1209600,
+    "QueueName": "agentis-genesis-workflow-dlq-development"
+   },
+   "UpdateReplacePolicy": "Delete",
+   "DeletionPolicy": "Delete",
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/ExecutionDeadLetterQueue/Resource"
+   }
+  },
+  "ExecutionDeadLetterQueuePolicy0B0B49FE": {
+   "Type": "AWS::SQS::QueuePolicy",
+   "Properties": {
+    "PolicyDocument": {
+     "Statement": [
+      {
+       "Action": "sqs:*",
+       "Condition": {
+        "Bool": {
+         "aws:SecureTransport": "false"
+        }
+       },
+       "Effect": "Deny",
+       "Principal": {
+        "AWS": "*"
+       },
+       "Resource": {
+        "Fn::GetAtt": [
+         "ExecutionDeadLetterQueue6A6C1EAD",
+         "Arn"
+        ]
+       }
+      }
+     ],
+     "Version": "2012-10-17"
+    },
+    "Queues": [
+     {
+      "Ref": "ExecutionDeadLetterQueue6A6C1EAD"
+     }
+    ]
+   },
+   "Metadata": {
+    "aws:cdk:path": "agentis-genesis-stepfunctions-development/ExecutionDeadLetterQueue/Policy/Resource"
    }
   },
   "StateMachineLogGroup15B91BCB": {
@@ -594,7 +653,7 @@
      "Fn::Join": [
       "",
       [
-       "{\"StartAt\":\"Load Work Tree\",\"States\":{\"Load Work Tree\":{\"Next\":\"Generate Plan\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.workTree\",\"Resource\":\"arn:",
+       "{\"StartAt\":\"Genesis Execution\",\"States\":{\"Genesis Execution\":{\"Type\":\"Parallel\",\"Next\":\"Execution Complete\",\"Catch\":[{\"ErrorEquals\":[\"States.ALL\"],\"ResultPath\":\"$.dlqRecord\",\"Next\":\"Record Failure\"}],\"Branches\":[{\"StartAt\":\"Load Work Tree\",\"States\":{\"Load Work Tree\":{\"Next\":\"Generate Plan\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.workTree\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -605,7 +664,7 @@
          "Arn"
         ]
        },
-       "\",\"Payload\":{\"action\":\"loadWorkTree\",\"workTreeId.$\":\"$.workTreeId\"}}},\"Generate Plan\":{\"Next\":\"Create Tasks\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.plan\",\"Resource\":\"arn:",
+       "\",\"Payload\":{\"action\":\"loadWorkTree\",\"workTreeId.$\":\"$.workTreeId\",\"correlationId.$\":\"$.correlationId\"}}},\"Generate Plan\":{\"Next\":\"Create Tasks\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.plan\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -616,7 +675,7 @@
          "Arn"
         ]
        },
-       "\",\"Payload\":{\"action\":\"generatePlan\",\"workTree.$\":\"$.workTree\",\"objective.$\":\"$.objective\"}}},\"Create Tasks\":{\"Next\":\"Execute Agents\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.tasks\",\"Resource\":\"arn:",
+       "\",\"Payload\":{\"action\":\"generatePlan\",\"workTree.$\":\"$.workTree\",\"objective.$\":\"$.objective\",\"correlationId.$\":\"$.correlationId\"}}},\"Create Tasks\":{\"Next\":\"Execute Agents\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.tasks\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -627,7 +686,7 @@
          "Arn"
         ]
        },
-       "\",\"Payload\":{\"action\":\"createTasks\",\"workTreeId.$\":\"$.workTree.id\",\"plan.$\":\"$.plan\"}}},\"Execute Agents\":{\"Type\":\"Map\",\"ResultPath\":\"$.executionResults\",\"Next\":\"Store Results\",\"ItemsPath\":\"$.tasks\",\"MaxConcurrency\":3,\"Iterator\":{\"StartAt\":\"Execute Agent Task\",\"States\":{\"Execute Agent Task\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.result\",\"Resource\":\"arn:",
+       "\",\"Payload\":{\"action\":\"createTasks\",\"workTreeId.$\":\"$.workTreeId\",\"plan.$\":\"$.plan\",\"correlationId.$\":\"$.correlationId\"}}},\"Execute Agents\":{\"Type\":\"Map\",\"ResultPath\":\"$.executionResults\",\"Next\":\"Store Results\",\"ItemsPath\":\"$.tasks\",\"ItemProcessor\":{\"ProcessorConfig\":{\"Mode\":\"INLINE\"},\"StartAt\":\"Execute Agent Task\",\"States\":{\"Execute Agent Task\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.result\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -638,7 +697,7 @@
          "Arn"
         ]
        },
-       "\",\"Payload\":{\"action\":\"executeTask\",\"task.$\":\"$\",\"workTreeId.$\":\"$.workTreeId\"}}}}}},\"Store Results\":{\"Next\":\"Verify Results\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.storedResults\",\"Resource\":\"arn:",
+       "\",\"Payload\":{\"action\":\"executeTask\",\"task.$\":\"$\",\"workTreeId.$\":\"$$.workTreeId\",\"correlationId.$\":\"$$.correlationId\"}}}}},\"MaxConcurrency\":3},\"Store Results\":{\"Next\":\"Verify Results\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.storedResults\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -649,7 +708,7 @@
          "Arn"
         ]
        },
-       "\",\"Payload\":{\"action\":\"storeResults\",\"workTreeId.$\":\"$.workTreeId\",\"executionResults.$\":\"$.executionResults\"}}},\"Verify Results\":{\"Next\":\"Approval Required?\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.verification\",\"Resource\":\"arn:",
+       "\",\"Payload\":{\"action\":\"storeResults\",\"workTreeId.$\":\"$.workTreeId\",\"executionResults.$\":\"$.executionResults\",\"correlationId.$\":\"$.correlationId\"}}},\"Verify Results\":{\"Next\":\"Approval Required?\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.verification\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -660,7 +719,7 @@
          "Arn"
         ]
        },
-       "\",\"Payload\":{\"action\":\"verify\",\"workTreeId.$\":\"$.workTreeId\",\"results.$\":\"$.storedResults\"}}},\"Approval Required?\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.verification.Payload.requiresApproval\",\"BooleanEquals\":true,\"Next\":\"Wait for Approval\"}],\"Default\":\"No Approval Required\"},\"No Approval Required\":{\"Type\":\"Pass\",\"Next\":\"Finalize\"},\"Finalize\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.outcome\",\"Resource\":\"arn:",
+       "\",\"Payload\":{\"action\":\"verify\",\"workTreeId.$\":\"$.workTreeId\",\"results.$\":\"$.storedResults\",\"correlationId.$\":\"$.correlationId\"}}},\"Approval Required?\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.verification.requiresApproval\",\"BooleanEquals\":true,\"Next\":\"Wait for Approval\"}],\"Default\":\"No Approval Required\"},\"No Approval Required\":{\"Type\":\"Pass\",\"Next\":\"Finalize\"},\"Finalize\":{\"End\":true,\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.outcome\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -671,7 +730,7 @@
          "Arn"
         ]
        },
-       "\",\"Payload\":{\"action\":\"finalize\",\"workTreeId.$\":\"$.workTreeId\",\"results.$\":\"$.storedResults\",\"verification.$\":\"$.verification\"}}},\"Continue After Approval\":{\"Type\":\"Pass\",\"Next\":\"Finalize\"},\"Approval Granted?\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.approvalResult.Payload.approved\",\"BooleanEquals\":true,\"Next\":\"Continue After Approval\"}],\"Default\":\"Approval Rejected\"},\"Check Approval\":{\"Next\":\"Approval Granted?\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.approvalResult\",\"Resource\":\"arn:",
+       "\",\"Payload\":{\"action\":\"finalize\",\"workTreeId.$\":\"$.workTreeId\",\"results.$\":\"$.storedResults\",\"verification.$\":\"$.verification\",\"correlationId.$\":\"$.correlationId\"}}},\"Continue After Approval\":{\"Type\":\"Pass\",\"Next\":\"Finalize\"},\"Approval Granted?\":{\"Type\":\"Choice\",\"Choices\":[{\"Variable\":\"$.approvalResult.approved\",\"BooleanEquals\":true,\"Next\":\"Continue After Approval\"}],\"Default\":\"Approval Not Granted\"},\"Check Approval\":{\"Next\":\"Approval Granted?\",\"Retry\":[{\"ErrorEquals\":[\"Lambda.ClientExecutionTimeoutException\",\"Lambda.ServiceException\",\"Lambda.AWSLambdaException\",\"Lambda.SdkClientException\"],\"IntervalSeconds\":2,\"MaxAttempts\":6,\"BackoffRate\":2}],\"Type\":\"Task\",\"ResultPath\":\"$.approvalResult\",\"Resource\":\"arn:",
        {
         "Ref": "AWS::Partition"
        },
@@ -682,7 +741,15 @@
          "Arn"
         ]
        },
-       "\",\"Payload\":{\"action\":\"checkApproval\",\"workTreeId.$\":\"$.workTreeId\"}}},\"Wait for Approval\":{\"Type\":\"Wait\",\"TimestampPath\":\"$.verification.Payload.approvalDeadline\",\"Next\":\"Check Approval\"},\"Approval Rejected\":{\"Type\":\"Fail\",\"Error\":\"APPROVAL_REJECTED\",\"Cause\":\"Approval rejected by user\"}},\"TimeoutSeconds\":7200}"
+       "\",\"Payload\":{\"action\":\"checkApproval\",\"workTreeId.$\":\"$.workTreeId\",\"correlationId.$\":\"$.correlationId\"}}},\"Wait for Approval\":{\"Type\":\"Wait\",\"Seconds\":60,\"Next\":\"Check Approval\"},\"Approval Not Granted\":{\"Type\":\"Fail\",\"Error\":\"APPROVAL_NOT_GRANTED\",\"Cause\":\"Approval was not granted within the decision window\"}}}]},\"Execution Complete\":{\"Type\":\"Succeed\",\"Comment\":\"Work tree finalized\"},\"Record Failure\":{\"Next\":\"Execution Failed\",\"Type\":\"Task\",\"Resource\":\"arn:",
+       {
+        "Ref": "AWS::Partition"
+       },
+       ":states:::sqs:sendMessage\",\"Parameters\":{\"QueueUrl\":\"",
+       {
+        "Ref": "ExecutionDeadLetterQueue6A6C1EAD"
+       },
+       "\",\"MessageBody.$\":\"$\"}},\"Execution Failed\":{\"Type\":\"Fail\",\"Error\":\"GENESIS_EXECUTION_FAILED\",\"Cause\":\"Execution failed; the error was recorded on the dead-letter queue\"}},\"TimeoutSeconds\":7200}"
       ]
      ]
     },
@@ -725,7 +792,7 @@
   "CDKMetadata": {
    "Type": "AWS::CDK::Metadata",
    "Properties": {
-    "Analytics": "v2:deflate64:H4sIAAAAAAAA/1WOwWrDMAyGn6V3Rducw85roWPQspIcdgyq46ZuHDtEcsswfveRdIXt9H8/n5CkUL2+4POKblzoti+cPWKqhXQPleEQJ22AbtwkLnEddW9kTWzA0oCpCs7A5uSXPARn9fdc75TBhY4x7UL3PoU4zubBGRwNx5YwbaPXYoOf7YMzcNkQsxHGtzmAxYynX8uNEPeMu2XDh7+G3vwfwLSnETbnYLWBL7ICB2KGLVkHtZCYPemz9cvrf3vOsJyrhTrru1l/RhmjZPChNXjhp6tSqEpUqwtbW0zRix0MVvf8AU8lxGdLAQAA"
+    "Analytics": "v2:deflate64:H4sIAAAAAAAA/11PQW7CQAx8C3fjtuHQc0GiqtSolBx6RGZjwpJlN8ReULXav1cJRUW9eGY0smdcYPH8hI8TusjU1O3U2S2mSsm0sGYJsTcMdJFNkhnOo2lZ5yQMlo6Y1sExLHZ+xFVw1nwP8soyuNAIpvfQvPYhdoNz4xkcHbc1YVpGb9QGP7g3nkFmGxJhFXwZAOQkmD4jxzHuSsb5F3onM4hyt/u9JhslaYciY+SbP4eWoTpJxb4uWYQa/reBqaQOFvtgDcMXWYUVicCSrIMV9eQcO6iiMcw1VErKJZm99WO7e50zjA9USo31zWB/RO2iZvChZjzIw7kosJhhMTmItdM+erVHxvUVfwAQkbqnnQEAAA=="
    },
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-stepfunctions-development/CDKMetadata/Default"
@@ -752,6 +819,14 @@
     "Name": "agentis-genesis-state-machine-name-development"
    }
   },
+  "DeadLetterQueueUrl": {
+   "Value": {
+    "Ref": "ExecutionDeadLetterQueue6A6C1EAD"
+   },
+   "Export": {
+    "Name": "agentis-genesis-workflow-dlq-url-development"
+   }
+  },
   "PlannerFunctionName": {
    "Value": {
     "Ref": "PlannerFunction7813D2C8"
@@ -774,6 +849,17 @@
    },
    "Export": {
     "Name": "agentis-genesis-verification-function-name-development"
+   }
+  },
+  "DeadLetterQueueArn": {
+   "Value": {
+    "Fn::GetAtt": [
+     "ExecutionDeadLetterQueue6A6C1EAD",
+     "Arn"
+    ]
+   },
+   "Export": {
+    "Name": "agentis-genesis-workflow-dlq-arn-development"
    }
   }
  },

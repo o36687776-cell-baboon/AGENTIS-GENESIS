@@ -1,100 +1,146 @@
 import { getConfig } from "../config";
 import * as db from "../database/services";
 import * as ai from "../ai";
+import { getArtifactSignedUrl } from "../artifacts";
+import { startExecution, describeExecution, ExecutionUnavailableError } from "../execution";
 import { generateId } from "../database/services";
+import {
+  createResponse,
+  ok,
+  fail,
+  statusForError,
+  parseBody,
+  readPathParam,
+  EventLike,
+} from "./response";
+import { requireAuth, isAuthFailure, AuthenticatedCaller } from "./auth";
 
-const config = getConfig();
+const WORK_TREE_ID = /^\/api\/work-trees\/([^/]+)$/;
+const WORK_TREE_ACTIVITY = /^\/api\/work-trees\/([^/]+)\/activity$/;
+const WORK_TREE_ARTIFACTS = /^\/api\/work-trees\/([^/]+)\/artifacts$/;
+const WORK_TREE_EXECUTION = /^\/api\/work-trees\/([^/]+)\/execution$/;
+const WORK_TREE_ACTION = /^\/api\/work-trees\/([^/]+)\/(plan|run|pause|resume)$/;
+const AGENT_ID = /^\/api\/agents\/([^/]+)$/;
+const ARTIFACT_URL = /^\/api\/artifacts\/([^/]+)\/url$/;
+const APPROVAL_ACTION = /^\/api\/approvals\/([^/]+)\/(approve|reject)$/;
 
-interface ApiResponse<T = any> {
-  success: boolean;
-  data?: T;
-  error?: {
-    code: string;
-    message: string;
-    requestId: string;
-  };
+function getRequestId(event: EventLike): string {
+  const headers = event.headers || {};
+  const key = Object.keys(headers).find((k) => k.toLowerCase() === "x-request-id");
+  return (key ? headers[key] : undefined) || event.requestContext?.requestId || generateId();
 }
 
-interface ApiEvent {
-  headers: Record<string, string>;
-  requestContext: {
-    requestId: string;
-    http: {
-      method: string;
-      path: string;
-    };
-  };
-  pathParameters?: Record<string, string>;
-  body?: string;
-}
-
-interface ApiResult {
-  statusCode: number;
-  headers: Record<string, string>;
-  body: string;
-}
-
-function createResponse<T>(statusCode: number, body: ApiResponse<T>): ApiResult {
-  return {
-    statusCode,
-    headers: {
-      "Content-Type": "application/json",
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Headers": "Content-Type,Authorization,X-Request-ID",
-      "Access-Control-Allow-Methods": "GET,POST,PUT,DELETE,OPTIONS",
-    },
-    body: JSON.stringify(body),
-  };
-}
-
-function getRequestId(event: ApiEvent): string {
-  return event.headers["x-request-id"] || event.requestContext.requestId || generateId();
-}
-
-function parseBody(event: ApiEvent): any {
-  if (!event.body) return null;
+function parseJsonColumn(value: string | null | undefined): unknown {
+  if (value === null || value === undefined) return null;
+  if (typeof value !== "string") return value;
   try {
-    return JSON.parse(event.body);
+    return JSON.parse(value);
   } catch {
-    return null;
+    return value;
   }
 }
 
-async function handleHealth(): Promise<ApiResponse> {
-  const dbHealthy = await import("../database").then((m) => m.healthCheck());
+function serializeWorkTree(row: db.WorkTreeRow): Record<string, unknown> {
+  return { ...row, context: parseJsonColumn(row.context) };
+}
 
+function serializeAgent(row: db.AgentRow): Record<string, unknown> {
   return {
-    success: true,
-    data: {
-      status: "ok",
-      services: {
-        api: "ok",
-        database: dbHealthy ? "ok" : "error",
-        bedrock: config.mockAi ? "mock" : "configured",
-        secrets: config.bedrockApiKeySecretArn ? "configured" : "not_configured",
-        storage: config.artifactBucketName ? "configured" : "not_configured",
-      },
-      environment: config.environment,
-      timestamp: new Date().toISOString(),
-    },
+    ...row,
+    capabilities: parseJsonColumn(row.capabilities),
+    permissions: parseJsonColumn(row.permissions),
+    tools: parseJsonColumn(row.tools),
+    resource_usage: parseJsonColumn(row.resource_usage),
   };
 }
 
-async function handleGetWorkTrees(): Promise<ApiResponse> {
-  const workTrees = await db.getWorkTrees();
-  return { success: true, data: workTrees };
+function serializeTask(row: db.TaskRow): Record<string, unknown> {
+  return {
+    ...row,
+    input: parseJsonColumn(row.input),
+    output: parseJsonColumn(row.output),
+    dependencies: parseJsonColumn(row.dependencies),
+  };
 }
 
-async function handleCreateWorkTree(event: ApiEvent): Promise<ApiResponse> {
-  const body = parseBody(event);
+function serializeArtifact(row: db.ArtifactRow): Record<string, unknown> {
+  return { ...row, metadata: parseJsonColumn(row.metadata) };
+}
+
+function serializeApproval(row: db.ApprovalRow): Record<string, unknown> {
+  return {
+    ...row,
+    recipients: parseJsonColumn(row.recipients),
+    attachments: parseJsonColumn(row.attachments),
+  };
+}
+
+function serializeEvent(row: db.ActivityEventRow): Record<string, unknown> {
+  return { ...row, metadata: parseJsonColumn(row.metadata) };
+}
+
+function serializePlan(row: db.WorkTreePlanRow | null): Record<string, unknown> | null {
+  if (!row) return null;
+  return {
+    ...row,
+    tasks: parseJsonColumn(row.tasks),
+    risks: parseJsonColumn(row.risks),
+  };
+}
+
+function requireId(
+  value: string | undefined,
+  message: string,
+  requestId: string
+): { id: string } | { response: ReturnType<typeof createResponse> } {
+  if (!value) {
+    return {
+      response: createResponse(400, fail("VALIDATION_ERROR", message, requestId)),
+    };
+  }
+  return { id: value };
+}
+
+async function handleHealth(requestId: string) {
+  const config = getConfig();
+  const dbHealthy = await import("../database").then((m) => m.healthCheck());
+
+  return ok({
+    status: dbHealthy ? "ok" : "degraded",
+    services: {
+      api: "ok",
+      database: dbHealthy ? "ok" : "error",
+      bedrock: config.mockAi ? "mock" : "configured",
+      secrets: config.bedrockApiKeySecretArn ? "configured" : "not_configured",
+      storage: config.artifactBucketName ? "configured" : "not_configured",
+      orchestration: config.stateMachineArn ? "configured" : "not_configured",
+    },
+    auth: {
+      required: config.authRequired,
+      issuer: config.cognitoIssuer || "not_configured",
+    },
+    environment: config.environment,
+    correlationId: requestId,
+    timestamp: new Date().toISOString(),
+  });
+}
+
+async function handleListWorkTrees() {
+  const rows = await db.getWorkTrees();
+  return ok(rows.map(serializeWorkTree));
+}
+
+async function handleCreateWorkTree(event: EventLike, requestId: string, caller: AuthenticatedCaller) {
+  const body = parseBody(event) as { name?: string; objective?: string; context?: object } | null;
+
   if (!body || !body.name || !body.objective) {
-    return { success: false, error: { code: "VALIDATION_ERROR", message: "name and objective are required", requestId: getRequestId(event) } };
+    return fail("VALIDATION_ERROR", "name and objective are required", requestId);
   }
 
   const workTree = await db.createWorkTree({
     name: body.name,
     objective: body.objective,
-    context: body.context,
+    context: { ...(body.context || {}), createdBy: caller.subject },
   });
 
   await db.createActivityEvent({
@@ -102,57 +148,47 @@ async function handleCreateWorkTree(event: ApiEvent): Promise<ApiResponse> {
     eventType: "WORK_TREE_CREATED",
     status: "success",
     message: `Work tree "${workTree.name}" created`,
+    metadata: { requestId, actor: caller.subject },
   });
 
-  return { success: true, data: workTree };
+  return ok(serializeWorkTree(workTree));
 }
 
-async function handleGetWorkTree(event: ApiEvent): Promise<ApiResponse> {
-  const id = event.pathParameters?.id;
-  if (!id) {
-    return { success: false, error: { code: "VALIDATION_ERROR", message: "Work tree ID is required", requestId: getRequestId(event) } };
-  }
-
+async function handleGetWorkTree(id: string, requestId: string) {
   const workTree = await db.getWorkTree(id);
   if (!workTree) {
-    return { success: false, error: { code: "NOT_FOUND", message: "Work tree not found", requestId: getRequestId(event) } };
+    return fail("NOT_FOUND", "Work tree not found", requestId);
   }
 
-  const [agents, tasks, artifactsList, approvals, activity, plan] = await Promise.all([
+  const [agents, tasks, artifactRows, approvals, activity, plan, runs] = await Promise.all([
     db.getAgentsByWorkTree(id),
     db.getTasksByWorkTree(id),
     db.getArtifactsByWorkTree(id),
     db.getApprovalsByWorkTree(id),
     db.getActivityEventsByWorkTree(id),
     db.getWorkTreePlan(id),
+    db.getAgentRunsByWorkTree(id),
   ]);
 
-  return {
-    success: true,
-    data: {
-      ...workTree,
-      agents,
-      tasks,
-      artifacts: artifactsList,
-      approvals,
-      activity,
-      plan,
-    },
-  };
+  return ok({
+    ...serializeWorkTree(workTree),
+    agents: agents.map(serializeAgent),
+    tasks: tasks.map(serializeTask),
+    artifacts: artifactRows.map(serializeArtifact),
+    approvals: approvals.map(serializeApproval),
+    activity: activity.map(serializeEvent),
+    plan: serializePlan(plan),
+    runs,
+  });
 }
 
-async function handlePlanWorkTree(event: ApiEvent): Promise<ApiResponse> {
-  const id = event.pathParameters?.id;
-  if (!id) {
-    return { success: false, error: { code: "VALIDATION_ERROR", message: "Work tree ID is required", requestId: getRequestId(event) } };
-  }
-
+async function handlePlanWorkTree(id: string, event: EventLike, requestId: string) {
   const workTree = await db.getWorkTree(id);
   if (!workTree) {
-    return { success: false, error: { code: "NOT_FOUND", message: "Work tree not found", requestId: getRequestId(event) } };
+    return fail("NOT_FOUND", "Work tree not found", requestId);
   }
 
-  const body = parseBody(event);
+  const body = parseBody(event) as { objective?: string } | null;
   const plan = await ai.generatePlan({
     objective: body?.objective || workTree.objective,
     context: workTree.context,
@@ -163,7 +199,7 @@ async function handlePlanWorkTree(event: ApiEvent): Promise<ApiResponse> {
     workTreeId: id,
     objective: plan.objective,
     summary: plan.summary,
-    context: plan.context,
+    context: workTree.context,
     tasks: plan.tasks,
     risks: plan.risks,
     requiresApproval: plan.requiresApproval,
@@ -178,212 +214,375 @@ async function handlePlanWorkTree(event: ApiEvent): Promise<ApiResponse> {
     eventType: "PLAN_CREATED",
     status: "success",
     message: `Execution plan created with ${plan.tasks.length} tasks`,
-    metadata: { planId: planRecord.id, taskCount: plan.tasks.length },
+    metadata: { requestId, planId: planRecord.id, taskCount: plan.tasks.length },
   });
 
-  return { success: true, data: plan };
+  return ok(plan);
 }
 
-async function handleRunWorkTree(event: ApiEvent): Promise<ApiResponse> {
-  const id = event.pathParameters?.id;
-  if (!id) {
-    return { success: false, error: { code: "VALIDATION_ERROR", message: "Work tree ID is required", requestId: getRequestId(event) } };
-  }
-
+async function handleRunWorkTree(
+  id: string,
+  event: EventLike,
+  requestId: string,
+  caller: AuthenticatedCaller
+) {
   const workTree = await db.getWorkTree(id);
   if (!workTree) {
-    return { success: false, error: { code: "NOT_FOUND", message: "Work tree not found", requestId: getRequestId(event) } };
+    return fail("NOT_FOUND", "Work tree not found", requestId);
   }
 
-  await db.updateWorkTree(id, { status: "running" });
+  const body = parseBody(event) as { idempotencyKey?: string } | null;
+  const idempotencyKey = body?.idempotencyKey || null;
 
-  await db.createActivityEvent({
-    workTreeId: id,
-    eventType: "WORK_TREE_STARTED",
-    status: "success",
-    message: `Work tree execution started`,
-  });
+  if (idempotencyKey) {
+    const existing = await db.getWorkTreeByIdempotencyKey(idempotencyKey);
+    if (existing && existing.id !== id) {
+      return fail("CONFLICT", "Idempotency key already used for another work tree", requestId);
+    }
+    if (existing && existing.execution_arn) {
+      return ok({
+        workTreeId: id,
+        status: existing.status,
+        executionArn: existing.execution_arn,
+        correlationId: existing.correlation_id,
+        idempotentReplay: true,
+      });
+    }
+  }
 
-  return { success: true, data: { workTreeId: id, status: "running" } };
+  if (workTree.execution_arn && workTree.status === "running") {
+    return fail("CONFLICT", "Execution already in progress for this work tree", requestId);
+  }
+
+  const correlationId = workTree.correlation_id || generateId();
+
+  try {
+    const started = await startExecution(
+      {
+        workTreeId: id,
+        objective: workTree.objective,
+        correlationId,
+        idempotencyKey,
+      },
+      caller.subject
+    );
+
+    await db.attachExecution({
+      workTreeId: id,
+      executionArn: started.executionArn,
+      correlationId,
+      idempotencyKey,
+    });
+
+    await db.updateWorkTree(id, { status: "running" });
+
+    await db.createActivityEvent({
+      workTreeId: id,
+      eventType: "WORK_TREE_STARTED",
+      status: "info",
+      message: "Work tree execution started",
+      metadata: { requestId, correlationId, executionArn: started.executionArn },
+    });
+
+    return ok({
+      workTreeId: id,
+      status: "running",
+      executionArn: started.executionArn,
+      correlationId,
+      idempotentReplay: false,
+    });
+  } catch (error) {
+    if (error instanceof ExecutionUnavailableError) {
+      await db.createActivityEvent({
+        workTreeId: id,
+        eventType: "WORK_TREE_START_FAILED",
+        status: "error",
+        message: error.message,
+        metadata: { requestId },
+      });
+      return fail("ORCHESTRATION_UNAVAILABLE", error.message, requestId);
+    }
+    throw error;
+  }
 }
 
-async function handlePauseWorkTree(event: ApiEvent): Promise<ApiResponse> {
-  const id = event.pathParameters?.id;
-  if (!id) {
-    return { success: false, error: { code: "VALIDATION_ERROR", message: "Work tree ID is required", requestId: getRequestId(event) } };
+async function handlePauseWorkTree(id: string, requestId: string) {
+  const workTree = await db.getWorkTree(id);
+  if (!workTree) {
+    return fail("NOT_FOUND", "Work tree not found", requestId);
   }
 
   await db.updateWorkTree(id, { status: "waiting" });
-
   await db.createActivityEvent({
     workTreeId: id,
     eventType: "WORK_TREE_PAUSED",
     status: "warning",
-    message: `Work tree paused`,
+    message: "Work tree paused",
+    metadata: { requestId },
   });
 
-  return { success: true, data: { workTreeId: id, status: "waiting" } };
+  return ok({ workTreeId: id, status: "waiting" });
 }
 
-async function handleResumeWorkTree(event: ApiEvent): Promise<ApiResponse> {
-  const id = event.pathParameters?.id;
-  if (!id) {
-    return { success: false, error: { code: "VALIDATION_ERROR", message: "Work tree ID is required", requestId: getRequestId(event) } };
+async function handleResumeWorkTree(id: string, requestId: string, caller: AuthenticatedCaller) {
+  const workTree = await db.getWorkTree(id);
+  if (!workTree) {
+    return fail("NOT_FOUND", "Work tree not found", requestId);
   }
 
+  if (workTree.status === "waiting" && workTree.execution_arn) {
+    return fail(
+      "CONFLICT",
+      "A paused execution cannot be resumed in place. Start a new execution instead.",
+      requestId
+    );
+  }
+
+  const correlationId = workTree.correlation_id || generateId();
+  const started = await startExecution(
+    {
+      workTreeId: id,
+      objective: workTree.objective,
+      correlationId,
+      idempotencyKey: null,
+    },
+    caller.subject
+  );
+
+  await db.attachExecution({
+    workTreeId: id,
+    executionArn: started.executionArn,
+    correlationId,
+    idempotencyKey: null,
+  });
   await db.updateWorkTree(id, { status: "running" });
 
   await db.createActivityEvent({
     workTreeId: id,
     eventType: "WORK_TREE_RESUMED",
-    status: "success",
-    message: `Work tree resumed`,
+    status: "info",
+    message: "Work tree resumed with a new execution",
+    metadata: { requestId, correlationId, executionArn: started.executionArn },
   });
 
-  return { success: true, data: { workTreeId: id, status: "running" } };
+  return ok({
+    workTreeId: id,
+    status: "running",
+    executionArn: started.executionArn,
+    correlationId,
+  });
 }
 
-async function handleGetActivity(event: ApiEvent): Promise<ApiResponse> {
-  const id = event.pathParameters?.id;
-  if (!id) {
-    return { success: false, error: { code: "VALIDATION_ERROR", message: "Work tree ID is required", requestId: getRequestId(event) } };
+async function handleExecutionStatus(id: string, requestId: string) {
+  const workTree = await db.getWorkTree(id);
+  if (!workTree) {
+    return fail("NOT_FOUND", "Work tree not found", requestId);
   }
 
-  const activity = await db.getActivityEventsByWorkTree(id);
-  return { success: true, data: activity };
+  if (!workTree.execution_arn) {
+    return ok({ workTreeId: id, status: "NOT_STARTED", storedStatus: workTree.status });
+  }
+
+  const state = await describeExecution(workTree.execution_arn);
+  return ok({
+    workTreeId: id,
+    status: state.status,
+    storedStatus: workTree.status,
+    executionArn: workTree.execution_arn,
+    correlationId: workTree.correlation_id,
+    errorName: state.errorName,
+    errorCause: state.errorCause,
+  });
 }
 
-async function handleGetAgents(): Promise<ApiResponse> {
+async function handleArtifacts(id: string, requestId: string) {
+  const workTree = await db.getWorkTree(id);
+  if (!workTree) {
+    return fail("NOT_FOUND", "Work tree not found", requestId);
+  }
+  const rows = await db.getArtifactsByWorkTree(id);
+  return ok(rows.map(serializeArtifact));
+}
+
+async function handleArtifactUrl(id: string, requestId: string) {
+  const config = getConfig();
+  const artifact = await db.getArtifactById(id);
+  if (!artifact) {
+    return fail("NOT_FOUND", "Artifact not found", requestId);
+  }
+
+  const url = await getArtifactSignedUrl(artifact.s3_key, config.artifactUrlTtlSeconds);
+  return ok({
+    id: artifact.id,
+    name: artifact.name,
+    type: artifact.type,
+    s3Key: artifact.s3_key,
+    url,
+    expiresIn: config.artifactUrlTtlSeconds,
+  });
+}
+
+async function handleListAgents() {
   const workTrees = await db.getWorkTrees();
-  let allAgents: any[] = [];
+  const all: db.AgentRow[] = [];
   for (const wt of workTrees) {
-    const agents = await db.getAgentsByWorkTree(wt.id);
-    allAgents = [...allAgents, ...agents];
+    all.push(...(await db.getAgentsByWorkTree(wt.id)));
   }
-  return { success: true, data: allAgents };
+  return ok(all.map(serializeAgent));
 }
 
-async function handleGetAgent(event: ApiEvent): Promise<ApiResponse> {
-  const id = event.pathParameters?.id;
-  if (!id) {
-    return { success: false, error: { code: "VALIDATION_ERROR", message: "Agent ID is required", requestId: getRequestId(event) } };
-  }
-
+async function handleGetAgent(id: string, requestId: string) {
   const agent = await db.getAgent(id);
   if (!agent) {
-    return { success: false, error: { code: "NOT_FOUND", message: "Agent not found", requestId: getRequestId(event) } };
+    return fail("NOT_FOUND", "Agent not found", requestId);
   }
-
-  return { success: true, data: agent };
+  return ok(serializeAgent(agent));
 }
 
-async function handleGetTasks(): Promise<ApiResponse> {
+async function handleListTasks() {
   const workTrees = await db.getWorkTrees();
-  let allTasks: any[] = [];
+  const all: db.TaskRow[] = [];
   for (const wt of workTrees) {
-    const tasks = await db.getTasksByWorkTree(wt.id);
-    allTasks = [...allTasks, ...tasks];
+    all.push(...(await db.getTasksByWorkTree(wt.id)));
   }
-  return { success: true, data: allTasks };
+  return ok(all.map(serializeTask));
 }
 
-async function handleApprove(event: ApiEvent): Promise<ApiResponse> {
-  const id = event.pathParameters?.id;
-  if (!id) {
-    return { success: false, error: { code: "VALIDATION_ERROR", message: "Approval ID is required", requestId: getRequestId(event) } };
+async function handleApprovalAction(
+  id: string,
+  decision: "approved" | "rejected",
+  caller: AuthenticatedCaller
+) {
+  const existing = await db.getApproval(id);
+  if (!existing) {
+    return fail("NOT_FOUND", "Approval not found", id);
+  }
+  if (existing.status !== "pending") {
+    return fail("CONFLICT", `Approval already ${existing.status}`, id);
   }
 
-  await db.updateApproval(id, { status: "approved", decided_at: new Date() });
+  await db.updateApproval(id, {
+    status: decision,
+    decided_by: caller.subject,
+    decided_at: new Date(),
+  });
 
-  return { success: true, data: { id, status: "approved" } };
+  await db.createActivityEvent({
+    workTreeId: existing.work_tree_id,
+    taskId: existing.task_id || undefined,
+    eventType: decision === "approved" ? "APPROVAL_GRANTED" : "APPROVAL_REJECTED",
+    status: decision === "approved" ? "success" : "warning",
+    message: `Approval ${decision} by ${caller.subject}`,
+    metadata: { approvalId: id, actor: caller.subject },
+  });
+
+  return ok({ id, status: decision, decided_by: caller.subject });
 }
 
-async function handleReject(event: ApiEvent): Promise<ApiResponse> {
-  const id = event.pathParameters?.id;
-  if (!id) {
-    return { success: false, error: { code: "VALIDATION_ERROR", message: "Approval ID is required", requestId: getRequestId(event) } };
-  }
-
-  await db.updateApproval(id, { status: "rejected", decided_at: new Date() });
-
-  return { success: true, data: { id, status: "rejected" } };
-}
-
-async function handleAiChat(event: ApiEvent): Promise<ApiResponse> {
-  const body = parseBody(event);
+async function handleAiChat(event: EventLike, requestId: string) {
+  const body = parseBody(event) as { message?: string } | null;
   if (!body || !body.message) {
-    return { success: false, error: { code: "VALIDATION_ERROR", message: "message is required", requestId: getRequestId(event) } };
+    return fail("VALIDATION_ERROR", "message is required", requestId);
   }
 
   const response = await ai.converse({
-    messages: [
-      { role: "user", content: [{ text: body.message }] },
+    messages: [{ role: "user", content: [{ text: body.message }] }],
+    system: [
+      {
+        text: "You are the Genesis AI assistant for AGENTIS GENESIS. Help users with their objectives.",
+      },
     ],
-    system: [{ text: "You are the Genesis AI assistant for AGENTIS GENESIS. Help users with their objectives." }],
   });
 
-  return {
-    success: true,
-    data: {
-      response: response.output.message.content[0]?.text || "",
-      usage: response.usage,
-    },
-  };
+  return ok({
+    response: response.output.message.content[0]?.text || "",
+    usage: response.usage,
+  });
 }
 
-export async function handler(event: ApiEvent): Promise<ApiResult> {
+export async function handler(event: EventLike) {
   const requestId = getRequestId(event);
-  const method = event.requestContext.http.method;
-  const path = event.requestContext.http.path;
+  const method = event.requestContext?.http?.method || "GET";
+  const path = event.requestContext?.http?.path || "/";
 
   try {
-    let response: ApiResponse;
+    const auth = requireAuth(event, requestId);
+    if (isAuthFailure(auth)) {
+      return auth.response;
+    }
+    const caller = auth.caller;
+
+    let response: ReturnType<typeof ok> | ReturnType<typeof fail>;
 
     if (method === "GET" && path === "/api/health") {
-      response = await handleHealth();
+      response = await handleHealth(requestId);
     } else if (method === "GET" && path === "/api/work-trees") {
-      response = await handleGetWorkTrees();
+      response = await handleListWorkTrees();
     } else if (method === "POST" && path === "/api/work-trees") {
-      response = await handleCreateWorkTree(event);
-    } else if (method === "GET" && path.match(/^\/api\/work-trees\/[^/]+$/)) {
-      response = await handleGetWorkTree(event);
-    } else if (method === "POST" && path.match(/^\/api\/work-trees\/[^/]+\/plan$/)) {
-      response = await handlePlanWorkTree(event);
-    } else if (method === "POST" && path.match(/^\/api\/work-trees\/[^/]+\/run$/)) {
-      response = await handleRunWorkTree(event);
-    } else if (method === "POST" && path.match(/^\/api\/work-trees\/[^/]+\/pause$/)) {
-      response = await handlePauseWorkTree(event);
-    } else if (method === "POST" && path.match(/^\/api\/work-trees\/[^/]+\/resume$/)) {
-      response = await handleResumeWorkTree(event);
-    } else if (method === "GET" && path.match(/^\/api\/work-trees\/[^/]+\/activity$/)) {
-      response = await handleGetActivity(event);
+      response = await handleCreateWorkTree(event, requestId, caller);
+    } else if (method === "GET" && WORK_TREE_ID.test(path)) {
+      const parsed = requireId(readPathParam(event, "id", WORK_TREE_ID), "Work tree ID is required", requestId);
+      if ("response" in parsed) return parsed.response;
+      response = await handleGetWorkTree(parsed.id, requestId);
+    } else if (method === "POST" && /^\/api\/work-trees\/[^/]+\/plan$/.test(path)) {
+      const parsed = requireId(readPathParam(event, "id", WORK_TREE_ACTION), "Work tree ID is required", requestId);
+      if ("response" in parsed) return parsed.response;
+      response = await handlePlanWorkTree(parsed.id, event, requestId);
+    } else if (method === "POST" && /^\/api\/work-trees\/[^/]+\/run$/.test(path)) {
+      const parsed = requireId(readPathParam(event, "id", WORK_TREE_ACTION), "Work tree ID is required", requestId);
+      if ("response" in parsed) return parsed.response;
+      response = await handleRunWorkTree(parsed.id, event, requestId, caller);
+    } else if (method === "POST" && /^\/api\/work-trees\/[^/]+\/pause$/.test(path)) {
+      const parsed = requireId(readPathParam(event, "id", WORK_TREE_ACTION), "Work tree ID is required", requestId);
+      if ("response" in parsed) return parsed.response;
+      response = await handlePauseWorkTree(parsed.id, requestId);
+    } else if (method === "POST" && /^\/api\/work-trees\/[^/]+\/resume$/.test(path)) {
+      const parsed = requireId(readPathParam(event, "id", WORK_TREE_ACTION), "Work tree ID is required", requestId);
+      if ("response" in parsed) return parsed.response;
+      response = await handleResumeWorkTree(parsed.id, requestId, caller);
+    } else if (method === "GET" && WORK_TREE_ACTIVITY.test(path)) {
+      const parsed = requireId(readPathParam(event, "id", WORK_TREE_ACTIVITY), "Work tree ID is required", requestId);
+      if ("response" in parsed) return parsed.response;
+      const activity = await db.getActivityEventsByWorkTree(parsed.id);
+      response = ok(activity.map(serializeEvent));
+    } else if (method === "GET" && WORK_TREE_ARTIFACTS.test(path)) {
+      const parsed = requireId(readPathParam(event, "id", WORK_TREE_ARTIFACTS), "Work tree ID is required", requestId);
+      if ("response" in parsed) return parsed.response;
+      response = await handleArtifacts(parsed.id, requestId);
+    } else if (method === "GET" && WORK_TREE_EXECUTION.test(path)) {
+      const parsed = requireId(readPathParam(event, "id", WORK_TREE_EXECUTION), "Work tree ID is required", requestId);
+      if ("response" in parsed) return parsed.response;
+      response = await handleExecutionStatus(parsed.id, requestId);
     } else if (method === "GET" && path === "/api/agents") {
-      response = await handleGetAgents();
-    } else if (method === "GET" && path.match(/^\/api\/agents\/[^/]+$/)) {
-      response = await handleGetAgent(event);
+      response = await handleListAgents();
+    } else if (method === "GET" && AGENT_ID.test(path)) {
+      const parsed = requireId(readPathParam(event, "id", AGENT_ID), "Agent ID is required", requestId);
+      if ("response" in parsed) return parsed.response;
+      response = await handleGetAgent(parsed.id, requestId);
     } else if (method === "GET" && path === "/api/tasks") {
-      response = await handleGetTasks();
-    } else if (method === "POST" && path.match(/^\/api\/approvals\/[^/]+\/approve$/)) {
-      response = await handleApprove(event);
-    } else if (method === "POST" && path.match(/^\/api\/approvals\/[^/]+\/reject$/)) {
-      response = await handleReject(event);
+      response = await handleListTasks();
+    } else if (method === "GET" && ARTIFACT_URL.test(path)) {
+      const parsed = requireId(readPathParam(event, "id", ARTIFACT_URL), "Artifact ID is required", requestId);
+      if ("response" in parsed) return parsed.response;
+      response = await handleArtifactUrl(parsed.id, requestId);
+    } else if (method === "POST" && /^\/api\/approvals\/[^/]+\/(approve|reject)$/.test(path)) {
+      const parsed = requireId(readPathParam(event, "id", APPROVAL_ACTION), "Approval ID is required", requestId);
+      if ("response" in parsed) return parsed.response;
+      const decision = path.endsWith("/approve") ? "approved" : "rejected";
+      response = await handleApprovalAction(parsed.id, decision, caller);
     } else if (method === "POST" && path === "/api/ai/chat") {
-      response = await handleAiChat(event);
+      response = await handleAiChat(event, requestId);
     } else {
-      response = { success: false, error: { code: "NOT_FOUND", message: `Route ${method} ${path} not found`, requestId } };
+      response = fail("NOT_FOUND", `Route ${method} ${path} not found`, requestId);
     }
 
-    const statusCode = response.success ? 200 : response.error?.code === "NOT_FOUND" ? 404 : response.error?.code === "VALIDATION_ERROR" ? 400 : 500;
-    return createResponse(statusCode, { ...response, error: response.error ? { ...response.error, requestId } : undefined });
+    const statusCode = response.success ? 200 : statusForError(response.error?.code || "INTERNAL_ERROR");
+    return createResponse(statusCode, response);
   } catch (error) {
-    console.error(`[${requestId}] Error:`, error);
-    return createResponse(500, {
-      success: false,
-      error: {
-        code: "INTERNAL_ERROR",
-        message: error instanceof Error ? error.message : "Internal server error",
-        requestId,
-      },
-    });
+    console.error(JSON.stringify({ level: "error", requestId, method, path, message: error instanceof Error ? error.message : String(error) }));
+    return createResponse(
+      500,
+      fail("INTERNAL_ERROR", error instanceof Error ? error.message : "Internal server error", requestId)
+    );
   }
 }

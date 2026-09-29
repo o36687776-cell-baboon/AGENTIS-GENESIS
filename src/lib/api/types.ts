@@ -8,9 +8,12 @@ export interface WorkTree {
   id: string;
   name: string;
   objective: string;
-  context?: Record<string, any>;
+  context?: Record<string, unknown>;
   status: string;
   progress: number;
+  execution_arn: string | null;
+  correlation_id: string | null;
+  idempotency_key: string | null;
   created_at: string;
   updated_at: string;
   completed_at: string | null;
@@ -19,7 +22,8 @@ export interface WorkTree {
   artifacts?: Artifact[];
   approvals?: Approval[];
   activity?: ActivityEvent[];
-  plan?: WorkTreePlan;
+  plan?: WorkTreePlan | null;
+  runs?: AgentRun[];
 }
 
 export interface Agent {
@@ -56,14 +60,31 @@ export interface Task {
   status: string;
   progress: number;
   priority: string;
-  input?: Record<string, any>;
-  output?: Record<string, any>;
+  input?: Record<string, unknown>;
+  output?: Record<string, unknown>;
   dependencies: string[];
   estimated_duration_minutes: number | null;
   started_at: string | null;
   completed_at: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface AgentRun {
+  id: string;
+  agent_id: string;
+  task_id: string | null;
+  work_tree_id: string;
+  status: string;
+  model: string;
+  input_tokens: number;
+  output_tokens: number;
+  result: Record<string, unknown> | null;
+  error: string | null;
+  verification_status: string;
+  started_at: string | null;
+  completed_at: string | null;
+  created_at: string;
 }
 
 export interface Artifact {
@@ -85,9 +106,18 @@ export interface Artifact {
   human_reviewed: boolean;
   approved: boolean;
   verification_status: string;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   created_at: string;
   updated_at: string;
+}
+
+export interface ArtifactUrlResponse {
+  id: string;
+  name: string;
+  type: string;
+  s3Key: string;
+  url: string;
+  expiresIn: number;
 }
 
 export interface Approval {
@@ -97,8 +127,8 @@ export interface Approval {
   title: string;
   description: string | null;
   risk_level: string;
-  recipients?: Record<string, any>;
-  attachments?: Record<string, any>;
+  recipients?: Record<string, unknown>;
+  attachments?: Record<string, unknown>;
   external: boolean;
   status: string;
   requested_by: string | null;
@@ -114,9 +144,9 @@ export interface ActivityEvent {
   agent_id: string | null;
   task_id: string | null;
   event_type: string;
-  status: string;
+  status: "info" | "success" | "warning" | "error";
   message: string | null;
-  metadata?: Record<string, any>;
+  metadata?: Record<string, unknown>;
   timestamp: string;
 }
 
@@ -154,6 +184,33 @@ export interface PlanRisk {
   mitigation?: string;
 }
 
+/**
+ * The plan endpoint returns the planner output directly, which is camelCase,
+ * unlike the persisted plan row above.
+ */
+export interface ExecutionPlan {
+  objective: string;
+  summary: string;
+  context: string | null;
+  tasks: PlanTask[];
+  risks: PlanRisk[];
+  requiresApproval: boolean;
+  approvalReason: string | null;
+  estimatedTotalDurationMinutes: number;
+  correlationId?: string;
+  taskCount?: number;
+}
+
+export interface ExecutionStatusResponse {
+  workTreeId: string;
+  status: "NOT_STARTED" | "RUNNING" | "SUCCEEDED" | "FAILED" | "TIMED_OUT" | "ABORTED" | "UNKNOWN";
+  storedStatus: string;
+  executionArn?: string;
+  correlationId?: string;
+  errorName?: string;
+  errorCause?: string;
+}
+
 export interface HealthResponse {
   status: string;
   services: {
@@ -162,8 +219,14 @@ export interface HealthResponse {
     bedrock: string;
     secrets: string;
     storage: string;
+    orchestration: string;
+  };
+  auth: {
+    required: boolean;
+    issuer: string;
   };
   environment: string;
+  correlationId: string;
   timestamp: string;
 }
 

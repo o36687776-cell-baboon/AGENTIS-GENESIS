@@ -22,6 +22,14 @@ const env = {
 const envName = process.env.ENVIRONMENT || "development";
 const appName = "agentis-genesis";
 
+// Browsers may only call the API from these origins. The list is never a
+// wildcard: an unset value means no browser origin is allowed, which is the
+// safe default for a private API behind authentication.
+const allowedOrigins = (process.env.ALLOWED_ORIGINS || "")
+  .split(",")
+  .map((origin) => origin.trim())
+  .filter((origin) => origin.length > 0);
+
 new GenesisVpcStack(app, `${appName}-vpc-${envName}`, {
   env,
   envName,
@@ -74,22 +82,10 @@ const dbSecretArn = cdk.Fn.importValue(`${appName}-db-secret-arn-${envName}`);
 const dbProxyEndpoint = cdk.Fn.importValue(`${appName}-db-proxy-endpoint-${envName}`);
 const dbInstanceIdentifier = cdk.Fn.importValue(`${appName}-db-instance-identifier-${envName}`);
 
-new GenesisApiStack(app, `${appName}-api-${envName}`, {
-  env,
-  envName,
-  appName,
-  vpcId,
-  lambdaSecurityGroupId,
-  dbSecretArn,
-  dbProxyEndpoint,
-  dbInstanceIdentifier,
-  artifactBucketName,
-  artifactBucketArn,
-  bedrockApiKeySecretArn,
-  privateSubnetIds,
-  isolatedSubnetIds,
-});
-
+// Step Functions is created before the API stack because the API handler needs
+// the state machine ARN in order to start an execution. The dependency runs one
+// way only: the workflow stack consumes database, storage and secret exports
+// but nothing the API stack produces.
 new GenesisStepFunctionsStack(app, `${appName}-stepfunctions-${envName}`, {
   env,
   envName,
@@ -106,12 +102,30 @@ new GenesisStepFunctionsStack(app, `${appName}-stepfunctions-${envName}`, {
   isolatedSubnetIds,
 });
 
+// Import StepFunctions outputs
+const stateMachineArn = cdk.Fn.importValue(`${appName}-state-machine-arn-${envName}`);
+
+new GenesisApiStack(app, `${appName}-api-${envName}`, {
+  env,
+  envName,
+  appName,
+  vpcId,
+  lambdaSecurityGroupId,
+  dbSecretArn,
+  dbProxyEndpoint,
+  dbInstanceIdentifier,
+  artifactBucketName,
+  artifactBucketArn,
+  bedrockApiKeySecretArn,
+  privateSubnetIds,
+  isolatedSubnetIds,
+  stateMachineArn,
+  allowedOrigins,
+});
+
 // Import API outputs
 const apiGatewayId = cdk.Fn.importValue(`${appName}-api-gateway-id-${envName}`);
 const apiHandlerFunctionArn = cdk.Fn.importValue(`${appName}-api-handler-function-arn-${envName}`);
-
-// Import StepFunctions outputs
-const stateMachineArn = cdk.Fn.importValue(`${appName}-state-machine-arn-${envName}`);
 
 new GenesisMonitoringStack(app, `${appName}-monitoring-${envName}`, {
   env,

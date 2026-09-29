@@ -1,39 +1,66 @@
 import * as ai from "../ai";
-
-function createResponse(statusCode: number, body: any) {
-  return {
-    statusCode,
-    headers: { "Content-Type": "application/json" },
-    body: JSON.stringify(body),
-  };
-}
+import { getConfig } from "../config";
+import { classifyFailure } from "../execution/retry";
 
 interface PlannerEvent {
   action: string;
-  workTree?: any;
+  workTree?: {
+    id?: string;
+    objective?: string;
+    context?: unknown;
+  };
   objective?: string;
+  correlationId?: string;
 }
 
-export async function handler(event: PlannerEvent): Promise<any> {
-  const action = event.action;
+export async function handler(event: PlannerEvent) {
+  const config = getConfig();
 
   try {
-    switch (action) {
+    switch (event.action) {
       case "generatePlan": {
-        const { workTree, objective } = event;
+        const objective = event.objective || event.workTree?.objective;
+        if (!objective) {
+          throw Object.assign(new Error("objective is required"), { name: "ValidationError" });
+        }
+
         const plan = await ai.generatePlan({
-          objective: objective || workTree?.objective,
-          context: workTree?.context,
-          existingWorkTreeId: workTree?.id,
+          objective,
+          context: event.workTree?.context as string | undefined,
+          existingWorkTreeId: event.workTree?.id,
         });
-        return createResponse(200, { success: true, data: plan });
+
+        const truncated = plan.tasks.slice(0, config.maxTasksPerExecution);
+
+        // Returned as a plain business object. Step Functions stores this
+        // directly on the execution state, so no API Gateway response envelope
+        // is wrapped around it.
+        return {
+          ...plan,
+          tasks: truncated,
+          correlationId: event.correlationId,
+          taskCount: truncated.length,
+        };
       }
 
       default:
-        return createResponse(400, { success: false, error: `Unknown action: ${action}` });
+        throw Object.assign(new Error(`Unknown action: ${event.action}`), {
+          name: "ValidationError",
+        });
     }
   } catch (error) {
-    console.error("Planner error:", error);
-    return createResponse(500, { success: false, error: error instanceof Error ? error.message : "Internal error" });
+    const classified = classifyFailure(error);
+    // Rethrow so the state machine task fails and the configured retry policy
+    // decides whether it is retried. A fatal failure fails on the first pass.
+    throw Object.assign(
+      new Error(
+        JSON.stringify({
+          message: classified.message,
+          name: classified.name,
+          class: classified.class,
+        })
+      ),
+      { name: classified.name }
+    );
   }
 }

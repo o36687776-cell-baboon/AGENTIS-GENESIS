@@ -6,6 +6,7 @@ import * as iam from "aws-cdk-lib/aws-iam";
 import * as ec2 from "aws-cdk-lib/aws-ec2";
 import * as secretsmanager from "aws-cdk-lib/aws-secretsmanager";
 import * as s3 from "aws-cdk-lib/aws-s3";
+import * as sqs from "aws-cdk-lib/aws-sqs";
 import * as logs from "aws-cdk-lib/aws-logs";
 import { Construct } from "constructs";
 
@@ -29,6 +30,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
   public readonly plannerFunction: lambda.Function;
   public readonly agentWorkerFunction: lambda.Function;
   public readonly verificationFunction: lambda.Function;
+  public readonly deadLetterQueue: sqs.Queue;
 
   constructor(scope: Construct, id: string, props: GenesisStepFunctionsStackProps) {
     super(scope, id, props);
@@ -148,7 +150,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
 
     this.plannerFunction = new lambda.Function(this, "PlannerFunction", {
       functionName: `${appName}-planner-${envName}`,
-      handler: "planner.handler",
+      handler: "workflows/planner.handler",
       code: lambda.Code.fromAsset("../dist/server"),
       role: workerRole,
       logGroup: plannerLogGroup,
@@ -158,7 +160,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
 
     this.agentWorkerFunction = new lambda.Function(this, "AgentWorkerFunction", {
       functionName: `${appName}-agent-worker-${envName}`,
-      handler: "agent-worker.handler",
+      handler: "workflows/agent-worker.handler",
       code: lambda.Code.fromAsset("../dist/server"),
       role: workerRole,
       logGroup: agentWorkerLogGroup,
@@ -168,12 +170,22 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
 
     this.verificationFunction = new lambda.Function(this, "VerificationFunction", {
       functionName: `${appName}-verification-${envName}`,
-      handler: "verification.handler",
+      handler: "workflows/verification.handler",
       code: lambda.Code.fromAsset("../dist/server"),
       role: workerRole,
       logGroup: verificationLogGroup,
       reservedConcurrentExecutions: 5,
       ...commonLambdaProps,
+    });
+
+    // Dead-letter queue. Anything that escapes the retry policy lands here with
+    // the Step Functions Error and Cause payload, and a CloudWatch alarm fires
+    // when the queue has messages waiting.
+    this.deadLetterQueue = new sqs.Queue(this, "ExecutionDeadLetterQueue", {
+      queueName: `${appName}-workflow-dlq-${envName}`,
+      retentionPeriod: cdk.Duration.days(14),
+      enforceSSL: true,
+      encryption: sqs.QueueEncryption.KMS_MANAGED,
     });
 
     // Define retry policy for Lambda invocations
@@ -190,6 +202,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
       payload: sfn.TaskInput.fromObject({
         action: "loadWorkTree",
         workTreeId: sfn.JsonPath.stringAt("$.workTreeId"),
+        correlationId: sfn.JsonPath.stringAt("$.correlationId"),
       }),
       resultPath: "$.workTree",
       ...lambdaRetryPolicy,
@@ -201,6 +214,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
         action: "generatePlan",
         workTree: sfn.JsonPath.stringAt("$.workTree"),
         objective: sfn.JsonPath.stringAt("$.objective"),
+        correlationId: sfn.JsonPath.stringAt("$.correlationId"),
       }),
       resultPath: "$.plan",
       ...lambdaRetryPolicy,
@@ -210,24 +224,29 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
       lambdaFunction: this.agentWorkerFunction,
       payload: sfn.TaskInput.fromObject({
         action: "createTasks",
-        workTreeId: sfn.JsonPath.stringAt("$.workTree.id"),
+        workTreeId: sfn.JsonPath.stringAt("$.workTreeId"),
         plan: sfn.JsonPath.stringAt("$.plan"),
+        correlationId: sfn.JsonPath.stringAt("$.correlationId"),
       }),
       resultPath: "$.tasks",
       ...lambdaRetryPolicy,
     });
 
+    // Inside a Map item processor, "$" is the current item and "$$" is the outer
+    // execution state. Concurrency is capped so a wide plan cannot fan out
+    // without bound.
     const executeAgents = new sfn.Map(this, "Execute Agents", {
       itemsPath: sfn.JsonPath.stringAt("$.tasks"),
       maxConcurrency: 3,
       resultPath: "$.executionResults",
-    }).iterator(
+    }).itemProcessor(
       new sfn_tasks.LambdaInvoke(this, "Execute Agent Task", {
         lambdaFunction: this.agentWorkerFunction,
         payload: sfn.TaskInput.fromObject({
           action: "executeTask",
           task: sfn.JsonPath.stringAt("$"),
-          workTreeId: sfn.JsonPath.stringAt("$.workTreeId"),
+          workTreeId: sfn.JsonPath.stringAt("$$.workTreeId"),
+          correlationId: sfn.JsonPath.stringAt("$$.correlationId"),
         }),
         resultPath: "$.result",
         ...lambdaRetryPolicy,
@@ -240,6 +259,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
         action: "storeResults",
         workTreeId: sfn.JsonPath.stringAt("$.workTreeId"),
         executionResults: sfn.JsonPath.stringAt("$.executionResults"),
+        correlationId: sfn.JsonPath.stringAt("$.correlationId"),
       }),
       resultPath: "$.storedResults",
       ...lambdaRetryPolicy,
@@ -251,6 +271,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
         action: "verify",
         workTreeId: sfn.JsonPath.stringAt("$.workTreeId"),
         results: sfn.JsonPath.stringAt("$.storedResults"),
+        correlationId: sfn.JsonPath.stringAt("$.correlationId"),
       }),
       resultPath: "$.verification",
       ...lambdaRetryPolicy,
@@ -263,32 +284,45 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
         workTreeId: sfn.JsonPath.stringAt("$.workTreeId"),
         results: sfn.JsonPath.stringAt("$.storedResults"),
         verification: sfn.JsonPath.stringAt("$.verification"),
+        correlationId: sfn.JsonPath.stringAt("$.correlationId"),
       }),
       resultPath: "$.outcome",
       ...lambdaRetryPolicy,
     });
 
+    // The workers return plain business objects rather than an API Gateway
+    // response envelope, so the verification result sits directly on
+    // $.verification.requiresApproval.
     const approvalRequired = new sfn.Choice(this, "Approval Required?")
       .when(
-        sfn.Condition.booleanEquals("$.verification.Payload.requiresApproval", true),
+        sfn.Condition.booleanEquals("$.verification.requiresApproval", true),
+        // A bounded wait, not an open-ended one. If nobody decides within the
+        // window the execution fails visibly and the work tree is left in
+        // needs-approval rather than holding an execution open indefinitely.
         new sfn.Wait(this, "Wait for Approval", {
-          time: sfn.WaitTime.timestampPath("$.verification.Payload.approvalDeadline"),
+          time: sfn.WaitTime.duration(cdk.Duration.seconds(60)),
         }).next(
           new sfn_tasks.LambdaInvoke(this, "Check Approval", {
             lambdaFunction: this.agentWorkerFunction,
             payload: sfn.TaskInput.fromObject({
               action: "checkApproval",
               workTreeId: sfn.JsonPath.stringAt("$.workTreeId"),
+              correlationId: sfn.JsonPath.stringAt("$.correlationId"),
             }),
             resultPath: "$.approvalResult",
             ...lambdaRetryPolicy,
           }).next(
             new sfn.Choice(this, "Approval Granted?")
               .when(
-                sfn.Condition.booleanEquals("$.approvalResult.Payload.approved", true),
+                sfn.Condition.booleanEquals("$.approvalResult.approved", true),
                 new sfn.Pass(this, "Continue After Approval").next(finalize)
               )
-              .otherwise(new sfn.Fail(this, "Approval Rejected", { cause: "Approval rejected by user", error: "APPROVAL_REJECTED" }))
+              .otherwise(
+                new sfn.Fail(this, "Approval Not Granted", {
+                  cause: "Approval was not granted within the decision window",
+                  error: "APPROVAL_NOT_GRANTED",
+                })
+              )
           )
         )
       )
@@ -302,9 +336,36 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
       .next(verifyResults)
       .next(approvalRequired);
 
+    // A CDK chain has no top-level catch, so the flow is wrapped in a Parallel
+    // with a single branch purely to attach one. Nothing after the branch reads
+    // the execution state, so the array result the Parallel produces is not
+    // consumed.
+    const guarded = new sfn.Parallel(this, "Genesis Execution", {}).branch(definition);
+
+    const recordFailure = new sfn_tasks.SqsSendMessage(this, "Record Failure", {
+      queue: this.deadLetterQueue,
+      messageBody: sfn.TaskInput.fromJsonPathAt("$"),
+      integrationPattern: sfn.IntegrationPattern.REQUEST_RESPONSE,
+    }).next(
+      new sfn.Fail(this, "Execution Failed", {
+        cause: "Execution failed; the error was recorded on the dead-letter queue",
+        error: "GENESIS_EXECUTION_FAILED",
+      })
+    );
+
+    guarded.addCatch(recordFailure, {
+      resultPath: "$.dlqRecord",
+    });
+
+    const finalState = guarded.next(
+      new sfn.Succeed(this, "Execution Complete", {
+        comment: "Work tree finalized",
+      })
+    );
+
     this.stateMachine = new sfn.StateMachine(this, "GenesisWorkflow", {
       stateMachineName: `${appName}-workflow-${envName}`,
-      definitionBody: sfn.DefinitionBody.fromChainable(definition),
+      definitionBody: sfn.DefinitionBody.fromChainable(finalState),
       role: stepFunctionsRole,
       timeout: cdk.Duration.hours(2),
       tracingEnabled: true,
@@ -328,6 +389,11 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
       exportName: `${appName}-state-machine-name-${envName}`,
     });
 
+    new cdk.CfnOutput(this, "DeadLetterQueueUrl", {
+      value: this.deadLetterQueue.queueUrl,
+      exportName: `${appName}-workflow-dlq-url-${envName}`,
+    });
+
     new cdk.CfnOutput(this, "PlannerFunctionName", {
       value: this.plannerFunction.functionName,
       exportName: `${appName}-planner-function-name-${envName}`,
@@ -341,6 +407,11 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
     new cdk.CfnOutput(this, "VerificationFunctionName", {
       value: this.verificationFunction.functionName,
       exportName: `${appName}-verification-function-name-${envName}`,
+    });
+
+    new cdk.CfnOutput(this, "DeadLetterQueueArn", {
+      value: this.deadLetterQueue.queueArn,
+      exportName: `${appName}-workflow-dlq-arn-${envName}`,
     });
   }
 }

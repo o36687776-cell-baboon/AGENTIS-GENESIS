@@ -141,41 +141,6 @@
       "additionalMetadataFile": "agentis-genesis-secrets-development.metadata.json",
       "displayName": "agentis-genesis-secrets-development"
     },
-    "agentis-genesis-api-development.assets": {
-      "type": "cdk:asset-manifest",
-      "properties": {
-        "file": "agentis-genesis-api-development.assets.json",
-        "requiresBootstrapStackVersion": 6,
-        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
-      }
-    },
-    "agentis-genesis-api-development": {
-      "type": "aws:cloudformation:stack",
-      "environment": "aws://unknown-account/us-east-1",
-      "properties": {
-        "templateFile": "agentis-genesis-api-development.template.json",
-        "terminationProtection": false,
-        "validateOnSynth": false,
-        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-us-east-1",
-        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1/6ca12281886dd74a6c034f354f65923c292cbad144efcf5ed0d7dc4d12acf550.json",
-        "requiresBootstrapStackVersion": 6,
-        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
-        "additionalDependencies": [
-          "agentis-genesis-api-development.assets"
-        ],
-        "lookupRole": {
-          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-us-east-1",
-          "requiresBootstrapStackVersion": 8,
-          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
-        }
-      },
-      "dependencies": [
-        "agentis-genesis-api-development.assets"
-      ],
-      "additionalMetadataFile": "agentis-genesis-api-development.metadata.json",
-      "displayName": "agentis-genesis-api-development"
-    },
     "agentis-genesis-stepfunctions-development.assets": {
       "type": "cdk:asset-manifest",
       "properties": {
@@ -193,7 +158,7 @@
         "validateOnSynth": false,
         "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-us-east-1",
         "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-us-east-1",
-        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1/47a8f96713d955008d836001ecdf6b4e77716d66a9310683add122c85002ed6f.json",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1/ac7de46ea1d660f500d56a78679c18933c75990208059578f48d3df9dc9cc0a3.json",
         "requiresBootstrapStackVersion": 6,
         "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
         "additionalDependencies": [
@@ -210,6 +175,41 @@
       ],
       "additionalMetadataFile": "agentis-genesis-stepfunctions-development.metadata.json",
       "displayName": "agentis-genesis-stepfunctions-development"
+    },
+    "agentis-genesis-api-development.assets": {
+      "type": "cdk:asset-manifest",
+      "properties": {
+        "file": "agentis-genesis-api-development.assets.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+      }
+    },
+    "agentis-genesis-api-development": {
+      "type": "aws:cloudformation:stack",
+      "environment": "aws://unknown-account/us-east-1",
+      "properties": {
+        "templateFile": "agentis-genesis-api-development.template.json",
+        "terminationProtection": false,
+        "validateOnSynth": false,
+        "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-deploy-role-${AWS::AccountId}-us-east-1",
+        "cloudFormationExecutionRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-cfn-exec-role-${AWS::AccountId}-us-east-1",
+        "stackTemplateAssetObjectUrl": "s3://cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1/ec8aec9876cc7f3b638538014425b4f44a64e6bcdb4a5db12a85b00518c2ab70.json",
+        "requiresBootstrapStackVersion": 6,
+        "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version",
+        "additionalDependencies": [
+          "agentis-genesis-api-development.assets"
+        ],
+        "lookupRole": {
+          "arn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-lookup-role-${AWS::AccountId}-us-east-1",
+          "requiresBootstrapStackVersion": 8,
+          "bootstrapStackVersionSsmParameter": "/cdk-bootstrap/hnb659fds/version"
+        }
+      },
+      "dependencies": [
+        "agentis-genesis-api-development.assets"
+      ],
+      "additionalMetadataFile": "agentis-genesis-api-development.metadata.json",
+      "displayName": "agentis-genesis-api-development"
     },
     "agentis-genesis-monitoring-development.assets": {
       "type": "cdk:asset-manifest",
