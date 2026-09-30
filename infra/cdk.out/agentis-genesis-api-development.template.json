@@ -329,9 +329,9 @@
     ],
     "Code": {
      "S3Bucket": {
-      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-eu-north-1"
      },
-     "S3Key": "2430d79ae59799c32a44cf152efc138014cd62b511124fa978f73da0319f5495.zip"
+     "S3Key": "873ed81c5b7655acf00e7410695bf4bd73035af25d718bf3acfcf14c102dbaf0.zip"
     },
     "Environment": {
      "Variables": {
@@ -432,7 +432,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-api-development/ApiHandlerFunction/Resource",
-    "aws:asset:path": "asset.2430d79ae59799c32a44cf152efc138014cd62b511124fa978f73da0319f5495",
+    "aws:asset:path": "asset.873ed81c5b7655acf00e7410695bf4bd73035af25d718bf3acfcf14c102dbaf0",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }
@@ -515,7 +515,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
@@ -575,7 +575,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
@@ -679,7 +679,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
@@ -745,7 +745,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
@@ -811,7 +811,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
@@ -877,7 +877,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
@@ -943,7 +943,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
@@ -1009,7 +1009,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
@@ -1075,7 +1075,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
@@ -1141,7 +1141,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
@@ -1207,7 +1207,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
@@ -1273,7 +1273,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
@@ -1339,7 +1339,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
@@ -1405,7 +1405,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
@@ -1471,7 +1471,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
@@ -1537,7 +1537,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
@@ -1603,7 +1603,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
@@ -1669,7 +1669,7 @@
        {
         "Ref": "AWS::Partition"
        },
-       ":execute-api:us-east-1:",
+       ":execute-api:eu-north-1:",
        {
         "Ref": "AWS::AccountId"
        },
