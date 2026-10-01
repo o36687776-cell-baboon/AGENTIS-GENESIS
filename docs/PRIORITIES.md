@@ -10,8 +10,10 @@ P0 — Remaining shell / deployment processes
 P0 — CDK bootstrap / diff / deployment
 P0 — ROCKERFELLER live validation
 
-P1 — TELEMETRY / OBSERVABILITY AUDIT
-P2 — ATLAS live validation
+P1 — TELEMETRY STATIC AUDIT (COMPLETE)
+P1 — TELEMETRY REMEDIATION (OPEN, not authorised)
+P1 — LIVE TELEMETRY (NOT VERIFIED)
+P1 — ATLAS live Earth Engine validation
 ```
 
 ## AWS deployment access (P0)
@@ -51,11 +53,12 @@ Identifier gaps found:
 Metric coverage gaps in `infra/lib/genesis-monitoring-stack.ts`:
 
 - Present: `AWS/ApiGateway` (6 metrics), `AWS/States` (7), `AWS/S3` (1).
-- Absent: `AWS/Lambda`, `AWS/RDS` / `AWS/RDSProxy`, `AWS/SQS` (no DLQ alarm),
-  and any Bedrock metric.
-- 4 alarms total. The execution DLQ is documented in the Step Functions stack
-  as alarming when messages queue, but no `AWS/SQS` metric or alarm exists in
-  the monitoring stack, so that claim is currently unbacked.
+- Absent: `AWS/Lambda`, `AWS/RDS` / `AWS/RDSProxy`, `AWS/SQS`, and any
+  Bedrock metric.
+- 4 alarms total.
+- **There is no DLQ alarm.** The Step Functions stack comment claiming one
+  exists is wrong and must not be repeated in any status report. The DLQ is
+  created and its queue policy is wired, but nothing alarms on it.
 - X-Ray is active on the API handler and the state machine
   (`tracingEnabled: true`), but the planner, agent worker and verification
   Lambdas have no tracing configuration.
@@ -72,12 +75,48 @@ Telemetry captured but not aggregated:
 
 Not implemented at all:
 
-- Loop and stagnation detection (`Genesis.Atlas.LoopDetected`,
-  `Genesis.Atlas.Stagnant`, or any equivalent). Nothing in the server detects a
-  repeated identical operation or a stalled execution.
+- Loop and stagnation detection. Nothing in the server detects a repeated
+  identical operation or a stalled execution.
+
+## P1 remediation set (LOCKED, OPEN)
+
+Not authorised for implementation. Approved scope when it is taken up:
+
+1. Add a real `executionId` propagating API → Step Functions → worker →
+   verification/artifacts. Keep `executionArn` as the AWS workflow identifier.
+2. Establish `agentExecutionId` as a first-class identifier, persisted and
+   propagated enough to join task → agent execution → activity → artifact.
+3. Enable X-Ray on the planner, agent worker and verification Lambdas.
+4. Add CloudWatch metrics/alarms for Lambda, RDS / RDS Proxy, SQS / DLQ, and
+   Bedrock-related application metrics.
+5. Add the missing SQS / DLQ alarm.
+6. Measure actual duration around the Bedrock call and persist the measurement.
+7. Count retry attempts, record retry exhaustion, and make both queryable
+   rather than only logged as a classification.
+8. Promote provider latency from the JSON manifest into queryable telemetry.
+9. Implement producers for `Genesis.Tasks.LoopDetected` and
+   `Genesis.Tasks.Stagnant`, bounded by the established hard limits rather than
+   an open-ended detector.
+
+Sequencing constraint: this work follows live telemetry validation in the
+deployment sequence. It must not become a broad observability rewrite, and it
+must not introduce a second metrics or monitoring stack.
+
+## Gate state
+
+```text
+P0 DEPLOYMENT              BLOCKED
+P1 TELEMETRY STATIC AUDIT  COMPLETE
+P1 TELEMETRY REMEDIATION   OPEN
+P1 LIVE TELEMETRY          NOT VERIFIED
+```
 
 ## Validation rule
 
 Nothing in this file may be reported as verified on the basis of static
 inspection. A stage moves to COMPLETE only when a deployed end-to-end trace
 proves it.
+
+This applies with equal force in reverse: a gap identified statically must not
+be reported as fixed on the basis of static inspection either. Remediation
+items move to COMPLETE only when live telemetry shows the measurement.
