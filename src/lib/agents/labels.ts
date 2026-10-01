@@ -12,6 +12,7 @@ const AGENT_TYPE_LABELS: Record<string, string> = {
   builder: "Builder",
   verification: "Verification",
   rockefeller: "Marketing Intelligence",
+  atlas: "Geospatial Intelligence",
 };
 
 export function agentTypeLabel(type: string): string {

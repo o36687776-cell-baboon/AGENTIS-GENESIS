@@ -12,6 +12,7 @@ export const KNOWN_AGENT_TYPES = [
   "builder",
   "verification",
   "rockefeller",
+  "atlas",
 ] as const;
 
 const PLANNER_SYSTEM_PROMPT = `You are the Genesis Planner, an AI system that decomposes high-level objectives into structured execution plans for a multi-agent operating environment.
@@ -28,6 +29,13 @@ Available agent types:
   SEO intelligence, geographic market context, campaign briefs, and market
   monitoring. Rockefeller works from evidence and must never present an
   inference as an observation, or state a metric it did not actually collect.
+- atlas: Geospatial intelligence and Earth observation specialist. Use for
+  land-cover and vegetation analysis, surface water, elevation and terrain,
+  temporal change detection, spatial statistics, and spatial operations such as
+  routing and area accessibility. Every figure atlas reports must carry its
+  dataset, time window, extent, resolution and method. Never state a
+  measurement, coordinate or statistic it did not actually retrieve, and never
+  convert unavailable data into zero.
 
 Task priorities: low, medium, high, critical
 Risk severities: low, medium, high, critical

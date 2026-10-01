@@ -9,6 +9,12 @@ import {
   gatherMarketingIntelligence,
   buildGroundingContext,
 } from "../intelligence/rockefeller";
+import {
+  gatherAtlasIntelligence,
+  buildAtlasGroundingContext,
+  parseScope,
+} from "../intelligence/geospatial/atlas";
+import { ATLAS_AGENT_TYPE } from "../intelligence/geospatial/types";
 
 interface WorkerEvent {
   action: string;
@@ -74,6 +80,18 @@ const AGENT_PROFILES: Record<string, { name: string; capabilities: string[] }> =
       "geographic-market-context",
       "campaign-briefing",
       "market-monitoring",
+    ],
+  },
+  atlas: {
+    name: "ATLAS",
+    capabilities: [
+      "earth-observation",
+      "geospatial-intelligence",
+      "spatial-statistics",
+      "temporal-change-detection",
+      "remote-sensing",
+      "location-analytics",
+      "spatial-operations",
     ],
   },
 };
@@ -378,6 +396,88 @@ export async function handler(event: WorkerEvent) {
                 unavailableCapabilities: intelligence.intelligence.unavailableCapabilities,
               },
             });
+          } else if (agentType === ATLAS_AGENT_TYPE) {
+            // ATLAS resolves a geospatial scope, discovers a dataset, and runs
+            // at most one bounded observation. Raster payloads never enter the
+            // workflow state; the evidence manifest carries identifiers.
+            const atlas = await withRetry(
+              () =>
+                gatherAtlasIntelligence({
+                  objective: workTree.objective,
+                  scope: parseScope(workTree.context),
+                }),
+              DEFAULT_RETRY
+            );
+
+            evidenceContext = buildAtlasGroundingContext(atlas, workTree.objective);
+
+            const manifest = JSON.stringify(
+              {
+                objective: workTree.objective,
+                correlationId: event.correlationId || null,
+                retrievedAt: atlas.retrievedAt,
+                scope: parseScope(workTree.context) || null,
+                providers: atlas.providers,
+                datasetsConsidered: atlas.datasetsConsidered,
+                datasetsUnavailable: atlas.datasetsUnavailable,
+                statistics: atlas.statistics,
+                unavailableCapabilities: atlas.unavailableCapabilities,
+                evidence: atlas.evidence,
+              },
+              null,
+              2
+            );
+
+            const manifestUpload = await uploadArtifact(
+              workTreeId,
+              task.id,
+              `${task.id}.geospatial-evidence.json`,
+              Buffer.from(manifest, "utf8"),
+              "application/json",
+              { agentType, correlationId: event.correlationId || "" }
+            );
+
+            await db.createArtifact({
+              workTreeId,
+              taskId: task.id,
+              name: `${task.title} (geospatial evidence).json`,
+              // The artifact type enum has no geospatial member. "data" is the
+              // existing value that fits a JSON manifest, so no schema change.
+              type: "data",
+              version: "1",
+              s3Key: manifestUpload.s3Key,
+              s3Bucket: config.artifactBucketName,
+              createdBy: agentId,
+              agentId,
+              model: config.bedrockModelId,
+              toolsCount: atlas.providers.length,
+              agentsCount: 1,
+              metadata: {
+                agentType,
+                correlationId: event.correlationId || null,
+                evidenceCount: atlas.evidence.length,
+                statisticCount: atlas.statistics.length,
+                unavailableCapabilities: atlas.unavailableCapabilities,
+              },
+            });
+
+            await db.createActivityEvent({
+              workTreeId,
+              agentId,
+              taskId: task.id,
+              eventType: "GEOSPATIAL_OBSERVATION",
+              status: atlas.statistics.length > 0 ? "info" : "warning",
+              message:
+                atlas.statistics.length > 0
+                  ? `Recorded ${atlas.evidence.length} geospatial evidence item(s) and ${atlas.statistics.length} statistic(s)`
+                  : `No measurement was retrieved; ${atlas.evidence.length} evidence item(s) recorded as unverified`,
+              metadata: {
+                correlationId: event.correlationId || null,
+                providers: atlas.providers,
+                datasetsConsidered: atlas.datasetsConsidered.map((dataset) => dataset.id),
+                unavailableCapabilities: atlas.unavailableCapabilities,
+              },
+            });
           }
 
           const prompt = buildTaskPrompt({
@@ -404,7 +504,9 @@ export async function handler(event: WorkerEvent) {
                     text:
                       agentType === ROCKERFELLER_AGENT_TYPE
                         ? "You are ROCKERFELLER, the marketing and market intelligence specialist inside AGENTIS GENESIS. Ground every claim in the evidence context provided. Label each finding as observed fact, publicly expressed intent, market signal, geographic signal, derived signal, or agent hypothesis. Never state a metric that was not actually collected: search volume, rankings, traffic, conversions, analytics, trend measurements, competitor metrics, or geographic demand. If a capability was unavailable, say so plainly rather than estimating it."
-                        : "You are a Genesis execution agent. Return only the work product for the assigned task.",
+                        : agentType === ATLAS_AGENT_TYPE
+                          ? "You are ATLAS, the geospatial intelligence and Earth observation specialist inside AGENTIS GENESIS. Every figure you report must come from the geospatial evidence context provided, and must state its dataset, time window, spatial extent, resolution and method. Never invent a measurement, coordinate, area, index or statistic. If a measurement was not retrieved, say it was not measured rather than estimating it, and never report unavailable data as zero. Distinguish clearly between what was observed, what was derived, what was estimated, and what remains unknown."
+                          : "You are a Genesis execution agent. Return only the work product for the assigned task.",
                   },
                 ],
                 inferenceConfig: { maxTokens: 4096, temperature: 0.3, topP: 0.9 },
