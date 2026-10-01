@@ -21,6 +21,12 @@ export interface GenesisStepFunctionsStackProps extends cdk.StackProps {
   artifactBucketName: string;
   artifactBucketArn: string;
   bedrockApiKeySecretArn: string;
+  /**
+   * Optional Secrets Manager ARN holding the Google marketing credential used
+   * by ROCKERFELLER providers. Unset means no credential is provisioned, so no
+   * read permission is granted and every provider reports UNAVAILABLE.
+   */
+  googleMarketingSecretArn?: string;
   privateSubnetIds: string;
   isolatedSubnetIds: string;
 }
@@ -35,7 +41,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
   constructor(scope: Construct, id: string, props: GenesisStepFunctionsStackProps) {
     super(scope, id, props);
 
-    const { envName, appName, vpcId, lambdaSecurityGroupId, dbSecretArn, dbProxyEndpoint, dbInstanceIdentifier, artifactBucketName, artifactBucketArn, bedrockApiKeySecretArn, privateSubnetIds, isolatedSubnetIds } = props;
+    const { envName, appName, vpcId, lambdaSecurityGroupId, dbSecretArn, dbProxyEndpoint, dbInstanceIdentifier, artifactBucketName, artifactBucketArn, bedrockApiKeySecretArn, googleMarketingSecretArn, privateSubnetIds, isolatedSubnetIds } = props;
 
     const isProduction = envName === "production";
 
@@ -91,6 +97,7 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
         BEDROCK_API_KEY_SECRET_ARN: bedrockApiKeySecretArn,
         BEDROCK_MODEL_ID: "anthropic.claude-3-5-sonnet-20241022-v2:0",
         MOCK_AI: envName === "development" ? "true" : "false",
+        GOOGLE_MARKETING_SECRET_ARN: googleMarketingSecretArn || "",
       },
     };
 
@@ -128,6 +135,18 @@ export class GenesisStepFunctionsStack extends cdk.Stack {
         resources: [`arn:aws:rds-db:${cdk.Aws.REGION}:${cdk.Aws.ACCOUNT_ID}:dbuser:${dbInstanceIdentifier}/*`],
       })
     );
+
+    // Least privilege for the optional ROCKERFELLER credential: read is granted
+    // only on the single named secret, and only when one was actually supplied.
+    if (googleMarketingSecretArn) {
+      workerRole.addToPolicy(
+        new iam.PolicyStatement({
+          effect: iam.Effect.ALLOW,
+          actions: ["secretsmanager:GetSecretValue"],
+          resources: [googleMarketingSecretArn],
+        })
+      );
+    }
 
     // Create log groups
     const plannerLogGroup = new logs.LogGroup(this, "PlannerLogGroup", {

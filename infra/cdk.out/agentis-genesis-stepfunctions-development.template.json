@@ -309,6 +309,11 @@
          ]
         ]
        }
+      },
+      {
+       "Action": "secretsmanager:GetSecretValue",
+       "Effect": "Allow",
+       "Resource": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:genesis/google/marketing-abc123"
       }
      ],
      "Version": "2012-10-17"
@@ -368,9 +373,9 @@
     ],
     "Code": {
      "S3Bucket": {
-      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-eu-north-1"
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
      },
-     "S3Key": "873ed81c5b7655acf00e7410695bf4bd73035af25d718bf3acfcf14c102dbaf0.zip"
+     "S3Key": "66817309144dcf65d82ae0901517b181a8d1985793043b8201077241d9c59e7a.zip"
     },
     "Environment": {
      "Variables": {
@@ -391,7 +396,8 @@
        "Fn::ImportValue": "agentis-genesis-bedrock-api-key-secret-arn-development"
       },
       "BEDROCK_MODEL_ID": "anthropic.claude-3-5-sonnet-20241022-v2:0",
-      "MOCK_AI": "true"
+      "MOCK_AI": "true",
+      "GOOGLE_MARKETING_SECRET_ARN": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:genesis/google/marketing-abc123"
      }
     },
     "FunctionName": "agentis-genesis-planner-development",
@@ -430,7 +436,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-stepfunctions-development/PlannerFunction/Resource",
-    "aws:asset:path": "asset.873ed81c5b7655acf00e7410695bf4bd73035af25d718bf3acfcf14c102dbaf0",
+    "aws:asset:path": "asset.66817309144dcf65d82ae0901517b181a8d1985793043b8201077241d9c59e7a",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }
@@ -443,9 +449,9 @@
     ],
     "Code": {
      "S3Bucket": {
-      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-eu-north-1"
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
      },
-     "S3Key": "873ed81c5b7655acf00e7410695bf4bd73035af25d718bf3acfcf14c102dbaf0.zip"
+     "S3Key": "66817309144dcf65d82ae0901517b181a8d1985793043b8201077241d9c59e7a.zip"
     },
     "Environment": {
      "Variables": {
@@ -466,7 +472,8 @@
        "Fn::ImportValue": "agentis-genesis-bedrock-api-key-secret-arn-development"
       },
       "BEDROCK_MODEL_ID": "anthropic.claude-3-5-sonnet-20241022-v2:0",
-      "MOCK_AI": "true"
+      "MOCK_AI": "true",
+      "GOOGLE_MARKETING_SECRET_ARN": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:genesis/google/marketing-abc123"
      }
     },
     "FunctionName": "agentis-genesis-agent-worker-development",
@@ -505,7 +512,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-stepfunctions-development/AgentWorkerFunction/Resource",
-    "aws:asset:path": "asset.873ed81c5b7655acf00e7410695bf4bd73035af25d718bf3acfcf14c102dbaf0",
+    "aws:asset:path": "asset.66817309144dcf65d82ae0901517b181a8d1985793043b8201077241d9c59e7a",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }
@@ -518,9 +525,9 @@
     ],
     "Code": {
      "S3Bucket": {
-      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-eu-north-1"
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
      },
-     "S3Key": "873ed81c5b7655acf00e7410695bf4bd73035af25d718bf3acfcf14c102dbaf0.zip"
+     "S3Key": "66817309144dcf65d82ae0901517b181a8d1985793043b8201077241d9c59e7a.zip"
     },
     "Environment": {
      "Variables": {
@@ -541,7 +548,8 @@
        "Fn::ImportValue": "agentis-genesis-bedrock-api-key-secret-arn-development"
       },
       "BEDROCK_MODEL_ID": "anthropic.claude-3-5-sonnet-20241022-v2:0",
-      "MOCK_AI": "true"
+      "MOCK_AI": "true",
+      "GOOGLE_MARKETING_SECRET_ARN": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:genesis/google/marketing-abc123"
      }
     },
     "FunctionName": "agentis-genesis-verification-development",
@@ -580,7 +588,7 @@
    ],
    "Metadata": {
     "aws:cdk:path": "agentis-genesis-stepfunctions-development/VerificationFunction/Resource",
-    "aws:asset:path": "asset.873ed81c5b7655acf00e7410695bf4bd73035af25d718bf3acfcf14c102dbaf0",
+    "aws:asset:path": "asset.66817309144dcf65d82ae0901517b181a8d1985793043b8201077241d9c59e7a",
     "aws:asset:is-bundled": false,
     "aws:asset:property": "Code"
    }

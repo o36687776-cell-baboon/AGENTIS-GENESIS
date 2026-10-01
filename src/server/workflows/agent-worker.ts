@@ -4,6 +4,11 @@ import { uploadArtifact } from "../artifacts";
 import { getConfig } from "../config";
 import { withRetry, classifyFailure, DEFAULT_RETRY } from "../execution/retry";
 import { generateId } from "../database/services";
+import {
+  ROCKERFELLER_AGENT_TYPE,
+  gatherMarketingIntelligence,
+  buildGroundingContext,
+} from "../intelligence/rockefeller";
 
 interface WorkerEvent {
   action: string;
@@ -58,6 +63,19 @@ const AGENT_PROFILES: Record<string, { name: string; capabilities: string[] }> =
   analysis: { name: "Analysis Agent", capabilities: ["comparison", "statistics", "modelling"] },
   builder: { name: "Builder Agent", capabilities: ["drafting", "structuring", "formatting"] },
   verification: { name: "Verification Agent", capabilities: ["fact-check", "consistency"] },
+  rockefeller: {
+    name: "ROCKERFELLER",
+    capabilities: [
+      "market-discovery",
+      "search-intent",
+      "competitor-intelligence",
+      "seo-intelligence",
+      "content-opportunity",
+      "geographic-market-context",
+      "campaign-briefing",
+      "market-monitoring",
+    ],
+  },
 };
 
 function defaultAgentType(value: string | undefined): string {
@@ -119,6 +137,18 @@ function buildTaskPrompt(params: {
 function extractText(response: ai.BedrockConverseResponse): string {
   const blocks = response.output?.message?.content || [];
   return blocks.map((block) => block.text || "").join("\n").trim();
+}
+
+/**
+ * Reads an optional geographic narrowing from the Work Tree context. Only an
+ * explicit country-style key is honoured, so a stray free-text field can never
+ * silently redirect a provider query to the wrong region.
+ */
+function extractGeoHint(context: unknown): string | undefined {
+  if (!context || typeof context !== "object") return undefined;
+  const record = context as Record<string, unknown>;
+  const value = record.geo || record.country || record.region;
+  return typeof value === "string" && value.trim() ? value.trim() : undefined;
 }
 
 async function markWorkTreeFailed(workTreeId: string, message: string, correlationId?: string) {
@@ -269,6 +299,87 @@ export async function handler(event: WorkerEvent) {
         });
 
         try {
+          // ROCKERFELLER gathers provider evidence before the model is called,
+          // so the expensive analysis is grounded in what was actually
+          // retrieved. Other agent types go straight to the model.
+          let evidenceContext = "";
+          if (agentType === ROCKERFELLER_AGENT_TYPE) {
+            const intelligence = await withRetry(
+              () =>
+                gatherMarketingIntelligence({
+                  objective: workTree.objective,
+                  geo: extractGeoHint(workTree.context),
+                }),
+              DEFAULT_RETRY
+            );
+
+            evidenceContext = intelligence.context;
+
+            // The evidence manifest is persisted separately from the
+            // deliverable so a reader can audit what supported the output,
+            // including the capabilities that were unavailable.
+            const manifest = JSON.stringify(
+              {
+                objective: workTree.objective,
+                correlationId: event.correlationId || null,
+                retrievedAt: intelligence.intelligence.retrievedAt,
+                providers: intelligence.intelligence.providers,
+                unavailableCapabilities: intelligence.intelligence.unavailableCapabilities,
+                evidence: intelligence.intelligence.evidence,
+                entities: intelligence.entities,
+              },
+              null,
+              2
+            );
+
+            const manifestUpload = await uploadArtifact(
+              workTreeId,
+              task.id,
+              `${task.id}.evidence.json`,
+              Buffer.from(manifest, "utf8"),
+              "application/json",
+              { agentType, correlationId: event.correlationId || "" }
+            );
+
+            await db.createArtifact({
+              workTreeId,
+              taskId: task.id,
+              name: `${task.title} (evidence).json`,
+              // The artifact type enum has no evidence member. "data" is the
+              // existing value that fits a JSON manifest, so no schema change
+              // is introduced for this.
+              type: "data",
+              version: "1",
+              s3Key: manifestUpload.s3Key,
+              s3Bucket: config.artifactBucketName,
+              createdBy: agentId,
+              agentId,
+              model: config.bedrockModelId,
+              toolsCount: intelligence.intelligence.providers.length,
+              agentsCount: 1,
+              metadata: {
+                agentType,
+                correlationId: event.correlationId || null,
+                evidenceCount: intelligence.intelligence.evidence.length,
+                unavailableCapabilities: intelligence.intelligence.unavailableCapabilities,
+              },
+            });
+
+            await db.createActivityEvent({
+              workTreeId,
+              agentId,
+              taskId: task.id,
+              eventType: "MARKETING_DISCOVERY",
+              status: intelligence.intelligence.unavailableCapabilities.length > 0 ? "warning" : "info",
+              message: `Discovery recorded ${intelligence.intelligence.evidence.length} evidence item(s)`,
+              metadata: {
+                correlationId: event.correlationId || null,
+                providers: intelligence.intelligence.providers,
+                unavailableCapabilities: intelligence.intelligence.unavailableCapabilities,
+              },
+            });
+          }
+
           const prompt = buildTaskPrompt({
             objective: workTree.objective,
             title: task.title,
@@ -282,10 +393,18 @@ export async function handler(event: WorkerEvent) {
           const response = await withRetry(
             () =>
               ai.converse({
-                messages: [{ role: "user", content: [{ text: prompt }] }],
+                messages: [
+                  {
+                    role: "user",
+                    content: [{ text: evidenceContext ? `${prompt}\n\n${evidenceContext}` : prompt }],
+                  },
+                ],
                 system: [
                   {
-                    text: "You are a Genesis execution agent. Return only the work product for the assigned task.",
+                    text:
+                      agentType === ROCKERFELLER_AGENT_TYPE
+                        ? "You are ROCKERFELLER, the marketing and market intelligence specialist inside AGENTIS GENESIS. Ground every claim in the evidence context provided. Label each finding as observed fact, publicly expressed intent, market signal, geographic signal, derived signal, or agent hypothesis. Never state a metric that was not actually collected: search volume, rankings, traffic, conversions, analytics, trend measurements, competitor metrics, or geographic demand. If a capability was unavailable, say so plainly rather than estimating it."
+                        : "You are a Genesis execution agent. Return only the work product for the assigned task.",
                   },
                 ],
                 inferenceConfig: { maxTokens: 4096, temperature: 0.3, topP: 0.9 },

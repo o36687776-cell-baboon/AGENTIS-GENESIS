@@ -19,6 +19,12 @@ export interface AppConfig {
   artifactUrlTtlSeconds: number;
   maxTasksPerExecution: number;
   maxOutputChars: number;
+  /**
+   * Secrets Manager ARN holding the Google marketing credential used by
+   * ROCKERFELLER providers. Unset means every provider reports UNAVAILABLE,
+   * which is the correct state when no credential has been provisioned.
+   */
+  googleMarketingSecretArn: string;
 }
 
 let cachedConfig: AppConfig | null = null;
@@ -67,6 +73,7 @@ export function getConfig(): AppConfig {
     artifactUrlTtlSeconds: parseIntOr(process.env.ARTIFACT_URL_TTL_SECONDS, 900),
     maxTasksPerExecution: parseIntOr(process.env.MAX_TASKS_PER_EXECUTION, 25),
     maxOutputChars: parseIntOr(process.env.MAX_OUTPUT_CHARS, 20000),
+    googleMarketingSecretArn: process.env.GOOGLE_MARKETING_SECRET_ARN || "",
   };
 
   cachedConfig = config;

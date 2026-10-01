@@ -1,6 +1,19 @@
 import { converse } from "./bedrock";
 import { ExecutionPlan, PlannerInput, PlanTask, PlanRisk } from "./types";
 
+/**
+ * The single list of agent types the planner may emit. The worker's agent
+ * profile registry must stay in step with this: an agent type added here but
+ * absent there would silently fall back to the research agent.
+ */
+export const KNOWN_AGENT_TYPES = [
+  "research",
+  "analysis",
+  "builder",
+  "verification",
+  "rockefeller",
+] as const;
+
 const PLANNER_SYSTEM_PROMPT = `You are the Genesis Planner, an AI system that decomposes high-level objectives into structured execution plans for a multi-agent operating environment.
 
 Your output MUST be valid JSON matching the ExecutionPlan schema exactly. Do not include any explanatory text outside the JSON.
@@ -10,6 +23,11 @@ Available agent types:
 - analysis: Statistical analysis, anomaly detection, forecasting, modeling
 - builder: Code generation, document creation, artifact production, synthesis
 - verification: Quality assurance, validation, testing, compliance checking
+- rockefeller: Marketing and market intelligence specialist. Use for market
+  discovery, search-intent and content-opportunity discovery, competitor and
+  SEO intelligence, geographic market context, campaign briefs, and market
+  monitoring. Rockefeller works from evidence and must never present an
+  inference as an observation, or state a metric it did not actually collect.
 
 Task priorities: low, medium, high, critical
 Risk severities: low, medium, high, critical
@@ -51,7 +69,7 @@ function validatePlan(plan: any): ExecutionPlan {
     id: t.id || `task-${i + 1}`,
     title: t.title || `Task ${i + 1}`,
     description: t.description || "",
-    agentType: ["research", "analysis", "builder", "verification"].includes(t.agentType) ? t.agentType : "research",
+    agentType: KNOWN_AGENT_TYPES.includes(t.agentType) ? t.agentType : "research",
     status: "queued",
     priority: ["low", "medium", "high", "critical"].includes(t.priority) ? t.priority : "medium",
     dependencies: Array.isArray(t.dependencies) ? t.dependencies : [],

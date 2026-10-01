@@ -8,11 +8,11 @@
         "packaging": "file"
       },
       "destinations": {
-        "current_account-eu-north-1-f3dc3a90": {
-          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-eu-north-1",
+        "current_account-us-east-1-ba4817f0": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
           "objectKey": "87a2870a305665756669a6738ad1746aeeef19aab00730df53f60a020a2df820.json",
-          "region": "eu-north-1",
-          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-eu-north-1"
+          "region": "us-east-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
         }
       }
     }

@@ -77,6 +77,12 @@ new GenesisSecretsStack(app, `${appName}-secrets-${envName}`, {
 // Import secrets outputs
 const bedrockApiKeySecretArn = cdk.Fn.importValue(`${appName}-bedrock-api-key-secret-arn-${envName}`);
 
+// Optional Google marketing credential for ROCKERFELLER. It is not created by
+// this app and has no stack output, so it is supplied directly as a literal ARN
+// and defaults to unset. Unset means no read permission is granted and every
+// provider reports UNAVAILABLE.
+const googleMarketingSecretArn = process.env.GOOGLE_MARKETING_SECRET_ARN || undefined;
+
 // Import database outputs
 const dbSecretArn = cdk.Fn.importValue(`${appName}-db-secret-arn-${envName}`);
 const dbProxyEndpoint = cdk.Fn.importValue(`${appName}-db-proxy-endpoint-${envName}`);
@@ -98,6 +104,7 @@ new GenesisStepFunctionsStack(app, `${appName}-stepfunctions-${envName}`, {
   artifactBucketName,
   artifactBucketArn,
   bedrockApiKeySecretArn,
+  googleMarketingSecretArn,
   privateSubnetIds,
   isolatedSubnetIds,
 });

@@ -5,6 +5,7 @@ import { Table, type Column } from "@/components/data/Table";
 import { AgentGrid } from "@/components/agents/AgentGrid";
 import { Icon } from "@/design-system/icons";
 import { useAppAgents } from "@/state/store";
+import { agentTypeLabel } from "@/lib/agents/labels";
 import type { Agent } from "@/types";
 
 type AgentView = "grid" | "table";
@@ -28,7 +29,7 @@ const agentColumns: Column<Agent>[] = [
     key: "type",
     header: "Type",
     render: (a) => (
-      <span className="text-sm text-[var(--color-soft-grey)]">{a.type}</span>
+      <span className="text-sm text-[var(--color-soft-grey)]">{agentTypeLabel(a.type)}</span>
     ),
   },
   {

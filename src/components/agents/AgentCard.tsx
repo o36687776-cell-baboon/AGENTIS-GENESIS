@@ -8,6 +8,7 @@ import { Button } from "@/design-system/components/Button";
 import { Icon } from "@/design-system/icons";
 import { getAgentStatusConfig } from "@/design-system/lib/state-colors";
 import { formatTokens } from "@/design-system/utils";
+import { agentTypeLabel } from "@/lib/agents/labels";
 import type { Agent } from "@/types";
 
 interface AgentCardProps {
@@ -54,7 +55,7 @@ export const AgentCard = memo(function AgentCard({ agent, onClick }: AgentCardPr
         {agent.name}
       </h3>
       <p className="mt-0.5 text-sm text-[var(--color-soft-grey)]">
-        {agent.type} · {agent.model}
+        {agentTypeLabel(agent.type)} · {agent.model}
       </p>
 
       {agent.currentTask && (
