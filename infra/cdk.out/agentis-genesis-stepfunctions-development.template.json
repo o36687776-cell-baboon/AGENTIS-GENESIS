@@ -309,11 +309,6 @@
          ]
         ]
        }
-      },
-      {
-       "Action": "secretsmanager:GetSecretValue",
-       "Effect": "Allow",
-       "Resource": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:genesis/google/marketing-abc123"
       }
      ],
      "Version": "2012-10-17"
@@ -373,7 +368,7 @@
     ],
     "Code": {
      "S3Bucket": {
-      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-eu-north-1"
      },
      "S3Key": "66817309144dcf65d82ae0901517b181a8d1985793043b8201077241d9c59e7a.zip"
     },
@@ -397,7 +392,7 @@
       },
       "BEDROCK_MODEL_ID": "anthropic.claude-3-5-sonnet-20241022-v2:0",
       "MOCK_AI": "true",
-      "GOOGLE_MARKETING_SECRET_ARN": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:genesis/google/marketing-abc123"
+      "GOOGLE_MARKETING_SECRET_ARN": ""
      }
     },
     "FunctionName": "agentis-genesis-planner-development",
@@ -449,7 +444,7 @@
     ],
     "Code": {
      "S3Bucket": {
-      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-eu-north-1"
      },
      "S3Key": "66817309144dcf65d82ae0901517b181a8d1985793043b8201077241d9c59e7a.zip"
     },
@@ -473,7 +468,7 @@
       },
       "BEDROCK_MODEL_ID": "anthropic.claude-3-5-sonnet-20241022-v2:0",
       "MOCK_AI": "true",
-      "GOOGLE_MARKETING_SECRET_ARN": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:genesis/google/marketing-abc123"
+      "GOOGLE_MARKETING_SECRET_ARN": ""
      }
     },
     "FunctionName": "agentis-genesis-agent-worker-development",
@@ -525,7 +520,7 @@
     ],
     "Code": {
      "S3Bucket": {
-      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1"
+      "Fn::Sub": "cdk-hnb659fds-assets-${AWS::AccountId}-eu-north-1"
      },
      "S3Key": "66817309144dcf65d82ae0901517b181a8d1985793043b8201077241d9c59e7a.zip"
     },
@@ -549,7 +544,7 @@
       },
       "BEDROCK_MODEL_ID": "anthropic.claude-3-5-sonnet-20241022-v2:0",
       "MOCK_AI": "true",
-      "GOOGLE_MARKETING_SECRET_ARN": "arn:aws:secretsmanager:eu-north-1:123456789012:secret:genesis/google/marketing-abc123"
+      "GOOGLE_MARKETING_SECRET_ARN": ""
      }
     },
     "FunctionName": "agentis-genesis-verification-development",

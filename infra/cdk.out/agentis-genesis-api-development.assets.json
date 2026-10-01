@@ -8,26 +8,26 @@
         "packaging": "zip"
       },
       "destinations": {
-        "current_account-us-east-1-dbf5f3dd": {
-          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
+        "current_account-eu-north-1-adba2467": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-eu-north-1",
           "objectKey": "66817309144dcf65d82ae0901517b181a8d1985793043b8201077241d9c59e7a.zip",
-          "region": "us-east-1",
-          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
+          "region": "eu-north-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-eu-north-1"
         }
       }
     },
-    "a5d0965f8b56d2e92775851274f178228b4b3ab45ff73e52f195299c9e5572ce": {
+    "734e27afed5eda36d58cfc18c48a9df83fb9cca0a2063507eb88860c5e79af93": {
       "displayName": "agentis-genesis-api-development Template",
       "source": {
         "path": "agentis-genesis-api-development.template.json",
         "packaging": "file"
       },
       "destinations": {
-        "current_account-us-east-1-60dcf63d": {
-          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
-          "objectKey": "a5d0965f8b56d2e92775851274f178228b4b3ab45ff73e52f195299c9e5572ce.json",
-          "region": "us-east-1",
-          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
+        "current_account-eu-north-1-65f5a83f": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-eu-north-1",
+          "objectKey": "734e27afed5eda36d58cfc18c48a9df83fb9cca0a2063507eb88860c5e79af93.json",
+          "region": "eu-north-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-eu-north-1"
         }
       }
     }

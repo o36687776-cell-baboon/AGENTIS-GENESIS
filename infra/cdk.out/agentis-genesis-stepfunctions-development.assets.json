@@ -8,26 +8,26 @@
         "packaging": "zip"
       },
       "destinations": {
-        "current_account-us-east-1-dbf5f3dd": {
-          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
+        "current_account-eu-north-1-adba2467": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-eu-north-1",
           "objectKey": "66817309144dcf65d82ae0901517b181a8d1985793043b8201077241d9c59e7a.zip",
-          "region": "us-east-1",
-          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
+          "region": "eu-north-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-eu-north-1"
         }
       }
     },
-    "87b25780b0b896cbc06c96939d551092a3210fa117332ecbb26eb97aaba0ab9a": {
+    "ac2924a24be0776e095f0a77d8f7d374d74d59e2e271d4c6b89375e927b54605": {
       "displayName": "agentis-genesis-stepfunctions-development Template",
       "source": {
         "path": "agentis-genesis-stepfunctions-development.template.json",
         "packaging": "file"
       },
       "destinations": {
-        "current_account-us-east-1-9aa11411": {
-          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
-          "objectKey": "87b25780b0b896cbc06c96939d551092a3210fa117332ecbb26eb97aaba0ab9a.json",
-          "region": "us-east-1",
-          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
+        "current_account-eu-north-1-7538d75f": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-eu-north-1",
+          "objectKey": "ac2924a24be0776e095f0a77d8f7d374d74d59e2e271d4c6b89375e927b54605.json",
+          "region": "eu-north-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-eu-north-1"
         }
       }
     }

@@ -8,26 +8,26 @@
         "packaging": "zip"
       },
       "destinations": {
-        "current_account-us-east-1-e650c2de": {
-          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
+        "current_account-eu-north-1-61a332f5": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-eu-north-1",
           "objectKey": "faa95a81ae7d7373f3e1f242268f904eb748d8d0fdd306e8a6fe515a1905a7d6.zip",
-          "region": "us-east-1",
-          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
+          "region": "eu-north-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-eu-north-1"
         }
       }
     },
-    "28069ffdb12582ddbad3d6436669d56c104b73396ddb8459de316337d188252a": {
+    "41513e6002cf042af8f3a803892b08befd73fa7fcb9c1b4d6940f1f8aa9604bb": {
       "displayName": "agentis-genesis-storage-development Template",
       "source": {
         "path": "agentis-genesis-storage-development.template.json",
         "packaging": "file"
       },
       "destinations": {
-        "current_account-us-east-1-ca1a6517": {
-          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-us-east-1",
-          "objectKey": "28069ffdb12582ddbad3d6436669d56c104b73396ddb8459de316337d188252a.json",
-          "region": "us-east-1",
-          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-us-east-1"
+        "current_account-eu-north-1-12b35c13": {
+          "bucketName": "cdk-hnb659fds-assets-${AWS::AccountId}-eu-north-1",
+          "objectKey": "41513e6002cf042af8f3a803892b08befd73fa7fcb9c1b4d6940f1f8aa9604bb.json",
+          "region": "eu-north-1",
+          "assumeRoleArn": "arn:${AWS::Partition}:iam::${AWS::AccountId}:role/cdk-hnb659fds-file-publishing-role-${AWS::AccountId}-eu-north-1"
         }
       }
     }
